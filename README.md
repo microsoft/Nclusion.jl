@@ -31,3 +31,24 @@ trademarks or logos is subject to and must follow
 [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
 Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
 Any use of third-party trademarks or logos are subject to those third-party's policies.
+
+## Introduction
+
+## The Method
+
+## Installation
+
+This package requires that Julia 1.6+ and its dependencies are installed. Instructions for installation can be found <a href="https://github.com/JuliaLang/julia"> here. </a>
+
+To run the evaluation scripts we provide in the tutorials, the following R and python packages are required. We recommend that you install these R packages into their own library directory and the python packages into a new conda environment to avoid configuration issues. 
+
+### R 
+
+- packages here
+
+### python 
+
+- <a href="https://scanpy.readthedocs.io/en/stable/"> scanpy </a>
+- <a href="https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html"> pandas </a>
+- <a href="https://matplotlib.org/stable/users/installing/index.html"> matplotlib </a> 
+
