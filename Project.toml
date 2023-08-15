@@ -1,0 +1,13 @@
+name = "nclusion"
+uuid = "cef8bb50-3052-47ee-9080-7fa14a4c9a42"
+authors = ["Chibuikem709 <16184620+Chibuikem709@users.noreply.github.com> and contributors"]
+version = "1.0.0-DEV"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
