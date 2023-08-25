@@ -1,16 +1,3 @@
-option_list = list(
-  make_option(c("-f", "--path_to_pct_table"), type="character", default=NULL, 
-              help="path to the cell distribution table", metavar="character"),
-  make_option(c("-c", "--column_title"), type="character", default="Inferred Cell Type", 
-              help="heatmap column title", metavar="character"),
-  make_option(c("-r", "--row_title"), type="character", default="Annotated Cell Type", 
-              help="heatmap row title", metavar="character"),
-    make_option(c("-s", "--save_path"), type="character", default="complex_heatmap.pdf", 
-              help="save path of heatmap pdf", metavar="character"),
-  make_option(c("-p", "--purity_score"), type="logical", default=FALSE, 
-              help="if included, then it makes the purity score heatmap", metavar="logical")
-); 
-
 path_to_pct_table <- NULL
 coltitle <- 'Inferred Cell Type'
 rowtitle <- 'Annotated Cell Type'

@@ -37,12 +37,10 @@ def main(argv):
         for opt, arg in opts:
             if opt == '--path_to_data':
                 path_to_data = arg
-            elif opt == '--n_hvgs':
-                n_hvgs = int(arg)
             elif opt == '--path_to_labels':
                 path_to_labels = arg
-            elif opt == '--figure_prefix':
-                figure_prefix = arg
+            elif opt == '--figures_prefix':
+                figures_prefix = arg
 
     except getopt.GetoptError: 
         sys.exit()
@@ -50,6 +48,8 @@ def main(argv):
     adata = sc.read_h5ad(path_to_data)
     
     res = pd.read_csv(path_to_labels, index_col=1)
+    
+    make_tsnes(adata, res, figures_prefix)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
