@@ -109,22 +109,13 @@
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Getting Started with NCLUSION using Simulated Data</h1>
-            <h4 data-toc-skip class="date">2023-08-22</h4>
-      
-      <small class="dont-index">Source: <a href="https://github.com/lcrawlab/mvMAPIT/blob/HEAD/vignettes/mvMAPIT.Rmd" class="external-link"><code>vignettes/mvMAPIT.Rmd</code></a></small>
-      <div class="hidden name"><code>mvMAPIT.Rmd</code></div>
-
-    </div>
-
-    
-    
 <div class="section level4">
 <h4 id="please-cite-us">Please Cite Us<a class="anchor" aria-label="anchor" href="#please-cite-us"></a>
 </h4>
 <p>If you use NCLUSION in published research, please cite:</p>
 <blockquote>
 <ul>
-<li><p>Crawford L, Zeng P, Mukherjee S, &amp; Zhou X (2017). Detecting epistasis with the marginal epistasis test in genetic mapping studies of quantitative traits. PLoS genetics, 13(7), e1006869. <a href="https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1006869" class="external-link uri">https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1006869</a></p></li>
+<li><p> Ref here <a href="https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1006869" class="external-link uri">https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1006869</a></p></li>
 </ul>
 </blockquote>
 </div>
@@ -172,30 +163,12 @@ print('Condition Labels: ', adata.obs.condition)
 you normalize the expression values such that the total counts per cell is
 uniform, and log-transformed. However, it is not necessary for this simulated
 dataset.
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/lcrawlab/mvMAPIT" class="external-link">mvMAPIT</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/slowkow/ggrepel" class="external-link">ggrepel</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org" class="external-link">tidyr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://haozhu233.github.io/kableExtra/" class="external-link">kableExtra</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/jwood000/RcppAlgos" class="external-link">RcppAlgos</a></span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="running-mvmapit">Running mvMAPIT<a class="anchor" aria-label="anchor" href="#running-mvmapit"></a>
-</h2>
-<p>The R routine <code>mvmapit</code> can be run in multiple modes. By default it runs in a hybrid mode, performing tests both wtih a normal Z-test as well as the Davies method. The resulting <code>p</code>-values can be combined using functions provided by <code>mvMAPIT</code>, e.g. <code><a href="../reference/fishers_combined.html">fishers_combined()</a></code>, that work on the <code>pvalues</code> tibble that <code>mvmapit</code> returns.</p>
-<blockquote>
-<p><strong>NOTE:</strong> mvMAPIT takes the X matrix as <span class="math inline">\(p \times n\)</span>; <strong>not</strong> as <span class="math inline">\(n \times p\)</span>.</p>
-</blockquote>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mvmapit_hybrid</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mvmapit.html">mvmapit</a></span><span class="op">(</span></span>
-<span>        <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">genotype</span><span class="op">)</span>,</span>
-<span>        <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">trait</span><span class="op">)</span>,</span>
-<span>        test <span class="op">=</span> <span class="st">"hybrid"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">fisher</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fishers_combined.html">fishers_combined</a></span><span class="op">(</span><span class="va">mvmapit_hybrid</span><span class="op">$</span><span class="va">pvalues</span><span class="op">)</span></span></code></pre></div>
-<p>To visualize the genome wide <code>p</code>-values, we use a Manhattan plot. The <code>p</code>-values are plotted after combining the results from the multivariate analysis using Fisher’s method.</p>
+<h3 id="running-mvmapit">Running NCLUSION<a class="anchor" aria-label="anchor" href="#running-mvmapit"></a>
+</h3>
+<pre><code>using nclusion 
+
+outputs_dict_vec,elsaped_time,final_elbo_vec,elbo_vec,rtik_vec,yjk_vec,perK_elbo_vec,delta_t_vec,nk_perL_vec,ηk_vec,elbologger,ηk_trend_vec_= nclusion(datafilename1,alpha1,gamma1,phi1,KMax,num_var_feat,scale_factor,seed,elbo_ep,mt_mode,logger)</code></pre>
+
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">manhplot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">fisher</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">fisher</span><span class="op">)</span>, y <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="va">thresh</span><span class="op">)</span>, color <span class="op">=</span> <span class="st">"grey40"</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span> <span class="op">+</span></span>

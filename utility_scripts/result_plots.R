@@ -5,11 +5,30 @@ path_to_pips<- NULL
 path_to_labels <- NULL
 outfile_base <- NULL
 thresh = 0.5
+dataset_name <- ''
 
-args <- commandArgs(asValues=TRUE, excludeReserved=TRUE)[-1]
-keys <- attachLocally(args)
+# args <- commandArgs(asValues=TRUE, excludeReserved=TRUE)[-1]
+args <- commandArgs(trailingOnly=TRUE)
+# keys <- attachLocally(args)
+# print(keys)
+# str(mget(keys, envir=globalenv()))
+path_to_data <- args[1]
+path_to_pips <- args[2]
+path_to_labels <- args[3]
+outfile_base <- args[4]
 
+if (length(args) > 4){
+dataset_name <- args[5]
+}
+
+if (length(args) == 6){
+r_library_path <- args[6]
+}
+
+if (!is.null(r_library_path)){
 .libPaths(r_library_path)
+}
+
 seed = 12345
 library(devtools)
 library(ggplot2)
@@ -38,10 +57,10 @@ library(genekitr)
 library(patchwork)
 library(organism, character.only = TRUE)
 
-path_to_data <- "/home/v-mahughes/nclusion_preprocessed_data/galenAML2019/2000hvgs_galenAML_preprocessed.h5ad"
-path_to_pips<- "/home/v-mahughes/RESULTS_81523/galenAML/NCLUSION/2000hvgs/2000G-2023-08-10T073505-pips.csv"
-path_to_labels <- "/home/v-mahughes/RESULTS_81523/galenAML/NCLUSION/2000hvgs/galen-AML_scanpy-2000G_nclusion_2000genes-2023-08-10T073505.csv"
-outfile_base <- "/home/v-mahughes/nclusion_figures/galen_fig4_81623/"
+# path_to_data <- "/home/v-mahughes/nclusion_preprocessed_data/galenAML2019/2000hvgs_galenAML_preprocessed.h5ad"
+# path_to_pips<- "/home/v-mahughes/RESULTS_81523/galenAML/NCLUSION/2000hvgs/2000G-2023-08-10T073505-pips.csv"
+# path_to_labels <- "/home/v-mahughes/RESULTS_81523/galenAML/NCLUSION/2000hvgs/galen-AML_scanpy-2000G_nclusion_2000genes-2023-08-10T073505.csv"
+# outfile_base <- "/home/v-mahughes/nclusion_figures/galen_fig4_81623/"
 
 data <- read.csv(path_to_pips, row.names = 1, header= TRUE)
 num_col = dim(data)[2]
@@ -217,6 +236,7 @@ for (i in c(1:num_clus)){
   pltname= paste0("Cluster_",clus,"Genes")
 
   genes_names2 = colnames(signed_effect_size_mat)
+  print(colnames(adj_pips_mat_occ))
   row_bool1 = adj_pips_mat_occ[,clus] >= thresh
   row_bool2 = signed_effect_size_mat[rownames(signed_effect_size_mat)==paste0(clus),] == "+"
 
@@ -258,7 +278,7 @@ for (i in c(1:num_clus)){
 for (i in c(1:num_clus)){ 
 c = i
 pltname= paste0("Cluster_",cluster_idx[c],"Genes")
-clus <- cluster_idx[c]
+clus <- paste0(cluster_idx[c])
 row_bool2 = only_sig_mat[clus,] >= thresh & signed_effect_size_mat[clus,] == "+"
 only_sig_genes_names2 = colnames(only_sig_mat)[row_bool2]
 flist <- sub('[.]', '-', only_sig_genes_names2)

@@ -50,6 +50,8 @@ python plot_tsnes.py --path_to_data tutorial_data/5000hvgs_pbmc_preprocessed.h5a
 python plot_tsnes.py --path_to_data tutorial_data/2500hvgs_pbmc_preprocessed.h5ad --path_to_labels $PATH_TO_RESULTS_2500 --figure_prefix tutorial_outputs/pbmc_2500hvgs_NCLUSION
 
 #MAKE HEATMAPS + VIOLIN + GO PLOTS
+Rscript nclusion/utility_scripts/result_plots.R -path_to_data="/home/v-mahughes/nclusion_preprocessed_data/galenAML2019/5000hvgs_galenAML_preprocessed.h5ad" -path_to_pips="/home/v-mahughes/RESULTS_81523/galenAML/NCLUSION/5000hvgs_alpha_01/5000G-2023-08-17T193822-pips.csv" -path_to_labels="/home/v-mahughes/RESULTS_81523/galenAML/NCLUSION/5000hvgs_alpha_01/galenAML_scanpy-5000G_nclusion_5000genes-2023-08-17T193822.csv" -outfile_base="/home/v-mahughes/test_plot_script/" -dataset_name='' -r_library_path="/home/v-mahughes/r_packages467"
 
+Rscript nclusion/utility_scripts/result_plots.R "/home/v-mahughes/nclusion_preprocessed_data/galenAML2019/5000hvgs_galenAML_preprocessed.h5ad" "/home/v-mahughes/RESULTS_81523/galenAML/NCLUSION/5000hvgs_alpha_01/5000G-2023-08-17T193822-pips.csv" "/home/v-mahughes/RESULTS_81523/galenAML/NCLUSION/5000hvgs_alpha_01/galenAML_scanpy-5000G_nclusion_5000genes-2023-08-17T193822.csv" "/home/v-mahughes/test_plot_script/" '' "/home/v-mahughes/r_packages"
 
 
