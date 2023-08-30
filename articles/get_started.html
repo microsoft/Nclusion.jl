@@ -40,49 +40,43 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">mvMAPIT</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.2</span>
+        <a class="navbar-link" href="../index.html">NCLUSION</a>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title=""></span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="../articles/mvMAPIT.html">Get started</a>
+  <a href="../articles/get_started.html">Get started</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Articles
+    Tutorials
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
 <li class="divider">
     </li>
-<li class="dropdown-header">Tutorials</li>
+<li><a href="../tutorials/galen_tutorial.html">Run
+NCLUSION on van Galen
+et al 2019</a></li>
     <li>
-      <a href="../articles/tutorial-docker-mvmapit.html">Dockerized mvMAPIT</a>
+      <a href="../tutorials/tissue_tutorial.html">Run NCLUSION on Dominguez
+      Conde et al 2022 </a>
     </li>
     <li>
-      <a href="../articles/tutorial-simulations.html">Simulate Traits</a>
+      <a href="../tutorials/pdac_tutorial.html">Run NCLUSION on Raghavan et al 2021</a>
+    </li>
+    <li>
+      <a href="../tutorials/pbmc_tutorial.html">Run NCLUSION on Zheng et al 2017</a>
     </li>
     <li class="divider">
     </li>
-<li class="dropdown-header">Studies</li>
-    <li>
-      <a href="../articles/study-compare-p-value-combine-methods.html">Empirical comparison of P-value combination methods in mvMAPIT</a>
-    </li>
-    <li>
-      <a href="../articles/study-phillips-bnabs.html">Synergistic epistasis in binding affinity landscapes</a>
-    </li>
-    <li>
-      <a href="../articles/study-wtccc-mice.html">Joint modeling of hematology traits yields epistatic signal in stock of mice</a>
-    </li>
-  </ul>
-</li>
 <li>
   <a href="../news/index.html">Changelog</a>
 </li>
@@ -147,7 +141,7 @@ terminal, with your virtual environment activated: </p>
 import scanpy as sc
 import anndata as ad 
 
-expression_matrix = pd.read_csv("simulated_data.csv", index_col=0)
+expression_matrix = pd.read_csv("tutorial_data/simulated_data/simulated_data.csv")
 
 adata = ad.AnnData(expression_matrix, obs=expression_matrix.index.values, var)
 
