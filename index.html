@@ -52,75 +52,70 @@
 <body data-spy="scroll" data-target="#toc">
     
 
-    <div class="container template-home">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="index.html">NCLUSION</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title=""></span>
-      </span>
-    </div>
+  <div class="container template-article">
+    <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
+<div class="container">
+  <div class="navbar-header">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
+    <span class="navbar-brand">
+      <a class="navbar-link" href="../index.html">NCLUSION</a>
+      <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title=""></span>
+    </span>
+  </div>
 
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
+  <div id="navbar" class="navbar-collapse collapse">
+    <ul class="nav navbar-nav">
 <li>
-  <a href="articles/get_started.html">Get started</a>
+<a href="../articles/get_started.html">Get started</a>
 </li>
 <li>
-  <a href="reference/index.html">Reference</a>
+<a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Articles
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
+<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+  Tutorials
+   
+  <span class="caret"></span>
+</a>
+<ul class="dropdown-menu" role="menu">
 <li class="divider">
-    </li>
-<li class="dropdown-header">Tutorials</li>
-    <li>
-      <a href="articles/tutorial-docker-mvmapit.html">Dockerized mvMAPIT</a>
-    </li>
-    <li>
-      <a href="articles/tutorial-simulations.html">Simulate Traits</a>
-    </li>
-    <li class="divider">
-    </li>
-<li class="dropdown-header">Studies</li>
-    <li>
-      <a href="articles/study-compare-p-value-combine-methods.html">Empirical comparison of P-value combination methods in mvMAPIT</a>
-    </li>
-    <li>
-      <a href="articles/study-phillips-bnabs.html">Synergistic epistasis in binding affinity landscapes</a>
-    </li>
-    <li>
-      <a href="articles/study-wtccc-mice.html">Joint modeling of hematology traits yields epistatic signal in stock of mice</a>
-    </li>
-  </ul>
-</li>
+  </li>
+<li><a href="../tutorials/galen_tutorial.html">Run
+NCLUSION on van Galen
+et al 2019</a></li>
+  <li>
+    <a href="../tutorials/tissue_tutorial.html">Run NCLUSION on Dominguez
+    Conde et al 2022 </a>
+  </li>
+  <li>
+    <a href="../tutorials/pdac_tutorial.html">Run NCLUSION on Raghavan et al 2021</a>
+  </li>
+  <li>
+    <a href="../tutorials/pbmc_tutorial.html">Run NCLUSION on Zheng et al 2017</a>
+  </li>
+</ul>
+  <li class="divider">
+  </li>
 <li>
-  <a href="news/index.html">Changelog</a>
+<a href="../news/index.html">Changelog</a>
 </li>
-      </ul>
+
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/lcrawlab/mvMAPIT/" class="external-link">
-    <span class="fab fa-github fa-lg"></span>
-     
-  </a>
+<a href="https://github.com/lcrawlab/mvMAPIT/" class="external-link">
+  <span class="fab fa-github fa-lg"></span>
+   
+</a>
 </li>
-      </ul>
+    </ul>
 </div>
 <!--/.nav-collapse -->
-  </div>
+</div>
 <!--/.container -->
 </div>
 <!--/.navbar -->
@@ -150,18 +145,37 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>The package needs compilation but the released version can be installed from CRAN.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"mvMAPIT"</span><span class="op">)</span></span></code></pre></div>
+<p>This package requires that Julia 1.6+ and its dependencies are installed.
+Instructions for installation can be found <a
+href="https://github.com/JuliaLang/julia" class="external-link"> here. </a></p> <p>Start a julia repl with
+<code>julia
+--thread=auto</code>or<code>julia --project=/path/to/julia/env
+--thread=auto</code> if you want to use a specific julia environment. Then, to
+install NCLUSION and its dependencies,
+enter the enter the
+following command. </p>
+<pre><code>using Pkg;Pkg.add("nclusion")</code></pre>
 <div class="section level3">
-<h3 id="the-r-environment">The R Environment<a class="anchor" aria-label="anchor" href="#the-r-environment"></a>
-</h3>
-<p>R is a widely used, free, and open source software environment for statistical computing and graphics. The most recent version of R can be downloaded from the <a href="https://cran.r-project.org/" class="external-link">Comprehensive R Archive Network (CRAN)</a>. CRAN provides precompiled binary versions of R for Windows, macOS, and select Linux distributions that are likely sufficient for many users’ needs. Users can also install R from source code; however, this may require a significant amount of effort. For specific details on how to compile, install, and manage R and R-packages, refer to the manual <a href="https://cran.r-project.org/doc/manuals/r-release/R-admin.html" class="external-link">R Installation and Administration</a>.</p>
-</div>
+<h2 id="r-packages-required-for-mvmapit">Packages Required for Running NCLUSION Tutorials<a class="anchor" aria-label="anchor" href="#r-packages-required-for-mvmapit"></a>
+</h2>
 <div class="section level3">
-<h3 id="r-packages-required-for-mvmapit">R Packages Required for mvMAPIT<a class="anchor" aria-label="anchor" href="#r-packages-required-for-mvmapit"></a>
-</h3>
-<p>mvMAPIT requires the installation of the following R libraries:</p>
+  <h3 id="the-r-environment">The R Environment<a class="anchor" aria-label="anchor" href="#the-r-environment"></a>
+  </h3>
+  <p>The NCLUSION tutorials requires installation of R and R libraries. They are NOT required for running NCLUSION only.</p>
+  <p>R is a widely used, free, and open source software environment for
+  statistical computing and graphics. The most recent version of R can be
+  downloaded from the <a href="https://cran.r-project.org/"
+  class="external-link">Comprehensive R Archive Network (CRAN)</a>. CRAN
+  provides precompiled binary versions of R for Windows, macOS, and select Linux
+  distributions that are likely sufficient for many users’ needs. Users can also
+  install R from source code; however, this may require a significant amount of
+  effort. For specific details on how to compile, install, and manage R and
+  R-packages, refer to the manual <a
+  href="https://cran.r-project.org/doc/manuals/r-release/R-admin.html"
+  class="external-link">R Installation and Administration</a>.</p>
+  <p>The following R libraries are required for replicating results in the
+  NCLUSION tutorials: </p>
+  </div>
 <ul>
 <li><a href="https://cran.r-project.org/web/packages/devtools/index.html" class="external-link"> devtools </a></li>
 <li><a href="https://cran.r-project.org/web/packages/ggplot2/index.html" class="external-link"> ggplot2 </a></li>
@@ -188,66 +202,61 @@
 <li><a href="https://www.bioconductor.org/packages/release/data/annotation/html/org.Hs.eg.db.html" class="external-link"> org.Hs.eg.db </a></li>
 </ul>
 <p>The easiest method to install these packages is with the following example command entered in an R shell:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">install.packages</span>(<span class="kw">c</span>( <span class="st">'checkmate'</span>, </span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>                    <span class="st">'CompQuadForm'</span>, </span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>                    <span class="st">'dplyr'</span>, </span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>                    <span class="st">'foreach'</span>, </span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>                    <span class="st">'harmonicmeanp'</span>, </span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>                    <span class="st">'logging'</span>, </span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a>                    <span class="st">'mvtnorm'</span>, </span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a>                    <span class="st">'Rcpp'</span>, </span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a>                    <span class="st">'RcppAlgos'</span>, </span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a>                    <span class="st">'RcppArmadillo'</span>, </span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a>                    <span class="st">'RcppParallel'</span>, </span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a>                    <span class="st">'RcppSpdlog'</span>, </span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a>                    <span class="st">'testthat'</span>, </span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>                    <span class="st">'tidyr'</span>), </span>
+<div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">install.packages</span>(<span class="kw">c</span>(<span class="st">'devtools'</span>, </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>                    <span class="st">'ggplot2'</span>, </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>                    <span class="st">'reticulate'</span>, </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>                    <span class="st">'R.utils'</span>, </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>                    <span class="st">'stringr'</span>, </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>                    <span class="st">'Matrix'</span>, </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a>                    <span class="st">'Seurat'</span>, </span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a>                    <span class="st">'dplyr'</span>, </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a>                    <span class="st">'RColorBrewer'</span>, </span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a>                    <span class="st">'SingleCellExperiment'</span>, </span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a>                    <span class="st">'tidyverse'</span>, </span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a>                    <span class="st">'scales'</span>, </span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a>                    <span class="st">'cowplot'</span>, </span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>                    <span class="st">'RCurl'</span>,</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>                    <span class="st">'optparse'</span>, </span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>                    <span class="st">'ComplexHeatMap'</span>, </span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>                    <span class="st">'circilize'</span>, </span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>                    <span class="st">'clusterProfiler'</span>, </span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>                    <span class="st">'enrichplot'</span>, </span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>                    <span class="st">'geneset'</span>, </span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>                    <span class="st">'genekitr'</span>, </span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>                    <span class="st">'patchwork'</span>, </span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>                    <span class="st">'org.Hs.eg.db'</span>), </span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true"></a>                    <span class="dt">dependencies =</span> <span class="ot">TRUE</span>);</span></code></pre></div>
-<p>Alternatively, one can also <a href="https://cran.r-project.org/doc/manuals/r-release/R-admin.html#Installing-packages" class="external-link">install R packages from the command-line</a>.</p>
+
 </div>
 <div class="section level3">
-<h3 id="installing-mvmapit-from-sources">Installing mvMAPIT from Sources<a class="anchor" aria-label="anchor" href="#installing-mvmapit-from-sources"></a>
+<h3 id="installing-mvmapit-from-sources">The Python Environment<a class="anchor" aria-label="anchor" href="#installing-mvmapit-from-sources"></a>
 </h3>
-<p>The easiest way to install the package from sources is to change into the directory of mvMAPIT and run <code>R CMD INSTALL . --preclean</code>. The <code>--preclean</code> flag makes sure that the latest state is run.</p>
-</div>
-<div class="section level3">
-<h3 id="c-functions-required-for-mapit">C++ Functions Required for MAPIT<a class="anchor" aria-label="anchor" href="#c-functions-required-for-mapit"></a>
-</h3>
-<p>The code in this repository assumes that basic Fortran and C++ libraries and compilers are already set up on the running personal computer or cluster. If not, the mvMAPIT functions and necessary Rcpp packages will not work properly. A simple option is to use <a href="https://gcc.gnu.org/" class="external-link">gcc</a>. macOS users may use this collection by installing the <a href="https://brew.sh/index.html" class="external-link">Homebrew package manager</a> and then typing the following into the terminal:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="ex">brew</span> install gcc</span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="openmp">OpenMP<a class="anchor" aria-label="anchor" href="#openmp"></a>
-</h3>
-<p>Note that mvMAPIT takes advantage of <a href="https://www.openmp.org/" class="external-link">OpenMP</a>, an API for multi-platform shared-memory parallel programming in C/C++. This is to speed up the computational time of the modeling algorithm. Unfortunately, macOS does not currently support OpenMP under the default compiler. A work around to use OpenMP in R on macOS can be found <a href="https://thecoatlessprofessor.com/programming/openmp-in-r-on-os-x/" class="external-link">here</a>. mvMAPIT can be compiled without OpenMP, but we recommend using it if applicable for scalability.</p>
-</div>
-<div class="section level3">
-<h3 id="known-issues">Known Issues<a class="anchor" aria-label="anchor" href="#known-issues"></a>
-</h3>
+<p>We recommend that users install python packages into a new Anconda
+environment. Details for installing Anaconda and setting up a new environment
+can be found here.</p>
+<p>Packages that are required to run NCLUSION tutorials include:</p>
 <ul>
-<li><p>When your compiler changes, some R package dependencies might need to be recompiled. This is likely the case if the compilation error explicitly names an R package in the local library.</p></li>
-<li><p>On macOS, you might need to run <code>brew reinstall z3</code> to fix <code>'libz3.4.11.dylib' (no such file)</code> related errors (<a href="https://github.com/Homebrew/discussions/discussions/3920" class="external-link">clang issues</a>).</p></li>
-<li><p>For extra tips on how to run C++ on macOS, please visit <a href="https://seananderson.ca/2013/11/18/rcpp-mavericks.html" class="external-link uri">https://seananderson.ca/2013/11/18/rcpp-mavericks.html</a>.</p></li>
-<li><p>For tips on how to avoid errors dealing with <code>-lgfortran</code> or <code>-lquadmath</code>, please visit <a href="https://thecoatlessprofessor.com/programming/rcpp-rcpparmadillo-and-os-x-mavericks-lgfortran-and-lquadmath-error/" class="external-link uri">https://thecoatlessprofessor.com/programming/rcpp-rcpparmadillo-and-os-x-mavericks-lgfortran-and-lquadmath-error/</a>.</p></li>
+<li><a href="https://scanpy.readthedocs.io/en/stable/"> scanpy </a> </li>
+<li><a
+href="https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html">
+pandas </a> </li> 
+<li> <a href="https://matplotlib.org/stable/users/installing/index.html"> matplotlib </a> </li>
 </ul>
-<hr>
+<p>To install these packages, activate a new Anaconda environment and enter the
+following commands into a bash terminal:</p>
+<pre><code>conda install -c conda-forge scanpy
+</code></pre>
+<pre><code>conda install -c anaconda pandas
+</code></pre>
+<pre><code></code>conda install -c conda-forge matplotlib
+</code></pre>
 </div>
-</div>
-<div class="section level2">
 <h2 id="questions-and-feedback">Questions and Feedback<a class="anchor" aria-label="anchor" href="#questions-and-feedback"></a>
 </h2>
-<p>For questions or concerns with the MAPIT functions, please contact <a href="mailto:lcrawford@microsoft.com">Lorin Crawford</a> or <a href="mailto:julian_stamp@brown.edu">Julian Stamp</a>.</p>
-<p>We appreciate any feedback you may have with our repository and instructions.</p>
+<p>If you have any questions or concerns regarding NCLUSION or the tutorials, please contact <a href="mailto:chibuikem_nwizu@brown.edu"> Chibuikem Nwizu</a>, <a href="mailto:lcrawford@microsoft.com"> Lorin Crawford</a>, or <a href="mailto:v-mahughes@microsoft.com"> Madeline Hughes</a>. All feedback on the repository, manuscript, and tutorials is appreciated.</p>
 </div>
 <div class="section level2"><h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2></div>
-</div>
-<div class="footnotes">
-<hr>
-<ol>
-<li id="fn1"><p>L. Crawford, P. Zeng, S. Mukherjee, X. Zhou (2017). Detecting epistasis with the marginal epistasis test in genetic mapping studies of quantitative traits. <em>PLoS Genet</em>. <strong>13</strong>(7): e1006869. <a href="https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1006869" class="external-link uri">https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1006869</a><a href="#fnref1" class="footnote-back">↩︎</a></p></li>
-<li id="fn2"><p>J. Stamp, A. DenAdel, D. Weinreich, L. Crawford (2023). Leveraging the Genetic Correlation between Traits Improves the Detection of Epistasis in Genome-wide Association Studies. <em>G3 Genes|Genomes|Genetics</em>, <strong>13</strong>(8), jkad118. doi: <a href="https://doi.org/10.1093/g3journal/jkad118" class="external-link uri">https://doi.org/10.1093/g3journal/jkad118</a><a href="#fnref2" class="footnote-back">↩︎</a></p></li>
-<li id="fn3"><p>X. Zhou (2017). A unified framework for variance component estimation with summary statistics in genome-wide association studies. <em>Ann Appl Stat</em>. <strong>11</strong>(4): 2027-2051. <a href="https://projecteuclid.org/journals/annals-of-applied-statistics/volume-11/issue-4/A-unified-framework-for-variance-component-estimation-with-summary-statistics/10.1214/17-AOAS1052.full" class="external-link uri">https://projecteuclid.org/journals/annals-of-applied-statistics/volume-11/issue-4/A-unified-framework-for-variance-component-estimation-with-summary-statistics/10.1214/17-AOAS1052.full</a><a href="#fnref3" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
 

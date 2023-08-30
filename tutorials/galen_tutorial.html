@@ -174,7 +174,72 @@ NCLUSION.</p> To generate the heatmap from the NCLUSION result, enter the
 following commands into a bash terminal.
 <pre><code>python make_heatmaps.py --input_path $PATH_TO_RESULTS_5000 --pct_table_file "tutotial_outputs/pbmc_2500hvgs_NCLUSION_cell_distribution_table.csv" --cluster_dict_file "pbmc_2500hvgs_NCLUSION_cluster_mapping_to_new_label.csv" 
 
-Rscript make_heatmaps.R -f "pbmc_2500hvgs_NCLUSION_cell_distribution_table.csv" -s complex_heatmap.pdf</code></pre>
+Rscript make_heatmaps.R -f "pbmc_2500hvgs_NCLUSION_cell_distribution_table.csv"
+-s complex_heatmap.pdf</code></pre>
+<p>This will produce a pdf file containing the cell distriubtion heatmap shown
+below. The
+column labels do not correspond to NCLUSION's cluster labels. They have been changed to
+their positional values in the heatmap for aesthetic purposes. A mapping of these
+new cluster labels to the original NCLUSION cluster labels can be found in a
+file named <code>mapping_cluster_to_new_label.csv</code></p>
+<img src="../images/cell_distriubtion_galen_5000hvgs-1.png" width="600" height="500">
+<h3 id="pip-heatmaps">Variable Selection Analysis <a
+class="anchor" aria-label="anchor" href="#pip-heatmaps"></a> 
+</h3>
+<p>Next, analyze results of NCLUSION's variable selection functionality to gain
+insight into the biological mechanisms driving the formation of each cluster.
+The reulting plots are described in detail in the following sub-sections. To
+generate these plots, enter the following command into a bash terminal. </p>
+<pre><code>PATH_TO_NCLUSION = ~/nclusion/
+PATH_TO_DATA = ${PATH_TO_NCLUSION}/tutorial_data/5000hvgs_galenAML_preprocessed.h5ad
+R_LIB_PATH = ~/r_packages
+
+Rscript ${PATH_TO_NCLUSION}/utility_scripts/result_plots.R
+-path_to_data=${PATH_TO_DATA} -path_to_pips="outputs/nclusion_pips.csv"
+-path_to_labels="outputs/nclusion_labels.csv"
+-outfile_base="outputs/" -dataset_name='galen'
+-r_library_path=${R_LIB_PATH}</code></pre>
+<p>The outputs of this script are described below. </p>
+<h4 id="pip-heatmaps">Adjusted Posterior Inclusion Probabilities (PIPs)
+and Effect Size Heatmaps<a
+  class="anchor" aria-label="anchor" href="#pip-heatmaps"></a> 
+  </h4>
+<p>We generated a heatmap that displays adjusted Posterior Inclusion
+Probabilities (PIPs) of genes across
+clusters identified by NCLUSION. PIPs represent the probability that a given
+variable (gene) are included in the true model, and its value ranges from 0-1.
+For a particular cluster, a
+higher PIP indicates that a gene is more significant to the formation of that cluster. These values have been adjusted to account for
+the number of clusters in which it is deemed significant. For example, if a gene
+is deemed to be significant in driving all clusters, its PIP score will be
+scaled down, as it does not help us identify important differences between each
+cluster as much as significant genes that are unique to specific clusters. Only
+genes with adjusted PIPs above a threshold of 0.5 are included in this analysis.
+</p>
+<img src="../images/galenAML_adjpips-1.png" height="600" width="600">
+<p>We also generated a heatmap representing the effect size of the genes included
+in the adjusted PIP heatmap. For a given cluster, the effect size of each gene
+indicates whether that gene is upregulated (+) or downregulated (-) relative to cells in
+other clusters. </p>
+<h4 id="violin-plot">Module Expression Violin Analysis<a
+    class="anchor" aria-label="anchor" href="#violin-plot"></a> 
+    </h4>
+  <p>In addition to the heatmaps, this script generated <i>n</i> module expression violin
+  plots, where <i>n</i> is equal to the number of clusters identified by
+  NCLUSION. Each individual violin plot analyzes the expression of
+  significant genes in cluster <i>n_i</i> relative to all of the other clusters.
+  In the manuscript only clusters of interest are included, but in this tutorial
+  all clusters are included. </p>
+  <h4 id="pip-heatmaps">Gene-set Over-Enrichment (GO) Analysis<a
+    class="anchor" aria-label="anchor" href="#pip-heatmaps"></a> 
+    </h4>
+    <p>Lastly, this script geneated plots that display biological pathway
+    enrichment analysis of cells in each cluster. These pathways are identified
+    for each cluster
+    using the expression of genes with significant PIPs in that particular
+    cluster. Again, in the manuscript we only display GO analyses for clusters
+    of interest, but this tutorial produces plots for all clusters identified by
+   NCLUSION. </p>
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 </div>
