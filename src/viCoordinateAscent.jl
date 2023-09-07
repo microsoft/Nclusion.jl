@@ -1,10 +1,180 @@
+
+"""
+        cavi()
+    This is the main variational inference function. It perfroms coordinate ascent to infer the paramters of the NCLUSION Model
+
+"""
+function cavi(inputs;elbo_ep = 10^(-6),update_η_bool= false,mt_mode = nothing)
+
+    cellpop,clusters,conditionparams,dataparams,modelparams,geneparams,Tk,elbolog  = (; inputs...);
+    iter = 1
+    converged_bool = false
+    is_converged = false
+    num_iter=modelparams.num_iter
+    # update_v_sq_k_hat_mpu!(clusters,geneparams,dataparams,modelparams)
+    ηk_trend_vec = []
+    while !converged_bool
+        # E-STEP
+        update_v_sq_k_hat_mpu!(clusters,geneparams,dataparams,modelparams;mt_mode = mt_mode) #1 
+        update_mk_hat_mpu!(clusters,geneparams,dataparams,modelparams;mt_mode = mt_mode) #2
+        update_yjk_mpu!(clusters,geneparams,dataparams,modelparams;mt_mode = mt_mode)#3
+
+        update_c_ttprime_mpu!(conditionparams,dataparams,modelparams;mt_mode = mt_mode) # DONT NEED TIME
+        update_Tk_mpu!(Tk,conditionparams,dataparams,modelparams;mt_mode = mt_mode) # DONT NEED TIME
+
+        update_rtik_mpu!(cellpop,clusters,conditionparams,dataparams,modelparams;mt_mode = mt_mode)#4
+        update_Ntk_mpu!(cellpop,conditionparams,dataparams,modelparams;mt_mode = mt_mode) #DETERMINISTIC
+        update_Nk_mpu!(cellpop,clusters,dataparams,modelparams;mt_mode = mt_mode) #DETERMINISTIC
+        update_x_hat_k_mpu!(cellpop,clusters,dataparams,modelparams;mt_mode = mt_mode) #DETERMINISTIC
+        update_x_hat_sq_k_mpu!(cellpop,clusters,dataparams,modelparams;mt_mode = mt_mode) #DETERMINISTIC
+
+
+        # Calculate ELBO
+        iter = Int64(iter)
+        elbo_iter,elbolog =  calculate_elbo_mpu(Tk,cellpop,clusters,geneparams,conditionparams,elbolog,dataparams,modelparams,iter)
+        elbolog.elbo_[iter] = elbo_iter
+        
+        # M-STEP
+        update_var_muk_hat_mpu!(clusters, dataparams,modelparams;mt_mode = mt_mode) # TO REMOVE #DETERMINISTIC
+        update_κk_hat_mpu!(clusters, dataparams,modelparams;mt_mode = mt_mode) # TO REMOVE #DETERMINISTIC
+        update_σ_sq_k_hat_mpu!(clusters,dataparams,modelparams;mt_mode = mt_mode)#5
+
+        update_v_sq_k_hat_mpu!(clusters,geneparams,dataparams,modelparams;mt_mode = mt_mode)
+        update_var_muk_hat_mpu!(clusters, dataparams,modelparams;mt_mode = mt_mode) # TO REMOVE #DETERMINISTIC
+        update_κk_hat_mpu!(clusters, dataparams,modelparams;mt_mode = mt_mode) # TO REMOVE #DETERMINISTIC
+
+        update_λ_sq_hat_mpu!(geneparams,clusters,dataparams,modelparams;mt_mode = mt_mode)#6
+
+        update_v_sq_k_hat_mpu!(clusters,geneparams,dataparams,modelparams;mt_mode = mt_mode)
+        update_var_muk_hat_mpu!(clusters, dataparams,modelparams;mt_mode = mt_mode) # TO REMOVE #DETERMINISTIC
+        update_κk_hat_mpu!(clusters, dataparams,modelparams;mt_mode = mt_mode) # TO REMOVE #DETERMINISTIC
+
+        update_gh_hat_mpu!(clusters,dataparams,modelparams,Tk;optim_max_iter=10000);#7
+        update_d_hat_mpu!(clusters,conditionparams,dataparams,modelparams;mt_mode = mt_mode) #8 
+        update_d_hat_sum_mpu!(conditionparams,dataparams;mt_mode = mt_mode) #DETERMINISTIC
+
+        update_st_hat_mpu!(conditionparams,dataparams,modelparams;mt_mode = mt_mode) # DONT NEED TIME
+        
+        
+        
+        
+        
+        if iter > 2
+            delta_elbo = abs(elbolog.elbo_[iter] - elbolog.elbo_[iter-1])
+            if delta_elbo <= elbo_ep || iter>=num_iter
+                converged_bool = true
+                if iter>=num_iter && delta_elbo > elbo_ep
+                    is_converged = false
+
+                else
+                    is_converged = true
+                end
+            end
+        end
+        iter += 1
+    end
+    nonemptychain_indx = broadcast(!,ismissing.(elbolog.elbo_) .|| isnan.(elbolog.elbo_)) 
+    elbo_ = elbolog.elbo_[nonemptychain_indx]
+    truncation_value = length(elbo_) + 1
+    output_str_list1 = @name elbo_;
+    output_key_list1 = Symbol.(naming_vec(output_str_list1));
+    output_var_list1 = [elbo_];
+    outputs_dict = OrderedDict{Symbol,Any}();
+    addToDict!(outputs_dict,output_key_list1,output_var_list1);
+    extract_and_add_parameters_to_outputs_dict!(outputs_dict,cellpop,clusters,geneparams,conditionparams,dataparams,modelparams,elbolog);
+    Tk_,ηk_trend_vec_ = Tk,ηk_trend_vec;
+    output_str_list2 = @name Tk_,is_converged,truncation_value,ηk_trend_vec_ ;
+    output_key_list2 = Symbol.(naming_vec(output_str_list2));
+    output_var_list2 = [Tk_,is_converged,truncation_value,ηk_trend_vec_ ];
+    addToDict!(outputs_dict,output_key_list2,output_var_list2);
+    return outputs_dict
+end
+
+
+"""
+        variational_inference_dynamicHDP_vshoff()
+    This is the main variational inference function. It perfroms coordinate ascent to infer the paramters of the NCLUSION Model
+
+"""
+function variational_inference_dynamicHDP_vshoff(inputs_dict;elbo_ep = 10^(-6),update_η_bool= false,mt_mode = nothing)
+
+    cellpop,clusters,conditionparams,dataparams,modelparams,geneparams,Tk,elbolog  = (; inputs_dict...)
+    iter = 1
+    converged_bool = false
+    is_converged = false
+    num_iter=modelparams.num_iter
+    update_v_sq_k_hat_mpu!(clusters,geneparams,dataparams,modelparams)
+    ηk_trend_vec = []
+    while !converged_bool
+        update_rtik_mpu!(cellpop,clusters,conditionparams,dataparams,modelparams;mt_mode = mt_mode)
+        update_Ntk_mpu!(cellpop,conditionparams,dataparams,modelparams;mt_mode = mt_mode)
+        update_Nk_mpu!(cellpop,clusters,dataparams,modelparams;mt_mode = mt_mode)
+        update_x_hat_k_mpu!(cellpop,clusters,dataparams,modelparams;mt_mode = mt_mode)
+        update_x_hat_sq_k_mpu!(cellpop,clusters,dataparams,modelparams;mt_mode = mt_mode)
+        update_mk_hat_mpu!(clusters,geneparams,dataparams,modelparams;mt_mode = mt_mode)
+        update_c_ttprime_mpu!(conditionparams,dataparams,modelparams;mt_mode = mt_mode)
+        update_yjk_mpu!(clusters,geneparams,dataparams,modelparams;mt_mode = mt_mode)
+        update_Tk_mpu!(Tk,conditionparams,dataparams,modelparams;mt_mode = mt_mode)
+        iter = Int64(iter)
+        elbo_iter,elbolog =  calculate_elbo_mpu(Tk,cellpop,clusters,geneparams,conditionparams,elbolog,dataparams,modelparams,iter)
+        elbolog.elbo_[iter] = elbo_iter
+        update_var_muk_hat_mpu!(clusters, dataparams,modelparams;mt_mode = mt_mode)
+        update_κk_hat_mpu!(clusters, dataparams,modelparams;mt_mode = mt_mode)
+        update_gh_hat_mpu!(clusters,dataparams,modelparams,Tk;optim_max_iter=10000);
+        update_d_hat_mpu!(clusters,conditionparams,dataparams,modelparams;mt_mode = mt_mode)
+        update_d_hat_sum_mpu!(conditionparams,dataparams;mt_mode = mt_mode)
+        update_st_hat_mpu!(conditionparams,dataparams,modelparams;mt_mode = mt_mode) 
+        update_σ_sq_k_hat_mpu!(clusters,dataparams,modelparams;mt_mode = mt_mode)
+        update_v_sq_k_hat_mpu!(clusters,geneparams,dataparams,modelparams;mt_mode = mt_mode)
+        update_var_muk_hat_mpu!(clusters, dataparams,modelparams;mt_mode = mt_mode)
+        update_κk_hat_mpu!(clusters, dataparams,modelparams;mt_mode = mt_mode)
+        update_λ_sq_hat_mpu!(geneparams,clusters,dataparams,modelparams;mt_mode = mt_mode)
+        update_v_sq_k_hat_mpu!(clusters,geneparams,dataparams,modelparams;mt_mode = mt_mode)
+        update_var_muk_hat_mpu!(clusters, dataparams,modelparams;mt_mode = mt_mode)
+        update_κk_hat_mpu!(clusters, dataparams,modelparams;mt_mode = mt_mode)
+        if update_η_bool
+            push!(ηk_trend_vec,modelparams.ηk[1])
+            update_ηk!(clusters,dataparams,modelparams)
+        end
+        if iter > 2
+            delta_elbo = abs(elbolog.elbo_[iter] - elbolog.elbo_[iter-1])
+            if delta_elbo <= elbo_ep || iter>=num_iter
+                converged_bool = true
+                if iter>=num_iter && delta_elbo > elbo_ep
+                    is_converged = false
+
+                else
+                    is_converged = true
+                end
+            end
+        end
+        iter += 1
+    end
+    nonemptychain_indx = broadcast(!,ismissing.(elbolog.elbo_) .|| isnan.(elbolog.elbo_)) 
+    elbo_ = elbolog.elbo_[nonemptychain_indx]
+    truncation_value = length(elbo_) + 1
+    
+    output_str_list1 = @name elbo_;
+    output_key_list1 = Symbol.(naming_vec(output_str_list1));
+    output_var_list1 = [elbo_];
+    outputs_dict = OrderedDict{Symbol,Any}();
+    addToDict!(outputs_dict,output_key_list1,output_var_list1);
+    extract_and_add_parameters_to_outputs_dict!(outputs_dict,cellpop,clusters,geneparams,conditionparams,dataparams,modelparams,elbolog);
+    Tk_,ηk_trend_vec_ = Tk,ηk_trend_vec;
+    output_str_list2 = @name Tk_,is_converged,truncation_value,ηk_trend_vec_ ;
+    output_key_list2 = Symbol.(naming_vec(output_str_list2));
+    output_var_list2 = [Tk_,is_converged,truncation_value,ηk_trend_vec_ ];
+    addToDict!(outputs_dict,output_key_list2,output_var_list2);
+    return outputs_dict
+end
+
 """
         variational_inference_dynamicHDP_vshoff_mpu()
     This is the main variational inference function. It perfroms coordinate ascent to infer the paramters of the NCLUSION Model
 
 """
-function variational_inference_dynamicHDP_vshoff_mpu(inputs_dict;mk_hat_init=nothing,v_sq_k_hat_init=nothing, λ_sq_init=nothing, σ_sq_k_init=nothing,st_hat_init=nothing, bwt_hat_init=nothing,a_αt_hat_init=nothing, b_αt_hat_init=nothing,a_γ_hat_init=nothing, b_γ_hat_init=nothing,d_hat_init=nothing,c_ttprime_init = nothing,rtik_init=nothing,yjk_init=nothing, gk_hat_init=nothing, hk_hat_init=nothing,uniform_theta_init = true, rand_init = false,ep = 0.001,elbo_ep = 10^(-6),record_chain = false,update_η_bool= false,mt_mode = nothing)
-    x, K, ηk,α0,γ0,ϕ0,elbolog, num_iter, num_local_iter = (; inputs_dict...)
+function variational_inference_dynamicHDP_vshoff_mpu(inputs_dict;mk_hat_init=nothing,v_sq_k_hat_init=nothing, λ_sq_init=nothing, σ_sq_k_init=nothing,st_hat_init=nothing, bwt_hat_init=nothing,a_αt_hat_init=nothing, b_αt_hat_init=nothing,a_γ_hat_init=nothing, b_γ_hat_init=nothing,d_hat_init=nothing,c_ttprime_init = nothing,rtik_init=nothing,yjk_init=nothing, gk_hat_init=nothing, hk_hat_init=nothing,uniform_theta_init = true, rand_init = false,elbo_ep = 10^(-6),update_η_bool= false,mt_mode = nothing)
+    x, K, ηk,α0,γ0,ϕ0,elbolog, num_iter = (; inputs_dict...)
     T = length(x)
     G = length(x[1][1])
     C_t = [length(el) for el in x]
@@ -31,12 +201,12 @@ function variational_inference_dynamicHDP_vshoff_mpu(inputs_dict;mk_hat_init=not
     cellpop = [CellFeatures(t,i,K,x[t][i]) for t in 1:T for i in 1:C_t[t]];
     clusters = [ClusterFeatures(k,G;float_type=float_type) for k in 1:K];
     dataparams = DataFeatures(x);
-    modelparams = ModelParameterFeatures(x,K,ηk,α0,γ0,ϕ0,num_iter,num_local_iter,uniform_theta_init,rand_init);
+    modelparams = ModelParameterFeatures(x,K,ηk,α0,γ0,ϕ0,num_iter,uniform_theta_init,rand_init);
     conditionparams = [ConditionFeatures(t,K,T;float_type=float_type) for t in 1:T];
     geneparams = [GeneFeatures(j) for j in 1:G];
     initialize_VariationalInference_types!(cellpop,clusters,conditionparams,dataparams,modelparams,geneparams,mk_hat_init,v_sq_k_hat_init,λ_sq_init,σ_sq_k_init,gk_hat_init,hk_hat_init,d_hat_init,rtik_init,yjk_init,c_ttprime_init,st_hat_init);
     Tk = Vector{Float64}(undef,K+1);
-    chain_dict = nothing;
+
     iter = 1
     converged_bool = false
     is_converged = false
@@ -87,9 +257,7 @@ function variational_inference_dynamicHDP_vshoff_mpu(inputs_dict;mk_hat_init=not
     nonemptychain_indx = broadcast(!,ismissing.(elbolog.elbo_) .|| isnan.(elbolog.elbo_)) 
     elbo_ = elbolog.elbo_[nonemptychain_indx]
     truncation_value = length(elbo_) + 1
-    if record_chain
-        chain_dict = truncate_chain(chain_dict,truncation_value)
-    end
+    
     output_str_list1 = @name elbo_;
     output_key_list1 = Symbol.(naming_vec(output_str_list1));
     output_var_list1 = [elbo_];
@@ -97,16 +265,17 @@ function variational_inference_dynamicHDP_vshoff_mpu(inputs_dict;mk_hat_init=not
     addToDict!(outputs_dict,output_key_list1,output_var_list1);
     extract_and_add_parameters_to_outputs_dict!(outputs_dict,cellpop,clusters,geneparams,conditionparams,dataparams,modelparams,elbolog);
     Tk_,ηk_trend_vec_ = Tk,ηk_trend_vec;
-    output_str_list2 = @name Tk_,chain_dict,is_converged,truncation_value,ηk_trend_vec_ ;
+    output_str_list2 = @name Tk_,is_converged,truncation_value,ηk_trend_vec_ ;
     output_key_list2 = Symbol.(naming_vec(output_str_list2));
-    output_var_list2 = [Tk_,chain_dict,is_converged,truncation_value,ηk_trend_vec_ ];
+    output_var_list2 = [Tk_,is_converged,truncation_value,ηk_trend_vec_ ];
     addToDict!(outputs_dict,output_key_list2,output_var_list2);
     return outputs_dict
 end
 
 
-function variational_inference_dynamicHDP_vshoff_mpu_test(inputs_dict;mk_hat_init=nothing,v_sq_k_hat_init=nothing, λ_sq_init=nothing, σ_sq_k_init=nothing,st_hat_init=nothing, bwt_hat_init=nothing,a_αt_hat_init=nothing, b_αt_hat_init=nothing,a_γ_hat_init=nothing, b_γ_hat_init=nothing,d_hat_init=nothing,c_ttprime_init = nothing,rtik_init=nothing,yjk_init=nothing, gk_hat_init=nothing, hk_hat_init=nothing,uniform_theta_init = true, rand_init = false,ep = 0.001,elbo_ep = 10^(-6),record_chain = false,update_η_bool= false,mt_mode = nothing)
-    x, K, ηk,α0,γ0,ϕ0,elbolog, num_iter, num_local_iter = (; inputs_dict...)
+
+function variational_inference_dynamicHDP_vshoff_mpu_test(inputs_dict;mk_hat_init=nothing,v_sq_k_hat_init=nothing, λ_sq_init=nothing, σ_sq_k_init=nothing,st_hat_init=nothing, bwt_hat_init=nothing,a_αt_hat_init=nothing, b_αt_hat_init=nothing,a_γ_hat_init=nothing, b_γ_hat_init=nothing,d_hat_init=nothing,c_ttprime_init = nothing,rtik_init=nothing,yjk_init=nothing, gk_hat_init=nothing, hk_hat_init=nothing,uniform_theta_init = true, rand_init = false,elbo_ep = 10^(-6),update_η_bool= false,mt_mode = nothing)
+    x, K, ηk,α0,γ0,ϕ0,elbolog, num_iter = (; inputs_dict...)
     T = length(x)
     G = length(x[1][1])
     C_t = [length(el) for el in x]
@@ -137,13 +306,13 @@ function variational_inference_dynamicHDP_vshoff_mpu_test(inputs_dict;mk_hat_ini
     cellpop = [CellFeatures(t,i,K,x[Int(t)][Int(i)]) for t in 1:T for i in 1:C_t[t]];#cellpop = [CellFeatures(t,i,K,x[t][i]) for t in 1:T for i in 1:C_t[t]]; #
     clusters = [ClusterFeatures(k,G;float_type=float_type) for k in 1:K];
     dataparams = DataFeatures(x);
-    modelparams = ModelParameterFeatures(x,K,ηk,α0,γ0,ϕ0,num_iter,num_local_iter,uniform_theta_init,rand_init);
+    modelparams = ModelParameterFeatures(x,K,ηk,α0,γ0,ϕ0,num_iter,uniform_theta_init,rand_init);
     conditionparams = [ConditionFeatures(t,K,T;float_type=float_type) for t in 1:T];
     geneparams = [GeneFeatures(j) for j in 1:G];
     initialize_VariationalInference_types!(cellpop,clusters,conditionparams,dataparams,modelparams,geneparams,mk_hat_init,v_sq_k_hat_init,λ_sq_init,σ_sq_k_init,gk_hat_init,hk_hat_init,d_hat_init,rtik_init,yjk_init,c_ttprime_init,st_hat_init);
 
     Tk = Vector{Float64}(undef,K+1);
-    chain_dict = nothing;
+
 
     # elbo_ = Vector{Union{Missing,Float64}}(undef,num_iter)
     iter = 1
@@ -647,9 +816,7 @@ function variational_inference_dynamicHDP_vshoff_mpu_test(inputs_dict;mk_hat_ini
     elbo_ = elbolog.elbo_[nonemptychain_indx]
     truncation_value = length(elbo_) + 1
 
-    if record_chain
-        chain_dict = truncate_chain(chain_dict,truncation_value)
-    end
+    
 
     output_str_list1 = @name elbo_;
     output_key_list1 = Symbol.(naming_vec(output_str_list1));
@@ -660,18 +827,18 @@ function variational_inference_dynamicHDP_vshoff_mpu_test(inputs_dict;mk_hat_ini
     addToDict!(outputs_dict,output_key_list1,output_var_list1);
     extract_and_add_parameters_to_outputs_dict!(outputs_dict,cellpop,clusters,geneparams,conditionparams,dataparams,modelparams,elbolog);
     Tk_,ηk_trend_vec_ = Tk,ηk_trend_vec;
-    output_str_list2 = @name Tk_,chain_dict,is_converged,truncation_value,ηk_trend_vec_ ;#initDict,
+    output_str_list2 = @name Tk_,is_converged,truncation_value,ηk_trend_vec_ ;#initDict,
     output_key_list2 = Symbol.(naming_vec(output_str_list2));
-    output_var_list2 = [Tk_,chain_dict,is_converged,truncation_value,ηk_trend_vec_ ];#initDict,
+    output_var_list2 = [Tk_,is_converged,truncation_value,ηk_trend_vec_ ];#initDict,
     addToDict!(outputs_dict,output_key_list2,output_var_list2);
 
     return outputs_dict
 end
 
-function variational_inference_dynamicHDP_vshoff_lowmem_mpu(inputs_dict;ep = 0.001,elbo_ep = 10^(-6),record_chain = false,update_η_bool= false,mt_mode = nothing)
+function variational_inference_dynamicHDP_vshoff_lowmem_mpu(inputs_dict;elbo_ep = 10^(-6),update_η_bool= false,mt_mode = nothing)
 
-    float_type, cellpop, clusters,dataparams,modelparams,conditionparams, geneparams,ηk,Tk,elbolog, num_iter, num_local_iter = (; inputs_dict...)
-    chain_dict = nothing;
+    float_type, cellpop, clusters,dataparams,modelparams,conditionparams, geneparams,ηk,Tk,elbolog, num_iter = (; inputs_dict...)
+
 
     # elbo_ = Vector{Union{Missing,Float64}}(undef,num_iter)
     iter = 1
@@ -822,9 +989,7 @@ function variational_inference_dynamicHDP_vshoff_lowmem_mpu(inputs_dict;ep = 0.0
     elbo_ = elbolog.elbo_[nonemptychain_indx]
     truncation_value = length(elbo_) + 1
 
-    if record_chain
-        chain_dict = truncate_chain(chain_dict,truncation_value)
-    end
+    
 
     output_str_list1 = @name elbo_;
     output_key_list1 = Symbol.(naming_vec(output_str_list1));
@@ -835,9 +1000,9 @@ function variational_inference_dynamicHDP_vshoff_lowmem_mpu(inputs_dict;ep = 0.0
     addToDict!(outputs_dict,output_key_list1,output_var_list1);
     extract_and_add_parameters_to_outputs_dict!(outputs_dict,cellpop,clusters,geneparams,conditionparams,dataparams,modelparams,elbolog);
     Tk_,ηk_trend_vec_ = Tk,ηk_trend_vec;
-    output_str_list2 = @name Tk_,chain_dict,is_converged,truncation_value,ηk_trend_vec_ ;#initDict,
+    output_str_list2 = @name Tk_,is_converged,truncation_value,ηk_trend_vec_ ;#initDict,
     output_key_list2 = Symbol.(naming_vec(output_str_list2));
-    output_var_list2 = [Tk_,chain_dict,is_converged,truncation_value,ηk_trend_vec_ ];#initDict,
+    output_var_list2 = [Tk_,is_converged,truncation_value,ηk_trend_vec_ ];#initDict,
     addToDict!(outputs_dict,output_key_list2,output_var_list2);
 
     return outputs_dict

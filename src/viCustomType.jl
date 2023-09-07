@@ -67,7 +67,7 @@ struct ClusterFeatures{U <: AbstractFloat, W <:Int64,P <: Function} <: Features 
             return val_vec
         end
         P = typeof(_reset!)
-        new{U,W,P}(k,Vector{U}(undef,G),Vector{U}(undef,G),Vector{U}(undef,G),Vector{U}(undef,G),Vector{U}(undef,G),Vector{U}(undef,G),zeros(U,1),ones(U,G),ones(U,G),zeros(U,1),zeros(U,1),zeros(U,1),zeros(U,1),zeros(U,G),_reset!,U)#,zeros(U,1),zeros(U,1)
+        new{U,W,P}(k,Vector{U}(undef,G),Vector{U}(undef,G),Vector{U}(undef,G),Vector{U}(undef,G),Vector{U}(undef,G),Vector{U}(undef,G),zeros(U,1),ones(U,G),ones(U,G),zeros(U,1),zeros(U,1),zeros(U,1),zeros(U,1),zeros(U,G),_reset!,U)
     end
 end
 
@@ -174,17 +174,17 @@ struct ModelParameterFeatures{U <: AbstractFloat,V <:AbstractFloat,W <: Int64} <
     γ0::U
     ϕ0::U
     num_iter::W
-    num_local_iter::W
+    # num_local_iter::W
     uniform_theta_init::Bool
     rand_init::Bool
     BitType::DataType
     # ep::U
     # elbo_ep::U
-    function ModelParameterFeatures(dataset,K,ηk,α0,γ0,ϕ0,num_iter,num_local_iter,uniform_theta_init,rand_init)
+    function ModelParameterFeatures(dataset,K,ηk,α0,γ0,ϕ0,num_iter,uniform_theta_init,rand_init)
         U = typeof(α0)
         V = eltype(dataset[1][1])
         W = typeof(K)
-        new{U,V,W}(K,[ηk],α0,γ0,ϕ0,num_iter,num_local_iter,uniform_theta_init,rand_init,V)
+        new{U,V,W}(K,[ηk],α0,γ0,ϕ0,num_iter,uniform_theta_init,rand_init,V)
     end
 end
 

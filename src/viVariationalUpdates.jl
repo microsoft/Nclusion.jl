@@ -36,6 +36,7 @@ function update_λ_sq_hat_mpu!(geneparams,clusters,dataparams,modelparams;mt_mod
             end
             for k in 1:K
                 geneparams[j].cache[1] += 10. + clusters[k].var_muk[j] + clusters[k].yjk_hat[j] * (clusters[k].mk_hat[j]) ^2
+                # geneparams[j].cache[1] += 10. + (clusters[k].yjk_hat[j] * (clusters[k].mk_hat[j] ^2  + clusters[k].v_sq_k_hat[j])   -  clusters[k].yjk_hat[j] * (clusters[k].mk_hat[j]) ^2) + clusters[k].yjk_hat[j] * (clusters[k].mk_hat[j]) ^2
             end
             geneparams[j].λ_sq[1] = geneparams[j].cache[1] ./ (10. + yjk_sum)
         end
@@ -48,6 +49,8 @@ function update_λ_sq_hat_mpu!(geneparams,clusters,dataparams,modelparams;mt_mod
             end
             for k in 1:K
                 geneparams[j].cache[1] += 10. + clusters[k].var_muk[j] + clusters[k].yjk_hat[j] * (clusters[k].mk_hat[j]) ^2
+                # geneparams[j].cache[1] += 10. + (clusters[k].yjk_hat[j] * (clusters[k].mk_hat[j] ^2  + clusters[k].v_sq_k_hat[j])   -  clusters[k].yjk_hat[j] * (clusters[k].mk_hat[j]) ^2) + clusters[k].yjk_hat[j] * (clusters[k].mk_hat[j]) ^2
+                
             end
             geneparams[j].λ_sq[1] = geneparams[j].cache[1] ./ (10. + yjk_sum)
         end
@@ -171,32 +174,6 @@ function update_var_muk_hat_mpu!(clusters, dataparams,modelparams;mt_mode = noth
     end
     return clusters
 end
-
-"""
-"""
-function update_σ_sq_k_hat_mpu!(clusters,dataparams,modelparams;mt_mode = nothing)
-    float_type = dataparams.BitType
-    G = dataparams.G
-    N = dataparams.N
-    K = modelparams.K
-
-    if mt_mode == "full"
-        Threads.@threads for k in 1:K
-            clusters[k].σ_sq_k_hat .= 0.0
-    
-            clusters[k].σ_sq_k_hat .+=   1 ./(clusters[k].Nk .+ 10.0) .* (clusters[k].x_hat_sq .- 2.0 .*  clusters[k].x_hat .* clusters[k].κk_hat .+  clusters[k].Nk  .* (clusters[k].var_muk .+ clusters[k].yjk_hat .* (clusters[k].mk_hat) .^2) .+ 10.0)
-        end
-    else
-        for k in 1:K
-            clusters[k].σ_sq_k_hat .= 0.0
-    
-            clusters[k].σ_sq_k_hat .+=   1 ./(clusters[k].Nk .+ 10.0) .* (clusters[k].x_hat_sq .- 2.0 .*  clusters[k].x_hat .* clusters[k].κk_hat .+  clusters[k].Nk  .* (clusters[k].var_muk .+ clusters[k].yjk_hat .* (clusters[k].mk_hat) .^2) .+ 10.0)
-        end
-    end
-
-    return clusters
-end
-
 """
 """
 function update_κk_hat_mpu!(clusters, dataparams,modelparams;mt_mode = nothing)
@@ -222,6 +199,35 @@ function update_κk_hat_mpu!(clusters, dataparams,modelparams;mt_mode = nothing)
 
     return clusters
 end
+
+"""
+"""
+function update_σ_sq_k_hat_mpu!(clusters,dataparams,modelparams;mt_mode = nothing)
+    float_type = dataparams.BitType
+    G = dataparams.G
+    N = dataparams.N
+    K = modelparams.K
+
+    if mt_mode == "full"
+        Threads.@threads for k in 1:K
+            clusters[k].σ_sq_k_hat .= 0.0
+    
+            clusters[k].σ_sq_k_hat .+=   1 ./(clusters[k].Nk .+ 10.0) .* (clusters[k].x_hat_sq .- 2.0 .*  clusters[k].x_hat .* clusters[k].κk_hat .+  clusters[k].Nk  .* (clusters[k].var_muk .+ clusters[k].yjk_hat .* (clusters[k].mk_hat) .^2) .+ 10.0)
+            # clusters[k].σ_sq_k_hat .+=   1 ./(clusters[k].Nk .+ 10.0) .* (clusters[k].x_hat_sq .- 2.0 .*  clusters[k].x_hat .* (clusters[k].yjk_hat .* clusters[k].mk_hat) .+  clusters[k].Nk  .* ((clusters[k].yjk_hat[j] * (clusters[k].mk_hat[j] ^2  + clusters[k].v_sq_k_hat[j])   -  clusters[k].yjk_hat[j] * (clusters[k].mk_hat[j]) ^2) .+ clusters[k].yjk_hat .* (clusters[k].mk_hat) .^2) .+ 10.0)
+        end
+    else
+        for k in 1:K
+            clusters[k].σ_sq_k_hat .= 0.0
+    
+            clusters[k].σ_sq_k_hat .+=   1 ./(clusters[k].Nk .+ 10.0) .* (clusters[k].x_hat_sq .- 2.0 .*  clusters[k].x_hat .* clusters[k].κk_hat .+  clusters[k].Nk  .* (clusters[k].var_muk .+ clusters[k].yjk_hat .* (clusters[k].mk_hat) .^2) .+ 10.0)
+            # clusters[k].σ_sq_k_hat .+=   1 ./(clusters[k].Nk .+ 10.0) .* (clusters[k].x_hat_sq .- 2.0 .*  clusters[k].x_hat .* (clusters[k].yjk_hat .* clusters[k].mk_hat) .+  clusters[k].Nk  .* ((clusters[k].yjk_hat .* (clusters[k].mk_hat .^2  .+ clusters[k].v_sq_k_hat)   .-  clusters[k].yjk_hat .* (clusters[k].mk_hat) .^2) .+ clusters[k].yjk_hat .* (clusters[k].mk_hat) .^2) .+ 10.0)
+            
+        end
+    end
+
+    return clusters
+end
+
 
 """
 """

@@ -27,7 +27,7 @@ module nclusion
     using Distances
     using Logging
     using Base.Threads
-
+    using Logging,LoggingExtras
     import Debugger
 
     curr_dir = ENV["PWD"]
@@ -56,10 +56,28 @@ module nclusion
         saveInitializationFile,
         create_benchmark_summarization_file,
         save_run,
-        setup_experiment_tag
+        setup_experiment_tag,
+        load_data,
+        preparing_data,
+        select_cells_hvgs,
+        initialize_model_parameters,
+        run_nclusion,
+        run_cavi,
+        make_ids,
+        summarize_parameters,
+        make_ids,mk_outputs_filepath,
+        mk_outputs_pathname,
+        saving_summary_file,
+        save_embeddings,
+        save_pips,
+        make_nclusion_inputs,
+        make_labels,
+        save_labels,
+        _flushed_logger,
+        append_summary
 
 
-    export raghavan2021_lognormalization,
+    export lognormalization,
             recursive_flatten,
             outermelt, 
             innermelt,
@@ -93,19 +111,7 @@ module nclusion
            setup_metrics_list
 
 
-    export  variational_inference,
-           depracated_variational_inference_notusingXhat,
-           variational_inference_HDP,
-           variational_inference_dynamicHDP,
-           tidy_variational_inference_dynamicHDP,
-           tidy_variational_inference_dynamicHDP_SparseVS,
-           tidy_variational_inference_dynamicHDP_VS1,
-           tidy_variational_inference_dynamicHDP_VS2,
-   
-           variational_inference_dynamicHDP_vs25_fast3,
-           variational_inference_dynamicHDP_vs25_fast3_mtall,
-           variational_inference_dynamicHDP_vs25_fast3_mtbest,
-           variational_inference_dynamicHDP_vs25_fast3_mtbest_sparserestart,
+    export cavi,
            variational_inference_dynamicHDP_vshoff,
            variational_inference_dynamicHDP_vshoff_perK,
            variational_inference_dynamicHDP_vshoff_mpu,
@@ -262,6 +268,8 @@ module nclusion
            get_timeranges,
            _reset!
 
+
+    
     include(curr_dir*src_dir*"processing.jl")
     include(curr_dir*src_dir*"math.jl")
     include(curr_dir*src_dir*"modelMetrics.jl")

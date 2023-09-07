@@ -512,7 +512,7 @@ function calc_time_invariant_CVI(xmat,z_post_s)
     posteriorSummarizationsDict = OrderedDict()
     num_posterior_samples = length(z_post_s)
     for key in keys(cvi_func_dict)
-        flushed_logger(logger,"\t Calculating $key metric now...")
+        _flushed_logger(logger,"\t Calculating $key metric now...")
         cvi = cvi_func_dict[key]
         cvi_criterion_value_b_vec = Vector{Float64}(undef, num_posterior_samples)
         elsaped_time = @elapsed begin
@@ -523,7 +523,7 @@ function calc_time_invariant_CVI(xmat,z_post_s)
                 cvi_criterion_value_b_vec[s] = get_cvi!(cvi_b, xmat, z_infer_vec)
             end
         end
-        flushed_logger(logger,"\t Finished Calculating $key metric. Metric calculations took $elsaped_time seconds to run...")
+        _flushed_logger(logger,"\t Finished Calculating $key metric. Metric calculations took $elsaped_time seconds to run...")
         posteriorSummarizationsDict[String(key)] = calc_time_invariant_CVI_summarization(cvi_criterion_value_b_vec;conf_level=0.95)
     end
     return posteriorSummarizationsDict
@@ -535,7 +535,7 @@ end
 This function calculates and saves all extrinsic metrics   
 """
 
-function clustering_quality_metrics(results_df,filepath_;beta_ = 1.0, conf_lvl = 0.95)
+function clustering_quality_metrics(results_df,filepath_;beta_ = 1.0, conf_lvl = 0.95, logger=nothing)
        #Get Called assignments
        called_assignments_vec = results_df[:,end-1]
 
@@ -552,7 +552,7 @@ function clustering_quality_metrics(results_df,filepath_;beta_ = 1.0, conf_lvl =
        T = length(conditionpoints);
    
     #    @info "Calculating Metrics..."
-        flushed_logger(logger,"\t Calculating Metrics...")
+        _flushed_logger("\t Calculating Metrics...";logger)
 
        #Get Metrics on a per time/condition basis
        ari_vov,_,_,_ = getRandIndices(called_assignments,[inferred_assignments])
@@ -569,7 +569,7 @@ function clustering_quality_metrics(results_df,filepath_;beta_ = 1.0, conf_lvl =
        jaccard_invar =time_invariant_jaccard(called_assignments,[inferred_assignments])
    
     #    @info "Saving Metrics..."
-       flushed_logger(logger,"\t Saving Metrics...")
+       _flushed_logger("\t Saving Metrics...";logger)
        #Save ARI as CSV
        ari_invar_summary = calc_time_invariant_ARI_summarization(ari_invar;conf_level=conf_lvl);
        ari_invar_summary_df = DataFrame(ari_invar_summary,:auto);
