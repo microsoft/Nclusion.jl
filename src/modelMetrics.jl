@@ -158,8 +158,6 @@ This function takes in calculates the mean Adjusted Rand Index and the upper and
 function calc_time_invariant_ARI_summarization(ari_invar; conf_level=0.95)
 
 
-
-    #ari_vov,ri_vov,mirkinindx_vov,hubertindx_vov
     ari_RandIndices_values = ari_invar
 
 
@@ -192,8 +190,6 @@ This function takes in calculates the mean Adjusted Rand Index and the upper and
 
 function calc_time_variant_ARI_summarization(ari_vov, T; conf_level=0.95)
 
-
-    #ari_vov,ri_vov,mirkinindx_vov,hubertindx_vov
     ari_RandIndices_values = ari_vov
 
 
@@ -223,7 +219,7 @@ This function takes in calculates the mean Normalized Mutual Information and the
 """
 
 function calc_time_invariant_NMI_summarization(nmi_invar; conf_level=0.95)
-    #ari_vov,ri_vov,mirkinindx_vov,hubertindx_vov
+
     nmi_values = nmi_invar
 
 
@@ -255,8 +251,6 @@ This function takes in calculates the mean Normalized Mutual Information and the
 
 function calc_time_variant_NMI_summarization(nmi_vov, T; conf_level=0.95)
 
-
-    #ari_vov,ri_vov,mirkinindx_vov,hubertindx_vov
     nmi_values = nmi_vov
 
 
@@ -287,9 +281,6 @@ This function takes in calculates the mean V-measure and the upper and lower bou
 
 function calc_time_invariant_Vmeasure_summarization(vmeasure_invar; conf_level=0.95)
 
-
-
-    #ari_vov,ri_vov,mirkinindx_vov,hubertindx_vov
     vmeasure_values = vmeasure_invar
 
 
@@ -319,7 +310,6 @@ This function takes in calculates the mean V-measure and the upper and lower bou
 """
 
 function calc_time_variant_Vmeasure_summarization(vmeasure_vov, T; conf_level=0.95)
-    #ari_vov,ri_vov,mirkinindx_vov,hubertindx_vov
     vmeasure_values = vmeasure_vov
 
 
@@ -380,8 +370,6 @@ This function takes in calculates the mean Variation of information and lower bo
 
 function calc_time_variant_VarInfo_summarization(varinfo_vov, T; conf_level=0.95)
 
-
-    #ari_vov,ri_vov,mirkinindx_vov,hubertindx_vov
     varinfo_values = varinfo_vov
 
 
@@ -441,8 +429,6 @@ This function takes in calculates the mean Jaccard Similarity and lower bounds o
 
 function calc_time_variant_Jaccard_summarization(jaccard_vov, T; conf_level=0.95)
 
-
-    #ari_vov,ri_vov,mirkinindx_vov,hubertindx_vov
     jaccard_values = jaccard_vov
 
 
@@ -465,70 +451,6 @@ function calc_time_variant_Jaccard_summarization(jaccard_vov, T; conf_level=0.95
 
     return jaccard_summary
 end
-
-"""
-    calc_time_invariant_CVI_summarization(cvi; conf_level=0.95)
-This function takes in calculates the mean Intrinsic metrics and the upper and lower bounds of the Confidence Interval across inferred samples and across all conditions/timepoints
-"""
-
-function calc_time_invariant_CVI_summarization(cvi; conf_level=0.95)
-
-
-
-    #ari_vov,ri_vov,mirkinindx_vov,hubertindx_vov
-    cvi_values = cvi
-
-
-    cvi_means = mean(cvi_values)
-    cvi_std = std(cvi_values)
-    # cvi_conf_level = t_test(cvi_values; conf_level=conf_level)
-    # cvi_quantiles_mat = reduce(hcat, [cvi_conf_level...])
-    if length(cvi_values) > 1
-        cvi_conf_level = t_test(cvi_values; conf_level=conf_level)
-        cvi_quantiles_mat = reduce(hcat, [cvi_conf_level...])
-    else
-        cvi_quantiles_mat = [cvi_means, cvi_means]
-    end
-
-    cvi_summary = Matrix{Union{Float64,Int}}(undef, 1, 5)
-    cvi_summary[1, 1] = 1
-    cvi_summary[1, 2] = cvi_means
-    cvi_summary[1, 3] = cvi_std
-    cvi_summary[1, 4] = cvi_quantiles_mat[1]
-    cvi_summary[1, 5] = cvi_quantiles_mat[2]
-
-
-    return cvi_summary
-end
-
-"""
-    calc_time_invariant_CVI(xmat,z_post_s)
-This function takes in calculates the Intrinsic metrics for assessing the quality of clustering    
-"""
-
-function calc_time_invariant_CVI(xmat,z_post_s)
-    cvi_func_dict = OrderedDict(:ch => CH(), :db =>DB(), :gd43 => GD43(), :gd53 => GD53() :csil => cSIL(), :ps=> PS(), :wb => WB(),:xb => XB()) # 
-    metrics_list = setup_metrics_list()
-    posteriorSummarizationsDict = OrderedDict()
-    num_posterior_samples = length(z_post_s)
-    for key in keys(cvi_func_dict)
-        _flushed_logger(logger,"\t Calculating $key metric now...")
-        cvi = cvi_func_dict[key]
-        cvi_criterion_value_b_vec = Vector{Float64}(undef, num_posterior_samples)
-        elsaped_time = @elapsed begin
-            for s in 1:num_posterior_samples 
-                z_s = z_post_s[s]
-                cvi_b = cvi 
-                z_infer_vec = vcat(z_s...)
-                cvi_criterion_value_b_vec[s] = get_cvi!(cvi_b, xmat, z_infer_vec)
-            end
-        end
-        _flushed_logger(logger,"\t Finished Calculating $key metric. Metric calculations took $elsaped_time seconds to run...")
-        posteriorSummarizationsDict[String(key)] = calc_time_invariant_CVI_summarization(cvi_criterion_value_b_vec;conf_level=0.95)
-    end
-    return posteriorSummarizationsDict
-end
-
 
 """
     clustering_quality_metrics(results_df,filepath_;beta_ = 1.0, conf_lvl = 0.95)
@@ -622,15 +544,4 @@ function clustering_quality_metrics(results_df,filepath_;beta_ = 1.0, conf_lvl =
    
       
 end
-
-"""
-    setup_metrics_list()
-This function lists all of the metrics that can be calculated and saved. 
-"""
-
-function setup_metrics_list()
-    return ["ari", "nmi", "vmeasure", "varinfo", "jaccard", "ch", "csil", "db", "gd43", "gd53", "ps", "rcip", "wb", "xb", "final_elbo"]
-end
-
-
 

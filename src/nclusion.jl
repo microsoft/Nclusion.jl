@@ -38,25 +38,7 @@ module nclusion
     #    set_current_value,
         addToDict!,
         addToOrderedDict!,
-        generate_modelStatisticsFromDataFrame,
-        generate_LabelInfoFromMetaDataFrame,
-        generate_modelInputsFromDataFrames,
-        getExperimentVariablesString, 
         get_unique_time_id,
-        nested_dict_to_json,
-        nested_dict_to_json3_with_name,
-        append_to_json,generate_json_filename, 
-        generate_filenameBase, 
-        generate_filenameBase_closure, 
-        generate_dirname, 
-        json_to_dict,json3_to_dictstruct, 
-        makeRelabellingOutputDirectories,
-        makeGenericOutputDirectories,
-        makeTidyOutputDirectories,
-        saveInitializationFile,
-        create_benchmark_summarization_file,
-        save_run,
-        setup_experiment_tag,
         load_data,
         preparing_data,
         select_cells_hvgs,
@@ -77,13 +59,9 @@ module nclusion
         append_summary
 
 
-    export lognormalization,
-            recursive_flatten,
-            outermelt, 
-            innermelt,
-            IndexCounter,
-            increment!,
-            getCount
+    export recursive_flatten,
+           outermelt, 
+           innermelt
 
     export   t_test,norm_weights,normToProb,norm_weights3,norm_weights3!, normToProb3!,sigmoidNorm!
 
@@ -107,16 +85,10 @@ module nclusion
            calc_time_variant_VarInfo_summarization,
            calc_time_invariant_Jaccard_summarization,
            calc_time_variant_Jaccard_summarization,
-           calc_time_invariant_CVI_summarization,
-           setup_metrics_list
+           calc_time_invariant_CVI_summarization
 
 
     export cavi,
-           variational_inference_dynamicHDP_vshoff,
-           variational_inference_dynamicHDP_vshoff_perK,
-           variational_inference_dynamicHDP_vshoff_mpu,
-           variational_inference_dynamicHDP_vshoff_lowmem_mpu,
-           variational_inference_dynamicHDP_vshoff2,
            extract_cluster_paramter,
            extract_condition_paramter,
            extract_gene_paramter,
@@ -218,7 +190,6 @@ module nclusion
    
    
            #Intializations functions
-           init_params_genes,
            init_params_states,
            init_θ_hat_tk,
            init_ηtkj_prior,
@@ -233,10 +204,6 @@ module nclusion
            init_st_hat_vec!,
            init_yjk_vec!,
            init_rtik_vec!,
-           init_m_err_hat!,
-           init_λ0_err_hat_vec!,
-           init_a0_err_hat_vec!,
-           init_b0_err_hat_vec!,
            initialize_VariationalInference_types!,
            low_memory_initialization,
    

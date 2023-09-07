@@ -8,7 +8,7 @@ function t_test(x; conf_level=0.95)
     SE = std(x)./sqrt(length(x))
 
     lo, hi = mean(x) .+ [-1, 1] .* tstar * SE
-    # "($lo, $hi)"
+
     return lo, hi
 end
 
@@ -93,12 +93,10 @@ text{ for } π_i in [0,1] text{and} i in {1,..,K}
 ```
 """
 function norm_weights3!(K,p;float_type=nothing)
-    # K = length(p)
     if isnothing(float_type)
         float_type =eltype(p)
     end
     psum = @views convert(float_type,StatsFuns.logsumexp(p[1:K]))
-    # w = Vector{float_type}(undef,K)
     for k in 1:K
         p[k] = exp(p[k] - psum)
     end
