@@ -52,11 +52,14 @@ module nclusion
         saving_summary_file,
         save_embeddings,
         save_pips,
+        save_Nk,
         make_nclusion_inputs,
         make_labels,
         save_labels,
         _flushed_logger,
-        append_summary
+        append_summary,
+        create_results_dict,
+        benchmark_nclusion
 
 
     export recursive_flatten,

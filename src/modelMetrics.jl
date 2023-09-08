@@ -91,104 +91,11 @@ function getJaccardSimilarity(true_z, z_post_s)
 end
 
 """
-    time_invariant_ari(z, z_post_s)
-This function takes in reference labels (true_z) and a vector of vectors that contains inferred labels (z_post_s) and computes the Adjusted Rand Index arcoss all conditions/timepoints
-"""
-
-function time_invariant_ari(z, z_post_s)
-    S = length(z_post_s)
-    time_invariant_RandIndices = [[Clustering.randindex(Int.(recursive_flatten(z)), Int.(recursive_flatten(z_post_s[s])))...] for s in 1:S]
-    time_invariant_ARI = [el[1] for el in time_invariant_RandIndices]
-    return time_invariant_ARI
-end
-
-"""
-    time_invariant_nmi(z, z_post_s)
-This function takes in reference labels (true_z) and a vector of vectors that contains inferred labels (z_post_s) and computes the Normalized Mutual information between the reference and each inferred label sample arcoss all conditions/timepoints
-"""
-
-function time_invariant_nmi(z, z_post_s)
-    S = length(z_post_s)
-    time_invariant_NMI_ = [[Clustering.mutualinfo(Int.(recursive_flatten(z)), Int.(recursive_flatten(z_post_s[s])))...] for s in 1:S]
-    time_invariant_NMI = [el[1] for el in time_invariant_NMI_]
-    return time_invariant_NMI
-end
-
-"""
-    time_invariant_vmeasure(z, z_post_s; beta=1.0)
-This function takes in reference labels (true_z) and a vector of vectors that contains inferred labels (z_post_s) and computes the V-measure between the reference and each inferred label sample arcoss all conditions/timepoints 
-"""
-
-function time_invariant_vmeasure(z, z_post_s; beta=1.0)
-    S = length(z_post_s)
-    time_invariant_Vmeasure_ = [[Clustering.vmeasure(Int.(recursive_flatten(z)), Int.(recursive_flatten(z_post_s[s])), β=beta)...] for s in 1:S]
-    time_invariant_Vmeasure = [el[1] for el in time_invariant_Vmeasure_]
-    return time_invariant_Vmeasure
-end
-
-"""
-    time_invariant_varinfo(z, z_post_s)
-This function takes in reference labels (true_z) and a vector of vectors that contains inferred labels (z_post_s) and computes the Variation of information between the reference and each inferred label sample arcoss all conditions/timepoints 
-"""
-
-function time_invariant_varinfo(z, z_post_s)
-    S = length(z_post_s)
-    time_invariant_VarInfo_ = [[Clustering.varinfo(Int.(recursive_flatten(z)), Int.(recursive_flatten(z_post_s[s])))...] for s in 1:S]
-    time_invariant_VarInfo = [el[1] for el in time_invariant_VarInfo_]
-    return time_invariant_VarInfo
-end
-
-"""
-    time_invariant_jaccard(z, z_post_s)
-This function takes in reference labels (true_z) and a vector of vectors that contains inferred labels (z_post_s) and computes the Jaccard Similarity between the reference and each inferred label sample arcoss all conditions/timepoints 
-"""
-
-function time_invariant_jaccard(z, z_post_s)
-    S = length(z_post_s)
-    time_invariant_Jaccard_ = [[1 .- Distances.jaccard.(Int.(recursive_flatten(z)), Int.(recursive_flatten(z_post_s[s])))...] for s in 1:S]
-    time_invariant_Jaccard = [el[1] for el in time_invariant_Jaccard_]
-    return time_invariant_Jaccard
-end
-
-"""
-    calc_time_invariant_ARI_summarization(ari_invar; conf_level=0.95)
-This function takes in calculates the mean Adjusted Rand Index and the upper and lower bounds of the Confidence Interval across inferred samples and across all conditions/timepoints
-"""
-
-function calc_time_invariant_ARI_summarization(ari_invar; conf_level=0.95)
-
-
-    ari_RandIndices_values = ari_invar
-
-
-    ari_RandIndices_means = mean(ari_RandIndices_values)
-    ari_RandIndices_std = std(ari_RandIndices_values)
-    if length(ari_RandIndices_values) > 1
-        ari_RandIndices_conf_level = t_test(ari_RandIndices_values; conf_level=conf_level)
-        ari_RandIndices_quantiles_mat = reduce(hcat, [ari_RandIndices_conf_level...])
-    else
-        ari_RandIndices_quantiles_mat = [ari_RandIndices_means, ari_RandIndices_means]
-    end
-
-
-
-    ari_RandIndices_summary = Matrix{Union{Float64,Int}}(undef, 1, 5)
-    ari_RandIndices_summary[1, 1] = 1
-    ari_RandIndices_summary[1, 2] = ari_RandIndices_means
-    ari_RandIndices_summary[1, 3] = ari_RandIndices_std
-    ari_RandIndices_summary[1, 4] = ari_RandIndices_quantiles_mat[1]
-    ari_RandIndices_summary[1, 5] = ari_RandIndices_quantiles_mat[2]
-
-
-    return ari_RandIndices_summary
-end
-
-"""
-    calc_time_variant_ARI_summarization(ari_vov, T; conf_level=0.95)
+    calc_ARI_summarization(ari_vov, T; conf_level=0.95)
 This function takes in calculates the mean Adjusted Rand Index and the upper and lower bounds of the Confidence Interval across inferred samples and for each conditions/timepoints
 """
 
-function calc_time_variant_ARI_summarization(ari_vov, T; conf_level=0.95)
+function calc_ARI_summarization(ari_vov, T; conf_level=0.95)
 
     ari_RandIndices_values = ari_vov
 
@@ -213,43 +120,13 @@ function calc_time_variant_ARI_summarization(ari_vov, T; conf_level=0.95)
     return ari_RandIndices_summary
 end
 
-"""
-    calc_time_invariant_NMI_summarization(nmi_invar; conf_level=0.95)
-This function takes in calculates the mean Normalized Mutual Information and the upper and lower bounds of the Confidence Interval across inferred samples and across all conditions/timepoints
-"""
-
-function calc_time_invariant_NMI_summarization(nmi_invar; conf_level=0.95)
-
-    nmi_values = nmi_invar
-
-
-    nmi_means = mean(nmi_values)
-    nmi_std = std(nmi_values)
-    if length(nmi_values) > 1
-        nmi_conf_level = t_test(nmi_values; conf_level=conf_level)
-        nmi_quantiles_mat = reduce(hcat, [nmi_conf_level...])
-    else
-        nmi_quantiles_mat = [nmi_means, nmi_means]
-    end
-
-
-    nmi_summary = Matrix{Union{Float64,Int}}(undef, 1, 5)
-    nmi_summary[1, 1] = 1
-    nmi_summary[1, 2] = nmi_means
-    nmi_summary[1, 3] = nmi_std
-    nmi_summary[1, 4] = nmi_quantiles_mat[1]
-    nmi_summary[1, 5] = nmi_quantiles_mat[2]
-
-
-    return nmi_summary
-end
 
 """
-    calc_time_variant_NMI_summarization(nmi_vov, T; conf_level=0.95)
+    calc_NMI_summarization(nmi_vov, T; conf_level=0.95)
 This function takes in calculates the mean Normalized Mutual Information and the upper and lower bounds of the Confidence Interval across inferred samples and for each conditions/timepoints
 """
 
-function calc_time_variant_NMI_summarization(nmi_vov, T; conf_level=0.95)
+function calc_NMI_summarization(nmi_vov, T; conf_level=0.95)
 
     nmi_values = nmi_vov
 
@@ -274,42 +151,13 @@ function calc_time_variant_NMI_summarization(nmi_vov, T; conf_level=0.95)
     return nmi_summary
 end
 
-"""
-    calc_time_invariant_Vmeasure_summarization(vmeasure_invar; conf_level=0.95)
-This function takes in calculates the mean V-measure and the upper and lower bounds of the Confidence Interval across inferred samples and across all conditions/timepoints
-"""
-
-function calc_time_invariant_Vmeasure_summarization(vmeasure_invar; conf_level=0.95)
-
-    vmeasure_values = vmeasure_invar
-
-
-    vmeasure_means = mean(vmeasure_values)
-    vmeasure_std = std(vmeasure_values)
-    if length(vmeasure_values) > 1
-        vmeasure_conf_level = t_test(vmeasure_values; conf_level=conf_level)
-        vmeasure_quantiles_mat = reduce(hcat, [vmeasure_conf_level...])
-    else
-        vmeasure_quantiles_mat = [vmeasure_means, vmeasure_means]
-    end
-
-    vmeasure_summary = Matrix{Union{Float64,Int}}(undef, 1, 5)
-    vmeasure_summary[1, 1] = 1
-    vmeasure_summary[1, 2] = vmeasure_means
-    vmeasure_summary[1, 3] = vmeasure_std
-    vmeasure_summary[1, 4] = vmeasure_quantiles_mat[1]
-    vmeasure_summary[1, 5] = vmeasure_quantiles_mat[2]
-
-
-    return vmeasure_summary
-end
 
 """
-    calc_time_variant_Vmeasure_summarization(vmeasure_vov, T; conf_level=0.95
+    calc_Vmeasure_summarization(vmeasure_vov, T; conf_level=0.95
 This function takes in calculates the mean V-measure and the upper and lower bounds of the Confidence Interval across inferred samples and for each conditions/timepoints
 """
 
-function calc_time_variant_Vmeasure_summarization(vmeasure_vov, T; conf_level=0.95)
+function calc_Vmeasure_summarization(vmeasure_vov, T; conf_level=0.95)
     vmeasure_values = vmeasure_vov
 
 
@@ -335,40 +183,11 @@ function calc_time_variant_Vmeasure_summarization(vmeasure_vov, T; conf_level=0.
 end
 
 """
-    calc_time_invariant_VarInfo_summarization(varinfo_invar; conf_level=0.95)
-This function takes in calculates the mean Variation of information and the upper and lower bounds of the Confidence Interval across inferred samples and across all conditions/timepoints
-"""
-
-function calc_time_invariant_VarInfo_summarization(varinfo_invar; conf_level=0.95)
-    varinfo_values = varinfo_invar
-
-
-    varinfo_means = mean(varinfo_values)
-    varinfo_std = std(varinfo_values)
-    if length(varinfo_values) > 1
-        varinfo_conf_level = t_test(varinfo_values; conf_level=conf_level)
-        varinfo_quantiles_mat = reduce(hcat, [varinfo_conf_level...])
-    else
-        varinfo_quantiles_mat = [varinfo_means, varinfo_means]
-    end
-
-    varinfo_summary = Matrix{Union{Float64,Int}}(undef, 1, 5)
-    varinfo_summary[1, 1] = 1
-    varinfo_summary[1, 2] = varinfo_means
-    varinfo_summary[1, 3] = varinfo_std
-    varinfo_summary[1, 4] = varinfo_quantiles_mat[1]
-    varinfo_summary[1, 5] = varinfo_quantiles_mat[2]
-
-
-    return varinfo_summary
-end
-
-"""
-    calc_time_variant_VarInfo_summarization(varinfo_vov, T; conf_level=0.95)
+    calc_VarInfo_summarization(varinfo_vov, T; conf_level=0.95)
 This function takes in calculates the mean Variation of information and lower bounds of the Confidence Interval across inferred samples and for each conditions/timepoints
 """
 
-function calc_time_variant_VarInfo_summarization(varinfo_vov, T; conf_level=0.95)
+function calc_VarInfo_summarization(varinfo_vov, T; conf_level=0.95)
 
     varinfo_values = varinfo_vov
 
@@ -393,41 +212,13 @@ function calc_time_variant_VarInfo_summarization(varinfo_vov, T; conf_level=0.95
     return varinfo_summary
 end
 
-"""
-    calc_time_invariant_Jaccard_summarization(jaccard_invar; conf_level=0.95)
-This function takes in calculates the mean Jaccard Similarity and the upper and lower bounds of the Confidence Interval across inferred samples and across all conditions/timepoints
-"""
-
-function calc_time_invariant_Jaccard_summarization(jaccard_invar; conf_level=0.95)
-    jaccard_values = jaccard_invar
-
-
-    jaccard_means = mean(jaccard_values)
-    jaccard_std = std(jaccard_values)
-    if length(jaccard_values) > 1
-        jaccard_conf_level = t_test(jaccard_values; conf_level=conf_level)
-        jaccard_quantiles_mat = reduce(hcat, [jaccard_conf_level...])
-    else
-        jaccard_quantiles_mat = [jaccard_means, jaccard_means]
-    end
-
-    jaccard_summary = Matrix{Union{Float64,Int}}(undef, 1, 5)
-    jaccard_summary[1, 1] = 1
-    jaccard_summary[1, 2] = jaccard_means
-    jaccard_summary[1, 3] = jaccard_std
-    jaccard_summary[1, 4] = jaccard_quantiles_mat[1]
-    jaccard_summary[1, 5] = jaccard_quantiles_mat[2]
-
-
-    return jaccard_summary
-end
 
 """
-    calc_time_variant_Jaccard_summarization(jaccard_vov, T; conf_level=0.95)
+    calc_Jaccard_summarization(jaccard_vov, T; conf_level=0.95)
 This function takes in calculates the mean Jaccard Similarity and lower bounds of the Confidence Interval across inferred samples and for each conditions/timepoints
 """
 
-function calc_time_variant_Jaccard_summarization(jaccard_vov, T; conf_level=0.95)
+function calc_Jaccard_summarization(jaccard_vov, T; conf_level=0.95)
 
     jaccard_values = jaccard_vov
 
@@ -483,64 +274,38 @@ function clustering_quality_metrics(results_df,filepath_;beta_ = 1.0, conf_lvl =
        varinfo_vov = getVarInfo(called_assignments,[inferred_assignments])
        jaccard_vov = getJaccardSimilarity(called_assignments,[inferred_assignments])
    
-       #Get overall Metric
-       ari_invar = time_invariant_ari(called_assignments,[inferred_assignments])
-       nmi_invar =time_invariant_nmi(called_assignments,[inferred_assignments])
-       vmeasure_invar =time_invariant_vmeasure(called_assignments,[inferred_assignments],;beta=beta_)
-       varinfo_invar =time_invariant_varinfo(called_assignments,[inferred_assignments])
-       jaccard_invar =time_invariant_jaccard(called_assignments,[inferred_assignments])
    
     #    @info "Saving Metrics..."
        _flushed_logger("\t Saving Metrics...";logger)
        #Save ARI as CSV
-       ari_invar_summary = calc_time_invariant_ARI_summarization(ari_invar;conf_level=conf_lvl);
-       ari_invar_summary_df = DataFrame(ari_invar_summary,:auto);
-       rename!(ari_invar_summary_df,[:condition,:mean,:sd,:lowerbound,:upperbound])
-       CSV.write(filepath_*"/ARI_Summary_AllTimepoints.csv", ari_invar_summary_df) 
-       ari_var_summary =calc_time_variant_ARI_summarization(ari_vov,T;conf_level=conf_lvl)
+       ari_var_summary =calc_ARI_summarization(ari_vov,T;conf_level=conf_lvl)
        ari_var_summary_df = DataFrame(ari_var_summary,:auto);
        rename!(ari_var_summary_df,[:condition,:mean,:sd,:lowerbound,:upperbound])
-       CSV.write(filepath_*"/ARI_Summary_PerTimepoints.csv", ari_var_summary_df) 
+       CSV.write(filepath_*"/ARI_Summary.csv", ari_var_summary_df) 
    
        #Save NMI as CSV
-       nmi_invar_summary = calc_time_invariant_NMI_summarization(nmi_invar;conf_level=conf_lvl)
-       nmi_invar_summary_df = DataFrame(nmi_invar_summary,:auto);
-       rename!(nmi_invar_summary_df,[:condition,:mean,:sd,:lowerbound,:upperbound])
-       CSV.write(filepath_*"/NMI_Summary_AllTimepoints.csv", nmi_invar_summary_df) 
-       nmi_var_summary = calc_time_variant_NMI_summarization(nmi_vov,T;conf_level=conf_lvl)
+       nmi_var_summary = calc_NMI_summarization(nmi_vov,T;conf_level=conf_lvl)
        nmi_var_summary_df = DataFrame(nmi_var_summary,:auto);
        rename!(nmi_var_summary_df,[:condition,:mean,:sd,:lowerbound,:upperbound])
-       CSV.write(filepath_*"/NMI_Summary_PerTimepoints.csv", nmi_var_summary_df) 
+       CSV.write(filepath_*"/NMI_Summary.csv", nmi_var_summary_df) 
    
        #Save VMeasure as CSV
-       vmeasure_invar_summary = calc_time_invariant_Vmeasure_summarization(vmeasure_invar;conf_level=conf_lvl)
-       vmeasure_invar_summary_df = DataFrame(vmeasure_invar_summary,:auto);
-       rename!(vmeasure_invar_summary_df,[:condition,:mean,:sd,:lowerbound,:upperbound])
-       CSV.write(filepath_*"/VMeasure_Summary_AllTimepoints.csv", vmeasure_invar_summary_df) 
-       vmeasure_var_summary =calc_time_variant_Vmeasure_summarization(vmeasure_vov,T;conf_level=conf_lvl)
+       vmeasure_var_summary =calc_Vmeasure_summarization(vmeasure_vov,T;conf_level=conf_lvl)
        vmeasure_var_summary_df = DataFrame(vmeasure_var_summary,:auto);
        rename!(vmeasure_var_summary_df,[:condition,:mean,:sd,:lowerbound,:upperbound])
-       CSV.write(filepath_*"/VMeasure_Summary_PerTimepoints.csv", vmeasure_var_summary_df) 
+       CSV.write(filepath_*"/VMeasure_Summary.csv", vmeasure_var_summary_df) 
    
        #Save VarInfo as CSV
-       varinfo_invar_summary = calc_time_invariant_VarInfo_summarization(varinfo_invar;conf_level=conf_lvl)
-       varinfo_invar_summary_df = DataFrame(varinfo_invar_summary,:auto);
-       rename!(varinfo_invar_summary_df,[:condition,:mean,:sd,:lowerbound,:upperbound])
-       CSV.write(filepath_*"/VarInfo_Summary_AllTimepoints.csv", varinfo_invar_summary_df) 
-       varinfo_var_summary = calc_time_variant_VarInfo_summarization(varinfo_vov,T;conf_level=conf_lvl)
+       varinfo_var_summary = calc_VarInfo_summarization(varinfo_vov,T;conf_level=conf_lvl)
        varinfo_var_summary_df = DataFrame(varinfo_var_summary,:auto);
        rename!(varinfo_var_summary_df,[:condition,:mean,:sd,:lowerbound,:upperbound])
-       CSV.write(filepath_*"/VarInfo_Summary_PerTimepoints.csv", varinfo_var_summary_df) 
+       CSV.write(filepath_*"/VarInfo_Summary.csv", varinfo_var_summary_df) 
    
        #Save Jaccard as CSV
-       jaccard_invar_summary = calc_time_invariant_Jaccard_summarization(jaccard_invar;conf_level=conf_lvl)
-       jaccard_invar_summary_df = DataFrame(jaccard_invar_summary,:auto);
-       rename!(jaccard_invar_summary_df,[:condition,:mean,:sd,:lowerbound,:upperbound])
-       CSV.write(filepath_*"/Jaccard_Summary_AllTimepoints.csv", jaccard_invar_summary_df)
-       jaccard_var_summary = calc_time_variant_Jaccard_summarization(jaccard_vov,T;conf_level=conf_lvl)
+       jaccard_var_summary = calc_Jaccard_summarization(jaccard_vov,T;conf_level=conf_lvl)
        jaccard_var_summary_df = DataFrame(jaccard_var_summary,:auto);
        rename!(jaccard_var_summary_df,[:condition,:mean,:sd,:lowerbound,:upperbound])
-       CSV.write(filepath_*"/Jaccard_Summary_PerTimepoints.csv", jaccard_var_summary_df) 
+       CSV.write(filepath_*"/Jaccard_Summary.csv", jaccard_var_summary_df) 
    
       
 end

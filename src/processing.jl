@@ -260,19 +260,18 @@ function initialize_model_parameters(x_input,KMax,alpha1,gamma1;sparsity_lvl=not
 end
 
 
-function run_cavi(inputs;elbo_ep = 10^(-0),update_η_bool = false,logger=nothing)
+function run_cavi(inputs;elbo_ep = 10^(-0),logger=nothing)
     num_iter = inputs[:modelparams].num_iter
     KMax = inputs[:modelparams].K
     elbologger = ElboFeatures(1,KMax,num_iter) 
 
     _flushed_logger("Maximum KMax initialized at $KMax";logger)
 
-    
+    inputs[:elbolog] = elbologger
     elapsed_time = @elapsed begin
         _flushed_logger("\t Model running now...";logger)
         st = time()
-        inputs[:elbolog] = elbologger
-        outputs_dict = cavi(inputs; update_η_bool= update_η_bool,elbo_ep = elbo_ep);
+        outputs_dict = cavi(inputs;elbo_ep = elbo_ep);
     end
     dt = time() - st
     elbo_, rtik_, yjk_hat_, mk_hat_, v_sq_k_hat_, σ_sq_k_hat_, var_muk_, Nk_, gk_hat_, hk_hat_, ak_hat_, bk_hat_,x_hat_, x_hat_sq_, d_hat_t_, c_tt_prime_, st_hat_, λ_sq_,per_k_elbo_,ηk_, Tk_, is_converged, truncation_value, ηk_trend_ = (; outputs_dict...);
@@ -292,6 +291,22 @@ function save_pips(pip,gene_names;unique_time_id="",filepath="")
     pip_df  = DataFrame(pip_mat, :auto);
     rename!(pip_df,Symbol.(col_names));
     CSV.write(filepath*"$(G)G-"*unique_time_id*"-pips.csv",  pip_df)
+
+end
+
+function save_Nk(rtik_;unique_time_id="",filepath="")
+    KMax = length(rtik_[1][1])
+    N = length(rtik_[1])
+    T = length(rtik_)
+    cluster_name = ["Cluster_$el" for el in 1:KMax]
+    suffix = "-Nk.csv"
+    Nk = sum(sum.(rtik_))
+    filename = filepath*unique_time_id*suffix
+    Nk_mat = hcat(cluster_name,Nk)
+    Nk_df  = DataFrame(Nk_mat, :auto);
+    col_names = vcat("cluster_ids","Nk")
+    rename!(Nk_df,Symbol.(col_names));
+    CSV.write(filename,  Nk_df)
 
 end
 
@@ -350,9 +365,9 @@ function _flushed_logger(msg;logger=nothing)
     end
 end
 
-function make_ids(dataset,G)
+function make_ids(dataset,G,N)
     unique_time_id = get_unique_time_id()
-    dataset_used_id = "$(dataset)_$(G)HVGs"
+    dataset_used_id = "$(dataset)_$(G)HVGs-$(N)N"
     experiment_filename = "nclusion_$(dataset)"
     experiment_id = setup_experiment_tag(experiment_filename)
 
@@ -466,7 +481,7 @@ function run_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outd
     num_var_feat = G
     _flushed_logger("Number of cells: $(N) ...";logger)
     _flushed_logger("Number of Genes: $(G) ...";logger)
-    unique_time_id,dataset_used_id,experiment_id = make_ids(dataset,G)
+    unique_time_id,dataset_used_id,experiment_id = make_ids(dataset,G,N)
 
     _flushed_logger("Preparing Dataset ...";logger)
     gene_names, cell_ids, cell_cluster_labels = preparing_data(anndata_dict1)
@@ -517,7 +532,9 @@ function run_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outd
 
     _flushed_logger("Saving PIPs";logger)
     save_pips(pip,gene_names;unique_time_id=unique_time_id,filepath=filepath)
-    
+    _flushed_logger("Saving Nk";logger)
+    save_Nk(rtik_;unique_time_id=unique_time_id,filepath=filepath)
+
     _flushed_logger("Saving Cluster Memberships";logger)
     save_labels(cluster_results_df;dataset_used=dataset_used_id,G=G,unique_time_id=unique_time_id,filepath=filepath)
 
@@ -533,4 +550,61 @@ function append_summary(summary_file,vars,varnames)
             write(f,"$(varnames[i]) = \t $(vars[i]) \n")
         end
     end
+end
+
+function create_results_dict(run_,function_name)
+    results_dict = OrderedDict{Symbol,Vector{Union{String,Int,Float64}}}()
+    results_dict[:name] = [function_name]
+    results_dict[:num_alloc] = [run_.allocs]
+    results_dict[:memory] = [run_.memory]
+    results_dict[:times] = run_.times
+    results_dict[:avg_time] = [mean(run_.times)]
+    results_dict[:med_time] = [median(run_.times)]
+    results_dict[:max_time] = [maximum(run_.times)]
+    results_dict[:min_time] = [minimum(run_.times)]
+    results_dict[:num_samples] =[ run_.params.samples]
+    results_dict[:num_evals] = [run_.params.evals]
+    return results_dict
+end
+function benchmark_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outdir; logger = nothing)
+    Random.seed!(seed)
+    _flushed_logger("Loading data and metadata...";logger)
+    anndata_dict1= load_data(datafilename1,seed)
+    N = size(anndata_dict1["X"])[2]
+    G = size(anndata_dict1["X"])[1]
+    num_var_feat = G
+    _flushed_logger("Number of cells: $(N) ...";logger)
+    _flushed_logger("Number of Genes: $(G) ...";logger)
+    unique_time_id,dataset_used_id,experiment_id = make_ids(dataset,G,N)
+
+    _flushed_logger("Preparing Dataset ...";logger)
+    gene_names, cell_ids, cell_cluster_labels = preparing_data(anndata_dict1)
+    x_input,z = make_nclusion_inputs(anndata_dict1)
+    
+
+    filepath = mk_outputs_filepath(outdir,experiment_id,dataset_used_id,unique_time_id)
+    _flushed_logger("Preparing saving Directory at $filepath ...";logger)
+    mk_outputs_pathname(filepath)
+
+    _flushed_logger("Saving Quick Summary...";logger)
+    notes_=""
+    summary_file = saving_summary_file(filepath;unique_time_id=unique_time_id,datafilename1=datafilename1,alpha1=alpha1,gamma1=gamma1,KMax=KMax, seed=seed,num_var_feat=num_var_feat,N=N,elbo_ep=elbo_ep,notes_=notes_)
+    
+    _flushed_logger("Initializing Model parameters...";logger)
+    inputs = initialize_model_parameters(x_input,KMax,alpha1,gamma1);
+
+    
+    num_iter = inputs[:modelparams].num_iter
+    elbologger = ElboFeatures(1,KMax,num_iter)
+    inputs[:elbolog] = elbologger
+
+    _flushed_logger("Benchmarking NCLUSION";logger)
+    run_ = @benchmark outputs_dict = cavi($inputs;elbo_ep = $elbo_ep);
+    results_dict = create_results_dict(run_,"NCLUSION")
+    results_dict[:filepath] = [filepath]
+    results_dict[:unique_time_id] = [unique_time_id]
+    results_dict[:G] = [G]
+    results_dict[:N] =[N]
+
+    return results_dict
 end

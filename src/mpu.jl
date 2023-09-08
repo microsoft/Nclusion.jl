@@ -86,7 +86,7 @@ function main(ARGS)
     if !isempty(KMax)
         KMax = parse(Int64, KMax)
     else
-        KMax = 10
+        KMax = 25
     end
 
     if !isempty(seed)
@@ -98,7 +98,7 @@ function main(ARGS)
     if !isempty(elbo_ep)
         elbo_ep = parse(Float64, elbo_ep)
     else
-        elbo_ep = 10^(-6)
+        elbo_ep = 10^(-0)
     end
     if isempty(dataset)
         dataset = ""

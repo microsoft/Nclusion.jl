@@ -4,7 +4,7 @@
     This is the main variational inference function. It perfroms coordinate ascent to infer the paramters of the NCLUSION Model
 
 """
-function cavi(inputs;elbo_ep = 10^(-6),update_η_bool= false)
+function cavi(inputs;elbo_ep = 10^(-6))
 
     cellpop,clusters,conditionparams,dataparams,modelparams,geneparams,Tk,elbolog  = (; inputs...);
     iter = 1
