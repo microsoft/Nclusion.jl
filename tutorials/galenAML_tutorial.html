@@ -221,7 +221,7 @@ unzip utility_scripts.zip</code></pre>
 <h2 id="preprocess-data">Download and Preprocess Data<a class="anchor" aria-label="anchor" href="#preprocess-data"></a>
 </h2>
 <p>The Zheng + 2017 filtered, raw counts can be downloaded from <a
-href="https://www.10xgenomics.com/resources/datasets?query=cd&page=1&configure%5BhitsPerPage%5D=50&configure%5BmaxValuesPerFacet%5D=1000&refinementList%5BbiomaterialTypes%5D=&refinementList%5Bproduct.name%5D%5B0%5D=Single%20Cell%20Gene%20Expression&refinementList%5Bspecies%5D%5B0%5D=Human&refinementList%5BdiseaseStates%5D=&refinementList%5BanatomicalEntities%5D="
+href="https://www.dropbox.com/s/399x045zc57fiut/Seurat_AML.rds"
 class="external-link"e>here</a>.
 Alternatively, run the following <a href="https://www.gnu.org/software/wget/"
 class="external-link">wget</a> commands to create a directory named
@@ -231,14 +231,19 @@ cell type into that directory. </p>
 mkdir -p tutorial_data/zheng2017/
 cd tutorial_data/zheng2017/
 
-wget https://cellgeni.cog.sanger.ac.uk/pan-immune/CountAdded_PIP_global_object_for_cellxgene.h5ad</code></pre>
+wget
+<p>Then, enter these commands to unzip the files in the data directory.</p>
 
 <p> Before running NCLUSION to cluster the Zheng + 2017 cells, the data must be
-converted to the poper AnnData format by transforming the counts layer to dense
-matrix format. Then, to remove batch effects, we filter for cells that are all
-taken from the same Donor: patient D496. Then, the count data is After
-filtering, the count matrices are normalized to 10,000 counts per cell,
-log-transformed, and subset to the top 5000 highly-variable genes. For
+converted to the AnnData type, and
+concatenated into a single data object. Then, to preprocess the data, we filter out genes that were expressed in less than 3 cells, cells
+with less than 200 genes expressed, greater than 20% mitochondrial reads, and
+less than 5% ribosomal reads to obtain 94,615 high-quality cells representing 10
+distinct cell types. We then subset the data to the top 5000 highly-variable
+genes. All steps described in this paragraph can be
+executed by entering the following commands into a bash terminal. This saved the
+filtered, preprocessed data as an AnnData file located at
+<code>tutorial_data/zheng2017/5000hvgs_zheng2017_preprocessed.h5ad</code>. For
 detailed
 documentation of this script, run <code>python
 preprocess_tutorial_data.py --help</code></p> 

@@ -5,6 +5,16 @@ import anndata as ad
 
 # GENERAL COMMAND
 # python preprocess_tutorial_data.py --path_to_data /path/to/data/ --path_to_save path/to/save --data_name dataname --n_hvgs int
+def transform_tissue(path_to_data):
+    pt_id="D496"
+    adata = sc.read_h5ad(path_to_data)
+    adata.X = adata.layer['counts']
+    data = adata.X
+    data = data.todense()
+    adata.X = data.A
+    adata = adata[adata.obs.Donor == pt_id]
+    return adata
+    
 def concat_pbmc_data(path_to_data):
     cell_types = ["b_cells", "cd14_monocytes", "cd34", "cd4_t_helper", "cd56_nk", "cytotoxic_t", "memory_t", "naive_cytotoxic", "naive_t", "regulatory_t"]
 
@@ -13,7 +23,7 @@ def concat_pbmc_data(path_to_data):
         
         cells_i = path_to_data+str(c)+"_filtered_gene_bc_matrices/filtered_matrices_mex/hg19/"
         
-        adata = sc.read_10x_mtx(path_to_data_dir, 
+        adata = sc.read_10x_mtx(cells_i, 
         var_names=var_labels,               
         cache=True) 
         data = adata.X
