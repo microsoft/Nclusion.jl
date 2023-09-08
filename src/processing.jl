@@ -405,6 +405,7 @@ function saving_summary_file(filepath;unique_time_id="",datafilename1="",alpha1=
 end
 function save_embeddings(anndata_dict1,filepath;logger = nothing,unique_time_id="")
     G = size(anndata_dict1["X"])[1]
+    N = size(anndata_dict1["X"])[2]
     tsne_data = nothing
     pca_data = nothing
     umap_data = nothing
