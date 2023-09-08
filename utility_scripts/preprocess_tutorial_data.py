@@ -5,6 +5,32 @@ import anndata as ad
 
 # GENERAL COMMAND
 # python preprocess_tutorial_data.py --path_to_data /path/to/data/ --path_to_save path/to/save --data_name dataname --n_hvgs int
+def concat_pbmc_data(path_to_data):
+    cell_types = ["b_cells", "cd14_monocytes", "cd34", "cd4_t_helper", "cd56_nk", "cytotoxic_t", "memory_t", "naive_cytotoxic", "naive_t", "regulatory_t"]
+
+    total_cells = 0
+    for i, c in enumerate(cell_types):
+        
+        cells_i = path_to_data+str(c)+"_filtered_gene_bc_matrices/filtered_matrices_mex/hg19/"
+        
+        adata = sc.read_10x_mtx(path_to_data_dir, 
+        var_names=var_labels,               
+        cache=True) 
+        data = adata.X
+        data = data.todense()
+        adata.X = data.A
+        adata.var_names_make_unique()
+        condition = np.ones(adata.n_obs)
+        adata.obs['condition'] = pd.Categorical(condition)
+        adata.obs["cell_type"] = c
+        
+        if i == 0:
+            concat_adata = adata
+        else:
+            concat_adata = ad.concat([concat_adata, adata])
+
+    concat_adata.obs_names_make_unique()
+    return adata
 
 def filter_hvgs(adata, n_hvgs):
     counts = np.transpose(adata.raw.X.astype(np.float64))
@@ -39,12 +65,15 @@ def annotate_cell_lines(x):
     else:
         return x['cell_type']
 
-def preprocess(adata, data_name, n_hvgs):
-    if data_name == 'pbmc':
-        sc.pp.filter_cells(adata, min_genes=200)
-        sc.pp.filter_genes(adata, min_cells=3)  
-        adata = adata[adata.obs['pct_counts_mt'] < 20, :]
-        adata = adata[adata.obs['pct_counts_ribo'] > 5, :]
+def preprocess(adata, data_name, n_hvgs, min_genes, min_cells, pct_counts_mito, pct_counts_ribo):
+    if min_genes != None:
+        sc.pp.filter_cells(adata, min_genes=min_genes)
+    if min_cells != None:
+        sc.pp.filter_genes(adata, min_cells=min_cells)  
+    if pct_counts_mito != None:
+        adata = adata[adata.obs['pct_counts_mt'] < pct_counts_mito, :]
+    if pct_counts_ribo != None
+        adata = adata[adata.obs['pct_counts_ribo'] > pct_counts_ribo, :]
     
     if data_name == 'galen':
         adata = adata[adata.obs['state'] != 'unclear']
@@ -70,9 +99,13 @@ def main(argv):
     path_to_save = ''
     data_name = None
     n_hvgs = None
+    pct_counts_mito = None 
+    pct_counts_ribo = None
+    min_genes = None
+    min_cells = None
     
     try:                                                                     
-        opts, args = getopt.getopt(argv, '', ["path_to_data=", "path_to_save=", "data_name=", "n_hvgs="])
+        opts, args = getopt.getopt(argv, '', ["path_to_data=", "path_to_save=", "data_name=", "n_hvgs=", "min_genes=", "min_cells=", "pct_counts_mito=", "pct_countd_ribo="])
     except getopt.GetoptError: 
         sys.exit()
     
@@ -85,15 +118,27 @@ def main(argv):
             data_name = arg
         elif opt == '--n_hvgs':
             n_hvgs = int(arg)
+        elif opt == '--min_genes':
+            min_genes = int(arg)
+        elif opt == '--min_cells':
+            min_cells = int(arg)
+        elif opt == '--pct_counts_mito':
+            pct_counts_mito = int(arg)
+        elif opt == '--pct_counts_ribo':
+            pct_counts_ribo = int(arg)
     
     if data_name == 'galen':
         path_to_data = "tutorial_data/galenAML_raw.h5ad"
-    elif data_name == 'pbmc':
-        path_to_data = "tutorial_data/pbmc_raw.h5ad"
-    elif data_name == "tissueimmuneatlas"
+    elif data_name == 'zheng':
+       adata = concat_pbmc_data(path_to_data)
+       min_genes = 200
+       min_cells = 3
+       pct_counts_mt = 20
+       pct_counts_ribo = 5
+    elif data_name == "dominguez"
         path_to_data = "tutorial_data/tissueimmuneatlas_ptd496_raw.h5ad"
-    
-    adata = sc.read_h5ad(path_to_data)
+    else:
+        adata = sc.read_h5ad(path_to_data)
     
     sc.pp.calculate_qc_metrics(adata, percent_top=None, log1p=False, inplace=True)
     
