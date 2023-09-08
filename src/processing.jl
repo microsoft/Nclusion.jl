@@ -419,12 +419,6 @@ function save_embeddings(anndata_dict1,filepath;logger = nothing,unique_time_id=
         ncols = size(tsne_data)[2]
         rename!(tsne_data_df,Symbol.(["TSNE_$i" for i in 1:ncols]));
         CSV.write(filepath*"$(G)G-"*unique_time_id*"-tsne_coordinates.csv",  tsne_data_df)
-    elseif N <= 5000
-        tsne_data = get_tsne_transform(x_input);
-        tsne_data_df  = DataFrame(tsne_data, :auto);
-        ncols = size(tsne_data)[2]
-        rename!(tsne_data_df,Symbol.(["TSNE_$i" for i in 1:ncols]));
-        CSV.write(filepath*"$(G)G-"*unique_time_id*"-tsne_coordinates.csv",  tsne_data_df)
     end
 
     
