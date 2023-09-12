@@ -112,9 +112,9 @@
     </div>
     <p>
     This tutorial demonstrates how to replicate NCLUSION clustering results for
-    Zheng et al 2017 (PAPER REF HERE) from a bash terminal. Continue operating in
-    your current working directory at each step of the tutorial, otherwise, the relative paths
-    included in each command will be incorrect and will produce an error. </p> 
+    ~94k pure peripheral blood mononuclear cells obtained from 
+    Zheng et al 2017 (PAPER REF HERE). To follow along with the tutorial, open a bash
+    terminal in your working directory.  </p> 
     <h2 data-toc-skip>Tutorial Installations</h2>
     <p>First, install NCLUSION into a julia environment following the
     installation instructions <a
@@ -220,12 +220,13 @@ unzip utility_scripts.zip</code></pre>
 <div class="section level3">
 <h2 id="preprocess-data">Download and Preprocess Data<a class="anchor" aria-label="anchor" href="#preprocess-data"></a>
 </h2>
-<p>The Zheng + 2017 filtered, raw counts can be downloaded from <a
+<p>The Zheng + 2017 data contains scRNA-seq data for ~94k pure
+  peripheral blood mononuclear cells of 10 distinct cell types.  The filtered, raw counts can be downloaded from <a
 href="https://www.10xgenomics.com/resources/datasets?query=cd&page=1&configure%5BhitsPerPage%5D=50&configure%5BmaxValuesPerFacet%5D=1000&refinementList%5BbiomaterialTypes%5D=&refinementList%5Bproduct.name%5D%5B0%5D=Single%20Cell%20Gene%20Expression&refinementList%5Bspecies%5D%5B0%5D=Human&refinementList%5BdiseaseStates%5D=&refinementList%5BanatomicalEntities%5D="
 class="external-link"e>here</a>.
 Alternatively, run the following <a href="https://www.gnu.org/software/wget/"
 class="external-link">wget</a> commands to create a directory named
-<code>tutorial_data/</code> in your current working directory and download the filtered count files for each
+<code>tutorial_data/zheng2017/</code> in your current working directory and download the filtered count files for each
 cell type into that directory. </p>
 <pre><code>mkdir -p tutorial_data/
 mkdir -p tutorial_data/zheng2017/
@@ -249,8 +250,10 @@ wget https://cf.10xgenomics.com/samples/cell-exp/1.1.0/cd34/cd34_filtered_gene_b
 
 wget https://cf.10xgenomics.com/samples/cell-exp/1.1.0/b_cells/b_cells_filtered_gene_bc_matrices.tar.gz
 
-wget https://cf.10xgenomics.com/samples/cell-exp/1.1.0/cd14_monocytes/cd14_monocytes_filtered_gene_bc_matrices.tar.gz</code></pre>
-<p>Then, enter these commands to unzip the files in the data directory.</p>
+wget https://cf.10xgenomics.com/samples/cell-exp/1.1.0/cd14_monocytes/cd14_monocytes_filtered_gene_bc_matrices.tar.gz
+
+cd ../</code></pre>
+<p>Then, unzip the files in the data directory with the following bash commands:</p>
 
 <pre><code>tar -xvzf cytotoxic_t_filtered_gene_bc_matrices.tar.gz
 tar -xvzf naive_cytotoxic_filtered_gene_bc_matrices.tar.gz
@@ -268,14 +271,18 @@ concatenated into a single data object. Then, to preprocess the data, we filter 
 with less than 200 genes expressed, greater than 20% mitochondrial reads, and
 less than 5% ribosomal reads to obtain 94,615 high-quality cells representing 10
 distinct cell types. We then subset the data to the top 5000 highly-variable
-genes. All steps described in this paragraph can be
-executed by entering the following commands into a bash terminal. This saved the
+genes. The data conversion, concatenation, and preprocessing can be
+executed by entering the following command into a bash terminal, which then
+saves the
 filtered, preprocessed data as an AnnData file located at
-<code>tutorial_data/zheng2017/5000hvgs_zheng2017_preprocessed.h5ad</code>. For
-detailed
-documentation of this script, run <code>python
-preprocess_tutorial_data.py --help</code></p> 
-<pre><code>python preprocess_tutorial_data.py --path_to_data tutorial_data/zheng2017/ --path_to_save tutorial_data/zheng2017/5000hvgs_zheng2017_preprocessed.h5ad --data_name "zheng" --n_hvgs 5000</code></pre>
+<code>tutorial_data/zheng2017/5000hvgs_zheng2017_preprocessed.h5ad</code>.</p> 
+<pre><code>python preprocess_tutorial_data.py --path_to_data
+tutorial_data/zheng2017/ --path_to_save
+tutorial_data/zheng2017/5000hvgs_zheng2017_preprocessed.h5ad --data_name "zheng"
+--n_hvgs 5000</code></pre> <p>For
+  more detailed
+  documentation of this script, run <code>python
+  preprocess_tutorial_data.py --help</code></p>
 <div class="section level3">
 <h2 id="run-nclusion">Run NCLUSION<a class="anchor" aria-label="anchor" href="#run-nclusion"></a>
 </h2>
@@ -290,7 +297,7 @@ logger = FormatLogger() do io, args
 end;
 
 
-datafilename1 = "tutorial_data/5000hvgs_zheng2017_preprocessed.h5ad" # 
+datafilename1 = "tutorial_data/zheng2017/5000hvgs_zheng2017_preprocessed.h5ad" # 
 alpha1 = 1 * 10^(-7.0)
 gamma1 = 1 * 10^(-7.0)
 KMax = 25
@@ -318,18 +325,11 @@ Mutual Information (NMI)) metrics. Extrinsic metric calculations dependent on
 experimental annotations of the data, that are considered the "true" labels,
 while intrinsic metric calculations are not. Enter the following command into a
 bash terminal to compute these metrics.</p>
-<pre><code>PATH_TO_RESULTS = outputs/nclusion_labels.csv
-PATH_TO_JULIA_ENV = ~/nclusion/
-N_HVG = 5000
-allCvi=(ch db gd43 gd53 csil ps wb xb)
+<pre><code>PATH_TO_RESULTS=outputs/nclusion_labels.csv
+PATH_TO_JULIA_ENV=nclusion/
+PATH_TO_DATA=tutorial_data/zheng2017/5000hvgs_zheng2017_preprocessed.h5ad
 
-julia --project=${PATH_TO_JULIA_ENV} utility_scripts/evaluation/ClusteringQualityMetrics.jl "${PATH_TO_RESULTS}" "" "" "" "" "" 
-
-for j in ${!allCvi[@]};do 
-  METHOD="${allCvi[$j]}"
-  echo Running ${METHOD} CVI calculations
-  julia --project=${PATH_TO_JULIA_ENV} ${PATH_TO_JULIA_ENV}/QuantitativeEvaluation.jl "${PATH_TO_RESULTS}" "tutorial_data/zheng2017/5000hvgs_zheng2017_preprocessed.h5ad" "${METHOD}" "${N_HVG}" "" "" 
-done
+. QuantEval.sh $PATH_TO_RESULTS $PATH_TO_JULIA_ENV $PATH_TO_DATA
 </code></pre>
 <h3 id="eval-metrics">B. Generate Cell Distribution Heatmap</h3><a class="anchor" aria-label="anchor" href="#eval-metrics"></a>
 </h3>
@@ -343,11 +343,13 @@ location <i>(i, j)</i> on the heatmap corresponds to percent of cells with
 NCLUSION.</p> <p>To generate the heatmap from the NCLUSION result, enter the
 following commands into a bash terminal. For more detailed documentation of this
 script, run <code>python make_heatmaps.py --help</code>. </p>
-<pre><code>python make_heatmaps.py --input_path $PATH_TO_RESULTS_5000 --pct_table_file "tutotial_outputs/pbmc_2500hvgs_NCLUSION_cell_distribution_table.csv" --cluster_dict_file "pbmc_2500hvgs_NCLUSION_cluster_mapping_to_new_label.csv"
+<pre><code>PATH_TO_REUSLTS=outputs/nclusion_labels.csv
 
-Rscript make_heatmaps.R -f "pbmc_2500hvgs_NCLUSION_cell_distribution_table.csv"
--s pbmc_cell_distribution_heatmap.pdf</code></pre>
-<p>This will produce a pdf file named <code>outputs/pbmc_cell_distriubtion_heatmap.pdf</code>containing the cell distriubtion heatmap shown
+python make_heatmaps.py --input_path $PATH_TO_RESULTS --pct_table_file "tutotial_outputs/cell_distribution_table.csv" --cluster_dict_file "cluster_mapping_to_new_label.csv"
+
+Rscript make_heatmaps.R -f "cell_distribution_table.csv"
+-s "cell_distribution_heatmap.pdf"</code></pre>
+<p>This will produce a pdf file named <code>outputs/cell_distriubtion_heatmap.pdf</code>containing the cell distriubtion heatmap shown
 below. The
 column labels do not correspond to NCLUSION's cluster labels. The script labels
 each cluster with their positional values in the heatmap for aesthetic purposes. A
@@ -361,13 +363,14 @@ class="anchor" aria-label="anchor" href="#pip-heatmaps"></a>
 insight into the biological mechanisms driving the formation of each cluster.
 The reulting plots are described in detail in the following sub-sections. To
 generate these plots, enter the following command into a bash terminal. </p>
-<pre><code>PATH_TO_JULIA_ENV = ~/nclusion/
-PATH_TO_DATA = ${PATH_TO_JULIA_ENV}/tutorial_data/zheng2017/5000hvgs_zheng2017_preprocessed.h5ad
-R_LIB_PATH = ~/r_packages
+<pre><code>PATH_TO_JULIA_ENV=nclusion/
+PATH_TO_DATA=tutorial_data/zheng2017/5000hvgs_zheng2017_preprocessed.h5ad
+R_LIB_PATH=r_packages
 
 Rscript ${PATH_TO_JULIA_ENV}/utility_scripts/result_plots.R -path_to_data=${PATH_TO_DATA} -path_to_pips="outputs/nclusion_pips.csv" -path_to_labels="outputs/nclusion_labels.csv" -outfile_base="outputs/" -dataset_name='zheng'
 -r_library_path=${R_LIB_PATH}</code></pre>
-<p>The plots produced by this script are described below. </p>
+<p>All plots produced by this script can be found in the <code>outputs/</code>
+directory. Each plot is described in detail below. </p>
 <h4 id="pip-heatmaps">i. Adjusted Posterior Inclusion Probability (PIP) Heatmap
 <a
   class="anchor" aria-label="anchor" href="#pip-heatmaps"></a> 
@@ -446,7 +449,50 @@ other clusters. </p>
       </footer>
 </div>
 
+<style>pre{
+  position: relative;
+  margin: 5px 0 ;
+  padding: 1.75rem 0 1.75rem 1rem;
+
+  /* more stuff */
+}
+
+pre button{
+  position: absolute;
+  top: 5px;
+  right: 5px;
+
+  /* more stuff */
+} 
+pre {  
+  word-wrap: normal;  
+}  
+</style>
+<script>const copyButtonLabel = "Copy";
+
+  // use a class selector if available
+  let blocks = document.querySelectorAll("pre");
   
+  blocks.forEach((block) => {
+    // only add button if browser supports Clipboard API
+    if (navigator.clipboard) {
+      let button = document.createElement("button");
+  
+      button.innerText = copyButtonLabel;
+      block.appendChild(button);
+  
+      button.addEventListener("click", async () => {
+        await copyCode(block);
+      });
+    }
+  });
+  
+  async function copyCode(block) {
+    let code = block.querySelector("code");
+    let text = code.innerText;
+  
+    await navigator.clipboard.writeText(text);
+  }</script>
 
 
   

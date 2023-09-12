@@ -134,8 +134,12 @@ observation layer. This is a one-dimensional array of categorical labels that
 maps each cell to a timepoint or experimental condition. If cell conditions are uniform,
 annotate all cells with the same <b>'condition;</b> label (i.e. "1"). </p> 
 <p> We provie a simluated dataset to use as an example for how to set up your
-data and use NCLUSION. (BLURB HERE ABOUT SIMULATED DATA AND HOW IT HAS ALL SAME
-CONDITION OR NOT) It loads in as a pandas dataframe, and can be converted
+data and use NCLUSION, which can be downloaded from <a
+href="../simulated_data/simulated_data.zip">here</a>. Alternatively, enter the
+following <a href="https://www.gnu.org/software/wget/">wget</a> command into a bash terminal to download the data
+directly onto your machine:
+<pre><code>wget</code></pre>It loads in
+as a pandas dataframe, and can be converted
 into the proper AnnData format by entering the following commands into a Python
 terminal, with your virtual environment activated: </p> 
 <pre><code id="python">import pandas as pd
@@ -160,10 +164,31 @@ uniform, and log-transformed. However, it is not necessary for this simulated
 dataset.
 <h3 id="running-mvmapit">Running NCLUSION<a class="anchor" aria-label="anchor" href="#running-mvmapit"></a>
 </h3>
-<pre><code>using nclusion 
+<p> To run NCLUSION, start a julia repl in your nclusion environment by entering
+  <code>julia --project=/path/to/julia/env --thread=auto</code>, with the
+  <code>--project</code> input being set to the path that points to your Julia
+  nclusion environment. Then, enter the following code into the activated Julia repl:</p>
+<pre><code>curr_dir = ENV["PWD"]
 
-outputs_dict_vec,elsaped_time,final_elbo_vec,elbo_vec,rtik_vec,yjk_vec,perK_elbo_vec,delta_t_vec,nk_perL_vec,ηk_vec,elbologger,ηk_trend_vec_=
-nclusion(datafilename1,alpha1,gamma1,phi1,KMax,num_var_feat,scale_factor,seed,elbo_ep,mt_mode,logger)</code></pre>
+  logger = FormatLogger() do io, args
+      println(io, args._module, " | ", "[", args.level, "] ", args.message)
+  end;
+  
+  
+  datafilename1 = "tutorial_data/raghavan2021/5000hvgs_raghavan2021_preprocessed.h5ad" # 
+  alpha1 = 1 * 10^(-7.0)
+  gamma1 = 1 * 10^(-7.0)
+  KMax = 25
+  seed = 12345
+  elbo_ep = 10^(-0.0)
+  dataset = "raghavan2021"
+  outdir = "${curr_dir}"
+  
+  outputs_dict = run_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outdir; logger = logger)
+  filepath = outputs_dict[:filepath]
+  filename = "$filepath/output.jld2"
+  
+  jldsave(filename,true;outputs_dict=outputs_dict)</code></pre>
 <p>The output files will be saved to a directory named <code>outputs/</code>
 which will be written to your working directory, by default. NCLUSIN clustering assignments can be found in a file named
 <code>outputs/nclusion_labels.csv</code>. Run the following command in your
@@ -176,8 +201,8 @@ file2 = ${PATH_TO_NCLUSION}/tutoiral_data/simulated_data/simulated_data_expected
 
 cmp --silent $file1 $file2 && echo '### SUCCESS: Files Are Identical! ###'||
 echo '### WARNING: Files Are Different! ###'</code></pre>
-<p> If NCLUSION is downloaded correctly, <code>'### SUCCESS: Files Are
-Identical! ###'</code> will be printed. Otherwise, it will print <code>'### WARNING: Files Are Different! ###'</code>
+<p> If NCLUSION is installed correctly, the command will print <code>'### SUCCESS: Files Are
+Identical! ###'</code>. Otherwise, it will print <code>'### WARNING: Files Are Different! ###'</code>
 </p>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
 

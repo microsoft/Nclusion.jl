@@ -30,8 +30,6 @@ def concat_pbmc_data(path_to_data):
         data = data.todense()
         adata.X = data.A
         adata.var_names_make_unique()
-        condition = np.ones(adata.n_obs)
-        adata.obs['condition'] = pd.Categorical(condition)
         adata.obs["cell_type"] = c
         
         if i == 0:
@@ -67,13 +65,19 @@ def filter_hvgs(adata, n_hvgs):
 
     return adata
 
-def annotate_cell_lines(x):
-    if 'MUTZ3' in x['orig_ident']:
-        return 'MUTZ3_'+x['cell_type']
-    elif 'OCI.AML3' in x['orig_ident']:
-        return 'OCI_AML3_'+x['cell_type']
+def annotate_raghavan(x):
+    if x['cell.type.ID'] == 'Tumor':
+        return x['Donor_ID']+'_'+x['cell.type.ID']
     else:
-        return x['cell_type']
+        return x['cell.type.ID']
+    
+def annotate_vangalen(x):
+    if 'MUTZ3' in x['donor']:
+        return 'MUTZ3_'+x['CellType']
+    elif 'OCI.AML3' in x['donor']:
+        return 'OCI_AML3_'+x['CellType']
+    else:
+        return x['CellType']
 
 def preprocess(adata, data_name, n_hvgs, min_genes, min_cells, pct_counts_mito, pct_counts_ribo):
     if min_genes != None:
@@ -84,13 +88,6 @@ def preprocess(adata, data_name, n_hvgs, min_genes, min_cells, pct_counts_mito, 
         adata = adata[adata.obs['pct_counts_mt'] < pct_counts_mito, :]
     if pct_counts_ribo != None
         adata = adata[adata.obs['pct_counts_ribo'] > pct_counts_ribo, :]
-    
-    if data_name == 'galen':
-        adata = adata[adata.obs['state'] != 'unclear']
-        df = adata.obs
-        df['cell_type'] = df.apply(lambda x: annotate_cell_lines(x), axis=1)
-        adata.obs['cell_type'] = df['cell_type']
-        print('cell_types:', adata.obs.cell_type.unique())
           
     adata.raw = adata
     adata.layers["counts"] = adata.raw.X.copy()
@@ -138,17 +135,36 @@ def main(argv):
             pct_counts_ribo = int(arg)
     
     if data_name == 'galen':
-        path_to_data = "tutorial_data/galenAML_raw.h5ad"
+        counts = pd.read_csv(path_to_data+'galenAML_countsdf.csv', index_col=0)
+        metadata = pd.read_csv(path_to_data+'galenAML_metadf.csv', index_col=0)
+        adata = ad.AnnData(counts)
+        adata.obs['state'] = metadata.loc[:, 'PredictionRefined']
+        adata.obs['donor'] = metadata.loc[:, 'orig.ident']
+        adata = adata[adata.obs['state'] != 'unclear']
+        adata.obs['cell_type'] = metadata.apply(lambda x: annotate_vangalen(x), axis=1)
+        
     elif data_name == 'zheng':
        adata = concat_pbmc_data(path_to_data)
        min_genes = 200
        min_cells = 3
        pct_counts_mt = 20
        pct_counts_ribo = 5
-    elif data_name == "dominguez"
-        path_to_data = "tutorial_data/tissueimmuneatlas_ptd496_raw.h5ad"
+       
+    elif data_name == "dominguezconde"
+        adata = transform_tissue(path_to_data)
+        
+    elif data_name == "raghavan":
+        counts = pd.read_csv(path_to_data+'Biopsy_RawDGE_23042cells.csv', index_col=0)
+        metadata = pd.read_cvs(path_to_data+"Biopsy_Metadata_23042cells.csv", index_col=0)
+        adata = ad.AnnData(counts.T)
+        adata.obs['cell_type'] = meta.apply(lambda x: annotate_raghavan(x), axis=1)
+        adata.obs['donor'] = metadata.loc[:, "Donor_ID"]
+        
     else:
         adata = sc.read_h5ad(path_to_data)
+    
+    condition = np.ones(adata.n_obs)
+    adata.obs['condition'] = pd.Categorical(condition)
     
     sc.pp.calculate_qc_metrics(adata, percent_top=None, log1p=False, inplace=True)
     

@@ -16,8 +16,8 @@
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Clustering Zheng + 2017">
-<meta property="og:description" content="Clustering Zheng et al + 2017
+<script src="../pkgdown.js"></script><meta property="og:title" content="Clustering Domínguez Conde + 2022">
+<meta property="og:description" content="Clustering Domínguez Conde et al + 2022
 ">
 <meta property="og:image" content="https://lcrawlab.github.io/mvMAPIT/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -74,7 +74,7 @@
     <li>
       <a
       href="../articles/study-compare-p-value-combine-methods.html">Clustering
-      Zheng + 2017</a>
+      Domínguez Conde + 2022</a>
     </li>
     <li>
       <a href="../articles/study-phillips-bnabs.html">Synergistic epistasis in binding affinity landscapes</a>
@@ -108,13 +108,12 @@
       </header><script src="study-compare-p-value-combine-methods_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Clustering Zheng et al 2017</h1>
+      <h1 data-toc-skip>Clustering Domínguez Conde et al 2022</h1>
     </div>
     <p>
     This tutorial demonstrates how to replicate NCLUSION clustering results for
-    Zheng et al 2017 (PAPER REF HERE) from a bash terminal. Continue operating in
-    your current working directory at each step of the tutorial, otherwise, the relative paths
-    included in each command will be incorrect and will produce an error. </p> 
+    Domínguez Conde et al 2022 (PAPER REF HERE) from a bash terminal. Open a bash
+    terminal and follow along with the tutorial from your working directory. </p> 
     <h2 data-toc-skip>Tutorial Installations</h2>
     <p>First, install NCLUSION into a julia environment following the
     installation instructions <a
@@ -159,7 +158,7 @@
   <li><a href="https://www.bioconductor.org/packages/release/data/annotation/html/org.Hs.eg.db.html" class="external-link"> org.Hs.eg.db </a></li>
   </ul>
   <p>The easiest method to install these packages is with the following example command entered in an R shell:</p>
-  <div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">install.packages</span>(<span class="kw">c</span>(<span class="st">'devtools'</span>, </span>
+  <pre><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">install.packages</span>(<span class="kw">c</span>(<span class="st">'devtools'</span>, </span>
   <span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>                    <span class="st">'ggplot2'</span>, </span>
   <span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>                    <span class="st">'reticulate'</span>, </span>
   <span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>                    <span class="st">'R.utils'</span>, </span>
@@ -182,7 +181,7 @@
   <span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>                    <span class="st">'genekitr'</span>, </span>
   <span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>                    <span class="st">'patchwork'</span>, </span>
   <span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>                    <span class="st">'org.Hs.eg.db'</span>), </span>
-  <span id="cb2-15"><a href="#cb2-15" aria-hidden="true"></a>                    <span class="dt">dependencies =</span> <span class="ot">TRUE</span>);</span></code></pre></div>
+  <span id="cb2-15"><a href="#cb2-15" aria-hidden="true"></a>                    <span class="dt">dependencies =</span> <span class="ot">TRUE</span>);</span></code></pre>
   
   </div>
   <div class="section level3">
@@ -220,29 +219,34 @@ unzip utility_scripts.zip</code></pre>
 <div class="section level3">
 <h2 id="preprocess-data">Download and Preprocess Data<a class="anchor" aria-label="anchor" href="#preprocess-data"></a>
 </h2>
-<p>The Zheng + 2017 filtered, raw counts can be downloaded from <a
-href="https://www.10xgenomics.com/resources/datasets?query=cd&page=1&configure%5BhitsPerPage%5D=50&configure%5BmaxValuesPerFacet%5D=1000&refinementList%5BbiomaterialTypes%5D=&refinementList%5Bproduct.name%5D%5B0%5D=Single%20Cell%20Gene%20Expression&refinementList%5Bspecies%5D%5B0%5D=Human&refinementList%5BdiseaseStates%5D=&refinementList%5BanatomicalEntities%5D="
+<p>The Domínguez Conde + 2022 filtered, raw counts can be downloaded from <a
+href="https://cellgeni.cog.sanger.ac.uk/pan-immune/CountAdded_PIP_global_object_for_cellxgene.h5ad"
 class="external-link"e>here</a>.
 Alternatively, run the following <a href="https://www.gnu.org/software/wget/"
 class="external-link">wget</a> commands to create a directory named
 <code>tutorial_data/</code> in your current working directory and download the filtered count files for each
 cell type into that directory. </p>
 <pre><code>mkdir -p tutorial_data/
-mkdir -p tutorial_data/zheng2017/
-cd tutorial_data/zheng2017/
+mkdir -p tutorial_data/dominguezconde2022/
+cd tutorial_data/dominguezconde2022/
 
-wget https://cellgeni.cog.sanger.ac.uk/pan-immune/CountAdded_PIP_global_object_for_cellxgene.h5ad</code></pre>
+wget https://cellgeni.cog.sanger.ac.uk/pan-immune/CountAdded_PIP_global_object_for_cellxgene.h5ad
 
-<p> Before running NCLUSION to cluster the Zheng + 2017 cells, the data must be
-converted to the poper AnnData format by transforming the counts layer to dense
-matrix format. Then, to remove batch effects, we filter for cells that are all
-taken from the same Donor: patient D496. Then, the count data is After
+cd ../</code></pre>
+
+<p> Before running NCLUSION to cluster the Domínguez Conde + 2022 cells, the
+counts layer must be transformed into a dense
+matrix format. Then, to avoid batch effects, we filter for cells that are all
+taken from the same Donor: patient D496. After
 filtering, the count matrices are normalized to 10,000 counts per cell,
-log-transformed, and subset to the top 5000 highly-variable genes. For
-detailed
-documentation of this script, run <code>python
-preprocess_tutorial_data.py --help</code></p> 
-<pre><code>python preprocess_tutorial_data.py --path_to_data tutorial_data/zheng2017/ --path_to_save tutorial_data/zheng2017/5000hvgs_zheng2017_preprocessed.h5ad --data_name "zheng" --n_hvgs 5000</code></pre>
+log-transformed, and subset to the top 5000 highly-variable genes. By running
+the following command, the data conversion and preprocessing steps are completed
+and the filtered, preprocessed data is saved to
+<code>tutorial_data/dominguezconde2022/5000hvgs_dominguezconde2022_preprocessed.h5ad</code>.</p> 
+<pre><code>python preprocess_tutorial_data.py --path_to_data
+tutorial_data/dominguezconde2022/ --path_to_save
+tutorial_data/dominguezconde2022/5000hvgs_dominguezconde2022_preprocessed.h5ad --data_name "dominguezconde" --n_hvgs 5000</code></pre>
+<p>For more detailed documentation of this script, run <code>python preprocess_tutorial_data.py --help</code>.</p>
 <div class="section level3">
 <h2 id="run-nclusion">Run NCLUSION<a class="anchor" aria-label="anchor" href="#run-nclusion"></a>
 </h2>
@@ -257,13 +261,13 @@ logger = FormatLogger() do io, args
 end;
 
 
-datafilename1 = "tutorial_data/5000hvgs_zheng2017_preprocessed.h5ad" # 
+datafilename1 = "tutorial_data/dominguezconde2022/5000hvgs_dominguezconde2022_preprocessed.h5ad" # 
 alpha1 = 1 * 10^(-7.0)
 gamma1 = 1 * 10^(-7.0)
 KMax = 25
 seed = 12345
 elbo_ep = 10^(-0.0)
-dataset = "zheng2017"
+dataset = "dominguezconde2022"
 outdir = "${curr_dir}"
 
 outputs_dict = run_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outdir; logger = logger)
@@ -271,8 +275,8 @@ filepath = outputs_dict[:filepath]
 filename = "$filepath/output.jld2"
 
 jldsave(filename,true;outputs_dict=outputs_dict)</code></pre>
-<p>The clustering results can be found in a csv that is saved to
-<code>outputs/nclusion_labels.csv</code> in your working directory, by default. </p>
+<p>Then, enter exit() to quit the Julia repl and return to the bash terminal. The clustering results can be found in a csv that is saved to
+<code>outputs/nclusion_labels.csv</code> in your working directory by default. </p>
 <div class="section level3"><h2 id="eval-metrics">Analysis of NCLUSION
 Clustering and Variable Selection<a class="anchor" aria-label="anchor" href="#eval-metrics"></a>
 </h2></div>
@@ -285,36 +289,30 @@ Mutual Information (NMI)) metrics. Extrinsic metric calculations dependent on
 experimental annotations of the data, that are considered the "true" labels,
 while intrinsic metric calculations are not. Enter the following command into a
 bash terminal to compute these metrics.</p>
-<pre><code>PATH_TO_RESULTS = outputs/nclusion_labels.csv
-PATH_TO_JULIA_ENV = ~/nclusion/
-N_HVG = 5000
-allCvi=(ch db gd43 gd53 csil ps wb xb)
+<pre><code>PATH_TO_RESULTS=outputs/nclusion_labels.csv
+PATH_TO_JULIA_ENV=nclusion/
+PATH_TO_DATA=tutorial_data/dominguezconde2022/5000hvgs_dominguezconde2022_preprocessed.h5ad
 
-julia --project=${PATH_TO_JULIA_ENV} utility_scripts/evaluation/ClusteringQualityMetrics.jl "${PATH_TO_RESULTS}" "" "" "" "" "" 
-
-for j in ${!allCvi[@]};do 
-  METHOD="${allCvi[$j]}"
-  echo Running ${METHOD} CVI calculations
-  julia --project=${PATH_TO_JULIA_ENV} ${PATH_TO_JULIA_ENV}/QuantitativeEvaluation.jl "${PATH_TO_RESULTS}" "tutorial_data/zheng2017/5000hvgs_zheng2017_preprocessed.h5ad" "${METHOD}" "${N_HVG}" "" "" 
-done
+. QuantEval.sh $PATH_TO_RESULTS $PATH_TO_JULIA_ENV $PATH_TO_DATA
 </code></pre>
 <h3 id="eval-metrics">B. Generate Cell Distribution Heatmap</h3><a class="anchor" aria-label="anchor" href="#eval-metrics"></a>
 </h3>
 <p>Next, generate a heatmap that displays how cells from each cell-type
 (determined by the
-"true" labels obtained from Zheng et al 2017) are distributed across
+"true" labels obtained from Domínguez Conde et al 2022) are distributed across
 clusters that are identified by NCLUSION. Each row, <i>i</i>, represents one cell-type, and
 each column, <i>j</i>, represents one cluster. Therefore the color intensity at
 location <i>(i, j)</i> on the heatmap corresponds to percent of cells with
 "true" cell-type label <i>i</i> that were assigned to cluster <i>j</i> by
 NCLUSION.</p> <p>To generate the heatmap from the NCLUSION result, enter the
-following commands into a bash terminal. For more detailed documentation of this
-script, run <code>python make_heatmaps.py --help</code>. </p>
-<pre><code>python make_heatmaps.py --input_path $PATH_TO_RESULTS_5000 --pct_table_file "tutotial_outputs/pbmc_2500hvgs_NCLUSION_cell_distribution_table.csv" --cluster_dict_file "pbmc_2500hvgs_NCLUSION_cluster_mapping_to_new_label.csv"
+following commands into a bash terminal. </p>
+<pre><code>PATH_TO_RESULTS=outputs/nclusion_labels.csv
 
-Rscript make_heatmaps.R -f "pbmc_2500hvgs_NCLUSION_cell_distribution_table.csv"
--s pbmc_cell_distribution_heatmap.pdf</code></pre>
-<p>This will produce a pdf file named <code>outputs/pbmc_cell_distriubtion_heatmap.pdf</code>containing the cell distriubtion heatmap shown
+python make_heatmaps.py --input_path $PATH_TO_RESULTS --pct_table_file "outputs/cell_distribution_table.csv" --cluster_dict_file "outputs/cluster_mapping_to_new_label.csv"
+
+Rscript make_heatmaps.R -f "outputs/cell_distribution_table.csv"
+-s "outputs/cell_distribution_heatmap.pdf"</code></pre>
+<p>This will produce a pdf file named <code>outputs/cell_distriubtion_heatmap.pdf</code>containing the cell distriubtion heatmap shown
 below. The
 column labels do not correspond to NCLUSION's cluster labels. The script labels
 each cluster with their positional values in the heatmap for aesthetic purposes. A
@@ -328,13 +326,14 @@ class="anchor" aria-label="anchor" href="#pip-heatmaps"></a>
 insight into the biological mechanisms driving the formation of each cluster.
 The reulting plots are described in detail in the following sub-sections. To
 generate these plots, enter the following command into a bash terminal. </p>
-<pre><code>PATH_TO_JULIA_ENV = ~/nclusion/
-PATH_TO_DATA = ${PATH_TO_JULIA_ENV}/tutorial_data/zheng2017/5000hvgs_zheng2017_preprocessed.h5ad
-R_LIB_PATH = ~/r_packages
+<pre><code>PATH_TO_JULIA_ENV=nclusion/
+PATH_TO_DATA=tutorial_data/dominguezconde2022/5000hvgs_dominguezconde2022_preprocessed.h5ad
+R_LIB_PATH=r_packages
 
-Rscript ${PATH_TO_JULIA_ENV}/utility_scripts/result_plots.R -path_to_data=${PATH_TO_DATA} -path_to_pips="outputs/nclusion_pips.csv" -path_to_labels="outputs/nclusion_labels.csv" -outfile_base="outputs/" -dataset_name='zheng'
+Rscript utility_scripts/result_plots.R -path_to_data=${PATH_TO_DATA} -path_to_pips="outputs/nclusion_pips.csv" -path_to_labels="outputs/nclusion_labels.csv" -outfile_base="outputs/" -dataset_name='dominguezconde'
 -r_library_path=${R_LIB_PATH}</code></pre>
-<p>The plots produced by this script are described below. </p>
+<p>All plots produced by this script can be found in the <code>outputs/</code>
+  directory. Each plot is described in detail below.</p>
 <h4 id="pip-heatmaps">i. Adjusted Posterior Inclusion Probability (PIP) Heatmap
 <a
   class="anchor" aria-label="anchor" href="#pip-heatmaps"></a> 
@@ -413,7 +412,50 @@ other clusters. </p>
       </footer>
 </div>
 
+<style>pre{
+  position: relative;
+  margin: 5px 0 ;
+  padding: 1.75rem 0 1.75rem 1rem;
+
+  /* more stuff */
+}
+
+pre button{
+  position: absolute;
+  top: 5px;
+  right: 5px;
+
+  /* more stuff */
+} 
+pre {  
+  word-wrap: normal;  
+}  
+</style>
+<script>const copyButtonLabel = "Copy";
+
+  // use a class selector if available
+  let blocks = document.querySelectorAll("pre");
   
+  blocks.forEach((block) => {
+    // only add button if browser supports Clipboard API
+    if (navigator.clipboard) {
+      let button = document.createElement("button");
+  
+      button.innerText = copyButtonLabel;
+      block.appendChild(button);
+  
+      button.addEventListener("click", async () => {
+        await copyCode(block);
+      });
+    }
+  });
+  
+  async function copyCode(block) {
+    let code = block.querySelector("code");
+    let text = code.innerText;
+  
+    await navigator.clipboard.writeText(text);
+  }</script>
 
 
   
