@@ -112,7 +112,8 @@
     </div>
     <p>
     This tutorial demonstrates how to replicate NCLUSION clustering results for
-    Domínguez Conde et al 2022 (PAPER REF HERE) from a bash terminal. Open a bash
+    88,057 immune cells taken from 
+    Domínguez Conde et al 2022 (PAPER REF HERE). Open a bash
     terminal and follow along with the tutorial from your working directory. </p> 
     <h2 data-toc-skip>Tutorial Installations</h2>
     <p>First, install NCLUSION into a julia environment following the
@@ -219,7 +220,8 @@ unzip utility_scripts.zip</code></pre>
 <div class="section level3">
 <h2 id="preprocess-data">Download and Preprocess Data<a class="anchor" aria-label="anchor" href="#preprocess-data"></a>
 </h2>
-<p>The Domínguez Conde + 2022 filtered, raw counts can be downloaded from <a
+<p>The Domínguez Conde + 2022 data contains ~330,000 immune cells from 12 organ
+donors. The filtered, raw counts can be downloaded from <a
 href="https://cellgeni.cog.sanger.ac.uk/pan-immune/CountAdded_PIP_global_object_for_cellxgene.h5ad"
 class="external-link"e>here</a>.
 Alternatively, run the following <a href="https://www.gnu.org/software/wget/"
@@ -237,7 +239,8 @@ cd ../</code></pre>
 <p> Before running NCLUSION to cluster the Domínguez Conde + 2022 cells, the
 counts layer must be transformed into a dense
 matrix format. Then, to avoid batch effects, we filter for cells that are all
-taken from the same Donor: patient D496. After
+taken from the same Donor: patient D496. This leaves us with 44 distinct
+cell types. After
 filtering, the count matrices are normalized to 10,000 counts per cell,
 log-transformed, and subset to the top 5000 highly-variable genes. By running
 the following command, the data conversion and preprocessing steps are completed

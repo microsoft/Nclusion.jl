@@ -112,7 +112,8 @@
     </div>
     <p>
     This tutorial demonstrates how to replicate NCLUSION clustering results for
-    Raghavan et al 2021 (PAPER REF HERE) from a bash terminal. Open a bash
+    23,042 pancreatic ductal adenocarcinoma (PDAC) tissue
+    cells obtained from Raghavan et al 2021 (PAPER REF HERE). Open a bash
     terminal and follow along with the tutorial from your working directory. </p> 
     <h2 data-toc-skip>Tutorial Installations</h2>
     <p>First, install NCLUSION into a julia environment following the
@@ -220,7 +221,8 @@ unzip utility_scripts.zip</code></pre>
 <div class="section level3">
 <h2 id="preprocess-data">Download and Preprocess Data<a class="anchor" aria-label="anchor" href="#preprocess-data"></a>
 </h2>
-<p>The Raghavan + 2021 filtered, raw counts can be downloaded from <a
+<p>The Raghavan + 2021 data constains pancreatic ductal adenocarcinoma (PDAC)
+tissue scRNA-seq obtained from 23 patients. The filtered, raw counts can be downloaded from <a
 href="https://www.10xgenomics.com/resources/datasets?query=cd&page=1&configure%5BhitsPerPage%5D=50&configure%5BmaxValuesPerFacet%5D=1000&refinementList%5BbiomaterialTypes%5D=&refinementList%5Bproduct.name%5D%5B0%5D=Single%20Cell%20Gene%20Expression&refinementList%5Bspecies%5D%5B0%5D=Human&refinementList%5BdiseaseStates%5D=&refinementList%5BanatomicalEntities%5D="
 class="external-link"e>here</a>.
 Alternatively, run the following <a href="https://www.gnu.org/software/wget/"
@@ -241,7 +243,10 @@ https://www.dropbox.com/s/ya8v0iilge8u11d/Biopsy_Metadata_23042cells.csv?dl=0
 converted to an AnnData type and preprocessed. The filtered count data must be
 normalized to 10,000 counts per cell, log-transformed, and subset the top 5000 highly-variable
 genes. To account for intertumoral heterogeneity, malignant cell type labels
-were appended with their corresponding donor ID. The data-type conversion and
+were appended with their corresponding donor ID. With this modification, data
+contains 23,042 cells, with 15,302 non-malignant cells of 11 distinct cell types
+and 7,740 malignant cells of 22 distinct cell-types. The data-type conversion
+and
 preprocessing steps are completed with the
 following bash command, which saved the preprocessed data as an AnnData file located at
 <code>tutorial_data/raghavan2021/5000hvgs_raghavan2021_preprocessed.h5ad</code>. For
