@@ -56,7 +56,6 @@ def filter_hvgs(adata, n_hvgs):
     hvg_name_vec = np.sort(adata.var_names.values[top_genes_bool])
     d = {'genes': hvg_name_vec}
     hvg_name_df = pd.DataFrame(data=d)
-    hvg_name_df.to_csv(str(n_hvgs)+'_highly_variable_genes.csv')
     
     adata = adata[:, list(hvg_name_df['genes'].values)]
     raw_mat = ad.AnnData(adata.raw[:, list(hvg_name_df['genes'].values)].X)
