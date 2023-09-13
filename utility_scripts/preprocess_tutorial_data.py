@@ -183,11 +183,6 @@ def main(argv):
 
         adata.var['ribo'] = adata.var_names.str.startswith(ribo_symbol)
         qc_vars.append('ribo')
-            
-    if 'pct_counts_mito' != None:
-        qc_vars.append('pct_counts_mito')
-    if 'pct_counts_ribo' != None:
-        qc_vars.append('pct_counts_ribo')
     
     sc.pp.calculate_qc_metrics(adata, qc_vars=qc_vars, percent_top=None, log1p=False, inplace=True)
     
