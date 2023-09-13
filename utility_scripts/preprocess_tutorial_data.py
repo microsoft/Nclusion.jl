@@ -72,9 +72,9 @@ def annotate_raghavan(x):
         return x['cell.type.ID']
     
 def annotate_vangalen(x):
-    if 'MUTZ3' in x['donor']:
+    if 'MUTZ3' in x['orig.ident']:
         return 'MUTZ3_'+x['CellType']
-    elif 'OCI.AML3' in x['donor']:
+    elif 'OCI.AML3' in x['orig.ident']:
         return 'OCI_AML3_'+x['CellType']
     else:
         return x['CellType']
