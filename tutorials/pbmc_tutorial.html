@@ -250,21 +250,22 @@ wget https://cf.10xgenomics.com/samples/cell-exp/1.1.0/cd34/cd34_filtered_gene_b
 
 wget https://cf.10xgenomics.com/samples/cell-exp/1.1.0/b_cells/b_cells_filtered_gene_bc_matrices.tar.gz
 
-wget https://cf.10xgenomics.com/samples/cell-exp/1.1.0/cd14_monocytes/cd14_monocytes_filtered_gene_bc_matrices.tar.gz
+wget https://cf.10xgenomics.com/samples/cell-exp/1.1.0/cd14_monocytes/cd14_monocytes_filtered_gene_bc_matrices.tar.gz</code></pre>
+<p>Then, unzip the files in the data directory with the following bash command:</p>
 
-cd ../</code></pre>
-<p>Then, unzip the files in the data directory with the following bash commands:</p>
-
-<pre><code>tar -xvzf cytotoxic_t_filtered_gene_bc_matrices.tar.gz
-tar -xvzf naive_cytotoxic_filtered_gene_bc_matrices.tar.gz
-tar -xvzf cd56_nk_filtered_gene_bc_matrices.tar.gz
-tar -xvzf cd4_t_helper_filtered_gene_bc_matrices.tar.gz
-tar -xvzf memory_t_filtered_gene_bc_matrices.tar.gz
-tar -xvzf naive_t_filtered_gene_bc_matrices.tar.gz
-tar -xvzf regulatory_t_filtered_gene_bc_matrices.tar.gz
-tar -xvzf cd34_filtered_gene_bc_matrices.tar.gz
-tar -xvzf b_cells_filtered_gene_bc_matrices.tar.gz
-tar -xvzf cd14_monocytes_filtered_gene_bc_matrices.tar.gz</code></pre>
+<pre><code>for f in `ls *.gz`; do
+filename=$(basename -- "$f")
+extension="${filename##*.}"
+filename="${filename%.*}"
+filename=$(basename -- "$filename")
+filename="${filename%.*}"
+echo "$filename";
+mkdir "${filename}"
+mv "${f}" "${filename}"
+cd "${filename}"
+tar -xzvf "$f"
+cd ../
+done </code></pre>
 <p> Before running NCLUSION to cluster the Zheng + 2017 cells, the data must be
 converted to the AnnData type, and
 concatenated into a single data object. Then, to preprocess the data, we filter out genes that were expressed in less than 3 cells, cells
@@ -276,7 +277,7 @@ executed by entering the following command into a bash terminal, which then
 saves the
 filtered, preprocessed data as an AnnData file located at
 <code>tutorial_data/zheng2017/5000hvgs_zheng2017_preprocessed.h5ad</code>.</p> 
-<pre><code>python preprocess_tutorial_data.py --path_to_data
+<pre><code>python utility_scripts/preprocess_tutorial_data.py --path_to_data
 tutorial_data/zheng2017/ --path_to_save
 tutorial_data/zheng2017/5000hvgs_zheng2017_preprocessed.h5ad --data_name "zheng"
 --n_hvgs 5000</code></pre> <p>For

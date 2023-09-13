@@ -86,7 +86,7 @@ def preprocess(adata, data_name, n_hvgs, min_genes, min_cells, pct_counts_mito, 
         sc.pp.filter_genes(adata, min_cells=min_cells)  
     if pct_counts_mito != None:
         adata = adata[adata.obs['pct_counts_mt'] < pct_counts_mito, :]
-    if pct_counts_ribo != None
+    if pct_counts_ribo != None:
         adata = adata[adata.obs['pct_counts_ribo'] > pct_counts_ribo, :]
           
     adata.raw = adata
