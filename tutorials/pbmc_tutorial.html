@@ -265,7 +265,8 @@ mv "${f}" "${filename}"
 cd "${filename}"
 tar -xzvf "$f"
 cd ../
-done </code></pre>
+done 
+cd ../../</code></pre>
 <p> Before running NCLUSION to cluster the Zheng + 2017 cells, the data must be
 converted to the AnnData type, and
 concatenated into a single data object. Then, to preprocess the data, we filter out genes that were expressed in less than 3 cells, cells

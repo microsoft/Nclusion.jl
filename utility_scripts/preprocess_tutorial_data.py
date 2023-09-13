@@ -10,7 +10,7 @@ import getopt
 def transform_tissue(path_to_data):
     pt_id="D496"
     adata = sc.read_h5ad(path_to_data)
-    adata.X = adata.layer['counts']
+    adata.X = adata.layers['counts']
     data = adata.X
     data = data.todense()
     adata.X = data.A

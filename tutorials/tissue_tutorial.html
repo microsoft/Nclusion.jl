@@ -234,7 +234,7 @@ cd tutorial_data/dominguezconde2022/
 
 wget https://cellgeni.cog.sanger.ac.uk/pan-immune/CountAdded_PIP_global_object_for_cellxgene.h5ad
 
-cd ../</code></pre>
+cd ../../</code></pre>
 
 <p> Before running NCLUSION to cluster the Domínguez Conde + 2022 cells, the
 counts layer must be transformed into a dense
@@ -246,8 +246,8 @@ log-transformed, and subset to the top 5000 highly-variable genes. By running
 the following command, the data conversion and preprocessing steps are completed
 and the filtered, preprocessed data is saved to
 <code>tutorial_data/dominguezconde2022/5000hvgs_dominguezconde2022_preprocessed.h5ad</code>.</p> 
-<pre><code>python preprocess_tutorial_data.py --path_to_data
-tutorial_data/dominguezconde2022/ --path_to_save
+<pre><code>python utility_scripts/preprocess_tutorial_data.py --path_to_data
+tutorial_data/dominguezconde2022/CountAdded_PIP_global_object_for_cellxgene.h5ad --path_to_save
 tutorial_data/dominguezconde2022/5000hvgs_dominguezconde2022_preprocessed.h5ad --data_name "dominguezconde" --n_hvgs 5000</code></pre>
 <p>For more detailed documentation of this script, run <code>python preprocess_tutorial_data.py --help</code>.</p>
 <div class="section level3">
