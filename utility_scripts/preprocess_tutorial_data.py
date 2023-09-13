@@ -110,7 +110,7 @@ def main(argv):
     pct_counts_ribo = None
     min_genes = None
     min_cells = None
-    scale_factor = 10e4
+    scale_factor = 1e4
     species = 'human'
     
     try:                                                                     
