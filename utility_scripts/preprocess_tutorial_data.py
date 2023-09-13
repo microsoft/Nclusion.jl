@@ -140,7 +140,7 @@ def main(argv):
         elif opt == '--species':
             species = arg
     
-    if data_name == 'galen':
+    if data_name == 'vanGalen':
         counts = pd.read_csv(path_to_data+'galenAML_countsdf.csv', index_col=0)
         metadata = pd.read_csv(path_to_data+'galenAML_metadf.csv', index_col=0)
         adata = ad.AnnData(counts)

@@ -237,7 +237,7 @@ cd tutorial_data/vanGalen2019/
 
 wget https://www.dropbox.com/s/399x045zc57fiut/Seurat_AML.rds?dl=0 --content-disposition
 
-cd ../
+cd ../../
 </code></pre>
 
 <p> Before running NCLUSION to cluster the van Galen + 2019 cells, the data must be
@@ -258,10 +258,10 @@ steps can be
 executed by entering the following commands into a bash terminal. The
 preprocessed data will be saved to
 <code>tutorial_data/vanGalen2019/5000hvgs_vanGalen2019_preprocessed.h5ad</code>.</p> 
-<pre><code>python preprocess_tutorial_data.py --path_to_data
+<pre><code>python utility_scripts/preprocess_tutorial_data.py --path_to_data
 tutorial_data/vanGalen2019/ --path_to_save
 tutorial_data/vanGalen2019/5000hvgs_vanGalen2019_preprocessed.h5ad --data_name
-vanGalen" --n_hvgs 5000</code></pre>  For
+"vanGalen" --n_hvgs 5000</code></pre>  For
 more detailed
 documentation of this script, run <code>python
 preprocess_tutorial_data.py --help</code>

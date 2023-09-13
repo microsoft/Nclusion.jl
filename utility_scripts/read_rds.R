@@ -10,7 +10,7 @@ r_library_path <- args[1]
 library(devtools)
 library(R.utils)
 library(Seurat)
-library(SeuratDisk)
+# library(SeuratDisk)
 library(reticulate)
 
 data <- readRDS(path_to_data)
