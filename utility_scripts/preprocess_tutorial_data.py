@@ -20,7 +20,6 @@ def transform_tissue(path_to_data):
 def concat_pbmc_data(path_to_data):
     cell_types = ["b_cells", "cd14_monocytes", "cd34", "cd4_t_helper", "cd56_nk", "cytotoxic_t", "memory_t", "naive_cytotoxic", "naive_t", "regulatory_t"]
 
-    total_cells = 0
     for i, c in enumerate(cell_types):
         
         cells_i = path_to_data+str(c)+"_filtered_gene_bc_matrices/filtered_matrices_mex/hg19/"
@@ -87,7 +86,7 @@ def preprocess(adata, data_name, n_hvgs, min_genes, min_cells, pct_counts_mito, 
     if min_cells != None:
         sc.pp.filter_genes(adata, min_cells=min_cells)  
     if pct_counts_mito != None:
-        adata = adata[adata.obs['pct_counts_mt'] < pct_counts_mito, :]
+        adata = adata[adata.obs['pct_counts_mito'] < pct_counts_mito, :]
     if pct_counts_ribo != None:
         adata = adata[adata.obs['pct_counts_ribo'] > pct_counts_ribo, :]
           
@@ -103,7 +102,7 @@ def preprocess(adata, data_name, n_hvgs, min_genes, min_cells, pct_counts_mito, 
     return adata
 
 def main(argv):
-    
+    species_gene_symbols={'human': {'mt':('MT-', 'MT', 'Mt', 'mt'), 'ribo': ("RPS","RPL", "Rps", "Rpl"), 'hb':("^HB[^(P)]"), 'malat1' : ('MALAT1', 'Malat1', 'malat1')}, 'mouse': {'mt':('Mt-', 'mt-', 'mt', 'Mt'), 'ribo': ("Rps","Rpl", "rps", "rpl"), 'hb': "^hb[^(p)]|^Hb[^(p)]", 'malat1': ('MALAT1', 'Malat1', 'malat1')}}
     path_to_data = None
     path_to_save = ''
     data_name = None
@@ -113,9 +112,10 @@ def main(argv):
     min_genes = None
     min_cells = None
     scale_factor = 10e4
+    species = 'human'
     
     try:                                                                     
-        opts, args = getopt.getopt(argv, '', ["path_to_data=", "path_to_save=", "data_name=", "n_hvgs=", "min_genes=", "min_cells=", "pct_counts_mito=", "pct_countd_ribo=", "scale_factor="])
+        opts, args = getopt.getopt(argv, '', ["path_to_data=", "path_to_save=", "data_name=", "n_hvgs=", "min_genes=", "min_cells=", "pct_counts_mito=", "pct_countd_ribo=", "scale_factor=", "species="])
     except getopt.GetoptError: 
         sys.exit()
     
@@ -138,6 +138,8 @@ def main(argv):
             pct_counts_ribo = int(arg)
         elif opt == '--scale_factor':
             scale_factor = int(arg)
+        elif opt == '--species':
+            species = arg
     
     if data_name == 'galen':
         counts = pd.read_csv(path_to_data+'galenAML_countsdf.csv', index_col=0)
@@ -171,7 +173,23 @@ def main(argv):
     condition = np.ones(adata.n_obs)
     adata.obs['condition'] = pd.Categorical(condition)
     
-    sc.pp.calculate_qc_metrics(adata, percent_top=None, log1p=False, inplace=True)
+    qc_vars = []
+    if species == 'human' or species == 'mouse':
+        mt_symbol=species_gene_symbols[species]['mt']
+        ribo_symbol=species_gene_symbols[species]['ribo']
+
+        adata.var['mt'] = adata.var_names.str.startswith(mt_symbol) 
+        qc_vars.append('mt')
+
+        adata.var['ribo'] = adata.var_names.str.startswith(ribo_symbol)
+        qc_vars.append('ribo')
+            
+    if 'pct_counts_mito' != None:
+        qc_vars.append('pct_counts_mito')
+    if 'pct_counts_ribo' != None:
+        qc_vars.append('pct_counts_ribo')
+    
+    sc.pp.calculate_qc_metrics(adata, qc_vars=qc_vars, percent_top=None, log1p=False, inplace=True)
     
     adata = preprocess(adata, data_name, n_hvgs, min_genes, min_cells, pct_counts_mito, pct_counts_ribo, scale_factor)
 
