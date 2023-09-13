@@ -2,6 +2,8 @@ import scanpy as sc
 import pandas as pd 
 import numpy as np 
 import anndata as ad 
+import sys
+import getopt
 
 # GENERAL COMMAND
 # python preprocess_tutorial_data.py --path_to_data /path/to/data/ --path_to_save path/to/save --data_name dataname --n_hvgs int
@@ -24,7 +26,7 @@ def concat_pbmc_data(path_to_data):
         cells_i = path_to_data+str(c)+"_filtered_gene_bc_matrices/filtered_matrices_mex/hg19/"
         
         adata = sc.read_10x_mtx(cells_i, 
-        var_names=var_labels,               
+        var_names='gene_symbols',               
         cache=True) 
         data = adata.X
         data = data.todense()
@@ -79,7 +81,7 @@ def annotate_vangalen(x):
     else:
         return x['CellType']
 
-def preprocess(adata, data_name, n_hvgs, min_genes, min_cells, pct_counts_mito, pct_counts_ribo):
+def preprocess(adata, data_name, n_hvgs, min_genes, min_cells, pct_counts_mito, pct_counts_ribo, scale_factor):
     if min_genes != None:
         sc.pp.filter_cells(adata, min_genes=min_genes)
     if min_cells != None:
@@ -110,9 +112,10 @@ def main(argv):
     pct_counts_ribo = None
     min_genes = None
     min_cells = None
+    scale_factor = 10e4
     
     try:                                                                     
-        opts, args = getopt.getopt(argv, '', ["path_to_data=", "path_to_save=", "data_name=", "n_hvgs=", "min_genes=", "min_cells=", "pct_counts_mito=", "pct_countd_ribo="])
+        opts, args = getopt.getopt(argv, '', ["path_to_data=", "path_to_save=", "data_name=", "n_hvgs=", "min_genes=", "min_cells=", "pct_counts_mito=", "pct_countd_ribo=", "scale_factor="])
     except getopt.GetoptError: 
         sys.exit()
     
@@ -133,6 +136,8 @@ def main(argv):
             pct_counts_mito = int(arg)
         elif opt == '--pct_counts_ribo':
             pct_counts_ribo = int(arg)
+        elif opt == '--scale_factor':
+            scale_factor = int(arg)
     
     if data_name == 'galen':
         counts = pd.read_csv(path_to_data+'galenAML_countsdf.csv', index_col=0)
@@ -147,17 +152,17 @@ def main(argv):
        adata = concat_pbmc_data(path_to_data)
        min_genes = 200
        min_cells = 3
-       pct_counts_mt = 20
+       pct_counts_mito = 20
        pct_counts_ribo = 5
        
-    elif data_name == "dominguezconde"
+    elif data_name == "dominguezconde":
         adata = transform_tissue(path_to_data)
         
     elif data_name == "raghavan":
         counts = pd.read_csv(path_to_data+'Biopsy_RawDGE_23042cells.csv', index_col=0)
         metadata = pd.read_cvs(path_to_data+"Biopsy_Metadata_23042cells.csv", index_col=0)
         adata = ad.AnnData(counts.T)
-        adata.obs['cell_type'] = meta.apply(lambda x: annotate_raghavan(x), axis=1)
+        adata.obs['cell_type'] = metadata.apply(lambda x: annotate_raghavan(x), axis=1)
         adata.obs['donor'] = metadata.loc[:, "Donor_ID"]
         
     else:
@@ -168,7 +173,7 @@ def main(argv):
     
     sc.pp.calculate_qc_metrics(adata, percent_top=None, log1p=False, inplace=True)
     
-    adata = preprocess(adata, data_name, n_hvgs)
+    adata = preprocess(adata, data_name, n_hvgs, min_genes, min_cells, pct_counts_mito, pct_counts_ribo, scale_factor)
 
     adata.write_h5ad(path_to_save)
     
