@@ -32,14 +32,14 @@ def concat_pbmc_data(path_to_data):
         adata.X = data.A
         adata.var_names_make_unique()
         adata.obs["cell_type"] = c
-        
+
         if i == 0:
             concat_adata = adata
         else:
             concat_adata = ad.concat([concat_adata, adata])
 
     concat_adata.obs_names_make_unique()
-    return adata
+    return concat_adata
 
 def filter_hvgs(adata, n_hvgs):
     counts = np.transpose(adata.raw.X.astype(np.float64))
