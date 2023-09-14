@@ -223,21 +223,23 @@ unzip utility_scripts.zip</code></pre>
 </h2>
 <p>The Raghavan + 2021 data constains pancreatic ductal adenocarcinoma (PDAC)
 tissue scRNA-seq obtained from 23 patients. The filtered, raw counts can be downloaded from <a
-href="https://singlecell.broadinstitute.org/single_cell/study/SCP1644/microenvironment-drives-cell-state-plasticity-and-drug-response-in-pancreatic-cancer#study-download"
-class="external-link"e>here</a>.
-Alternatively, run the following <a href="https://www.gnu.org/software/wget/"
-class="external-link">wget</a> commands to create a directory named
-<code>tutorial_data/raghavan2021/</code> in your current working directory and
-download the filtered counts and metadata. </p>
-<pre><code>mkdir -p tutorial_data/
-mkdir -p tutorial_data/raghavan2021/
-cd tutorial_data/raghavan2021/
+href="https://singlecell.broadinstitute.org/single_cell/study/SCP1644/microenvironment-drives-cell-state-plasticity-and-drug-response-in-pancreatic-cancer#/"
+class="external-link"e>here</a>. You may be asked to log in or create a free
+account on the Single Cell Portal in order to access the data. Download the files named
+<code>Biopsy_RawDGE_23042cells.csv</code> and
+<code>complete_MetaData_70170cells_scp.csv</code> to obtain the filtered counts
+and metadata, respectively. Then, in your working
+directory, create a new directory with <code>mkdir -p
+tutorial_data/raghavan2021/</code> and transfer the data files into this
+directory to follow along with the rest of the tutorial. Return to your working
+dirctory to follow the remaining steps in the tutorial. </p>
 
-wget https://singlecell.broadinstitute.org/single_cell/data/public/SCP1644/microenvironment-drives-cell-state-plasticity-and-drug-response-in-pancreatic-cancer?filename=Biopsy_RawDGE_23042cells.csv --no-check-certificate
-
-wget
-https://singlecell.broadinstitute.org/single_cell/data/public/SCP1644/microenvironment-drives-cell-state-plasticity-and-drug-response-in-pancreatic-cancer?filename=complete_MetaData_70170cells_scp.csv
---no-check-certificate</code></pre>
+<p><b>NOTE:</b> the Single Cell Portal webpage also provides a download command if you
+click on the "Bulk download" button. However, users have had certification
+validation errors using this link, preventing them from downloading all
+necessary datasets. The link is also only valid for one use within 30 minutes.
+After that, the link changes and will no longer work. For these reasons, it is
+recommended that you use the former method for downloading the data. </p>
 
 <p> Before running NCLUSION to cluster the Raghavan + 2021 cells, the data must be
 converted to an AnnData type and preprocessed. The filtered count data must be
@@ -253,7 +255,7 @@ following bash command, which saved the preprocessed data as an AnnData file loc
 detailed
 documentation of this script, run <code>python
 preprocess_tutorial_data.py --help</code></p> 
-<pre><code>python preprocess_tutorial_data.py --path_to_data
+<pre><code>python utility_scripts/preprocess_tutorial_data.py --path_to_data
 tutorial_data/raghavan2021/ --path_to_save
 tutorial_data/raghavan2021/5000hvgs_raghavan2021_preprocessed.h5ad --data_name
 "raghavan" --n_hvgs 5000</code></pre>

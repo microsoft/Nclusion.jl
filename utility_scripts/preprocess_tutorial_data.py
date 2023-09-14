@@ -145,8 +145,8 @@ def main(argv):
         metadata = pd.read_csv(path_to_data+'galenAML_metadf.csv', index_col=0)
         adata = ad.AnnData(counts.T)
         print(metadata['PredictionRefined'])
-        adata.obs['state'] = metadata['PredictionRefined'].values
-        adata.obs['donor'] = metadata['orig.ident'].values
+        adata.obs['state'] = metadata['PredictionRefined']
+        adata.obs['donor'] = metadata['orig.ident']
         adata = adata[adata.obs['state'] != 'unclear']
         adata.obs['cell_type'] = metadata.apply(lambda x: annotate_vangalen(x), axis=1)
         
@@ -162,8 +162,10 @@ def main(argv):
         
     elif data_name == "raghavan":
         counts = pd.read_csv(path_to_data+'Biopsy_RawDGE_23042cells.csv', index_col=0)
-        metadata = pd.read_cvs(path_to_data+"Biopsy_Metadata_23042cells.csv", index_col=0)
-        adata = ad.AnnData(counts.T)
+        metadata = pd.read_cvs(path_to_data+'complete_MetaData_70170cells_scp.csv', index_col=0)
+        counts = counts.T
+        adata = ad.AnnData(counts)
+        metadata = metadata.loc[counts.index.values]
         adata.obs['cell_type'] = metadata.apply(lambda x: annotate_raghavan(x), axis=1)
         adata.obs['donor'] = metadata.loc[:, "Donor_ID"]
         
