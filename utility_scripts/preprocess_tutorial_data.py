@@ -66,10 +66,10 @@ def filter_hvgs(adata, n_hvgs):
     return adata
 
 def annotate_raghavan(x):
-    if x['cell.type.ID'] == 'Tumor':
-        return x['Donor_ID']+'_'+x['cell.type.ID']
+    if x['Coarse_Cell_Annotations'] == 'Tumor':
+        return x['donor_ID']+'_'+x['Coarse_Cell_Annotations']
     else:
-        return x['cell.type.ID']
+        return x['Coarse_Cell_Annotations']
     
 def annotate_vangalen(x):
     if 'MUTZ3' in x['orig.ident']:
@@ -162,7 +162,7 @@ def main(argv):
         
     elif data_name == "raghavan":
         counts = pd.read_csv(path_to_data+'Biopsy_RawDGE_23042cells.csv', index_col=0)
-        metadata = pd.read_cvs(path_to_data+'complete_MetaData_70170cells_scp.csv', index_col=0)
+        metadata = pd.read_csv(path_to_data+'complete_MetaData_70170cells_scp.csv', index_col=0)
         counts = counts.T
         adata = ad.AnnData(counts)
         metadata = metadata.loc[counts.index.values]
