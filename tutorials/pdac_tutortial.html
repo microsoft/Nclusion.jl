@@ -223,7 +223,7 @@ unzip utility_scripts.zip</code></pre>
 </h2>
 <p>The Raghavan + 2021 data constains pancreatic ductal adenocarcinoma (PDAC)
 tissue scRNA-seq obtained from 23 patients. The filtered, raw counts can be downloaded from <a
-href="https://www.10xgenomics.com/resources/datasets?query=cd&page=1&configure%5BhitsPerPage%5D=50&configure%5BmaxValuesPerFacet%5D=1000&refinementList%5BbiomaterialTypes%5D=&refinementList%5Bproduct.name%5D%5B0%5D=Single%20Cell%20Gene%20Expression&refinementList%5Bspecies%5D%5B0%5D=Human&refinementList%5BdiseaseStates%5D=&refinementList%5BanatomicalEntities%5D="
+href="https://singlecell.broadinstitute.org/single_cell/study/SCP1644/microenvironment-drives-cell-state-plasticity-and-drug-response-in-pancreatic-cancer#study-download"
 class="external-link"e>here</a>.
 Alternatively, run the following <a href="https://www.gnu.org/software/wget/"
 class="external-link">wget</a> commands to create a directory named
@@ -233,11 +233,11 @@ download the filtered counts and metadata. </p>
 mkdir -p tutorial_data/raghavan2021/
 cd tutorial_data/raghavan2021/
 
-wget https://www.dropbox.com/s/kbvqmd3kfcn1l3w/Biopsy_RawDGE_23042cells.csv?dl=0 --content-disposition
+wget https://singlecell.broadinstitute.org/single_cell/data/public/SCP1644/microenvironment-drives-cell-state-plasticity-and-drug-response-in-pancreatic-cancer?filename=Biopsy_RawDGE_23042cells.csv --no-check-certificate
 
 wget
-https://www.dropbox.com/s/ya8v0iilge8u11d/Biopsy_Metadata_23042cells.csv?dl=0
---content-disposition</code></pre>
+https://singlecell.broadinstitute.org/single_cell/data/public/SCP1644/microenvironment-drives-cell-state-plasticity-and-drug-response-in-pancreatic-cancer?filename=complete_MetaData_70170cells_scp.csv
+--no-check-certificate</code></pre>
 
 <p> Before running NCLUSION to cluster the Raghavan + 2021 cells, the data must be
 converted to an AnnData type and preprocessed. The filtered count data must be
