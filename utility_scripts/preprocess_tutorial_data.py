@@ -167,7 +167,7 @@ def main(argv):
         adata = ad.AnnData(counts)
         metadata = metadata.loc[counts.index.values]
         adata.obs['cell_type'] = metadata.apply(lambda x: annotate_raghavan(x), axis=1)
-        adata.obs['donor'] = metadata.loc[:, "Donor_ID"]
+        adata.obs['donor'] = metadata.loc["donor_ID"]
         
     else:
         adata = sc.read_h5ad(path_to_data)
