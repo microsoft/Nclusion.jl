@@ -67,7 +67,7 @@ def filter_hvgs(adata, n_hvgs):
 
 def annotate_raghavan(x):
     if x['Coarse_Cell_Annotations'] == 'Tumor':
-        return x['donor_ID']+'_'+x['Coarse_Cell_Annotations']
+        return x['Coarse_Cell_Annotations']+'_'+x['donor_ID']
     else:
         return x['Coarse_Cell_Annotations']
     
