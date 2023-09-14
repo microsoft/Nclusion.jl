@@ -143,9 +143,10 @@ def main(argv):
     if data_name == 'vanGalen':
         counts = pd.read_csv(path_to_data+'galenAML_countsdf.csv', index_col=0)
         metadata = pd.read_csv(path_to_data+'galenAML_metadf.csv', index_col=0)
-        adata = ad.AnnData(counts)
-        adata.obs['state'] = metadata.loc[:, 'PredictionRefined']
-        adata.obs['donor'] = metadata.loc[:, 'orig.ident']
+        adata = ad.AnnData(counts.T)
+        print(metadata['PredictionRefined'])
+        adata.obs['state'] = metadata['PredictionRefined'].values
+        adata.obs['donor'] = metadata['orig.ident'].values
         adata = adata[adata.obs['state'] != 'unclear']
         adata.obs['cell_type'] = metadata.apply(lambda x: annotate_vangalen(x), axis=1)
         
