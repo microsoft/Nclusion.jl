@@ -1,16 +1,16 @@
 r_library_path <- NULL
-path_to_data <- "tutorial_data/vanGalen2019/Seurat_AML.rds"
+path_to_data <- NULL 
 
 args <- commandArgs(trailingOnly=TRUE)
 
 r_library_path <- args[1]
+path_to_data <- args[2]
 
 .libPaths(r_library_path)
 
 library(devtools)
 library(R.utils)
 library(Seurat)
-# library(SeuratDisk)
 library(reticulate)
 
 data <- readRDS(path_to_data)

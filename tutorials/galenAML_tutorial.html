@@ -246,7 +246,7 @@ into a bash terminal to extract the count and meta data from the
 <code>.rds</code> object and save them as dataframes to <code>.csv</code> files,
 located at <code>'tutorial_data/vanGalen2019/galenAML_countsdf.csv'</code> and
 <code>'tutorial_data/vanGalen2019/galenAML_metadf.csv'</code>, respectively:</p>
-<pre><code>Rscript utility_scripts/read_rds.R /path/to/R/library</code></pre>
+<pre><code>Rscript utility_scripts/read_rds.R "/path/to/R/library" "tutorial_data/vanGalen2019/Seurat_AML.rds"</code></pre>
 Next, the count and cell-type data must be extracted from these dataframes to
 generate an AnnData-based representation of the data. After the conversion, it is normalized to 10,000
 counts per cell, log-transformed, and then
