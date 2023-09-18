@@ -1,5 +1,5 @@
 #!/bin/bash
-RLIB=NULL
+RLIB=''
 DATA="tutorial_data/vanGalen2019/Seurat_AML.rds"
 
 for i in "$@"
@@ -12,14 +12,13 @@ case $i in
     -d=*|--datapath=*)
     DATA="${i#*=}"
     ;;
-    -h=*|--help=*)
+    -h|--help)
     echo "Usage: . convert_galen_dtype.sh [--rlib STR] [--datapath STR]"
     echo "-r | --rlib: path to r library, if applicable (Optional)"
     echo "-d | --datapath: path to  data (an .rds file) you want to make count and metadata csvs from"
     ;;
     *)
-    echo 'Input error. Please use the --help flag for input documentation' 
-    exit 3 # unknown option
+    echo 'Input error. Please use the --help flag for input documentation'  # unknown option
     ;;
 esac
 done
