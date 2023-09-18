@@ -41,7 +41,7 @@ src_dir = "/src/"
 
 
 flushed_logger("Loading NCLUSION Modules....";logger)
-include("../"*src_dir*"nclusion.jl")
+include(src_dir*"nclusion.jl")
 using .nclusion
 
 
