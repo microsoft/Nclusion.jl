@@ -39,4 +39,6 @@ path_to_save = $PATHTOSAVE
 data_name = $DATANAME
 n_hvgs = $HVGS
 
+echo python tutorial_scripts/utility_scripts/preprocess_tutorial_data.py --path_to_data $path_to_data --path_to_save $path_to_save --data_name $data_name --n_hvgs $n_hvgs
+
 python tutorial_scripts/utility_scripts/preprocess_tutorial_data.py --path_to_data $path_to_data --path_to_save $path_to_save --data_name $data_name --n_hvgs $n_hvgs

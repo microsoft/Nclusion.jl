@@ -40,11 +40,7 @@ input_file = $INPUTFILE
 julia_env = $JULIAENV
 dataset_name = $DATASET
 output_dir = $OUTPUTDIR
-
-echo datapath = $input_file
-echo julia_env = $julia_env
-echo dataset_name = $dataset_name
-echo output_dir = $output_dir
+echo julia --project=${julia_env} --thread=${NUM_THREADS} tutorial_scripts/utility_scripts/run_nclusion.jl  "${input_file}" "${k}" "${a}" "${b}"  "12345" "${elbo_ep}" "${dataset_name}" "${output_dir}" 
 
 a=1.0
 b=1.0
