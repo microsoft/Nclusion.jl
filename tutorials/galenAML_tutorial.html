@@ -236,10 +236,10 @@ required packages by entering the following commands into the Julia repl: </p>
     into your current working directory with the following bash commands.
     Alternatively, you can download the tutorial files as a zipped directory
     from <a
-    href="../utility_scripts.zip" download>here</a>, transfer them to your
+    href="../tutorial_scripts.zip" download>here</a>, transfer them to your
     working directory, and unzip to use. 
-    <pre><code>wget https://microsoft.github.io/nclusion/utility_scripts.zip
-unzip utility_scripts.zip</code></pre>
+    <pre><code>wget https://microsoft.github.io/nclusion/tutorial_scripts.zip
+unzip tutorial_scripts.zip</code></pre>
     </p>
 
 <div class="section level3">
@@ -273,7 +273,7 @@ located at <code>'tutorial_data/vanGalen2019/galenAML_countsdf.csv'</code> and
 <code>'tutorial_data/vanGalen2019/galenAML_metadf.csv'</code>, respectively.
 <b>NOTE: </b> if you want to load packages from a specific R library, append <code>--rlib="/PATH/TO/R/LIBRARY"</code> onto
 this command. </p>
-<pre><code>. convert_galen_dtype.sh --datapath="tutorial_data/vanGalen2019/Seurat_AML.rds"</code></pre>
+<pre><code>. tutorial_scripts/convert_galen_dtype.sh --datapath="tutorial_data/vanGalen2019/Seurat_AML.rds"</code></pre>
 Next, the count and cell-type data must be extracted from these dataframes to
 generate an AnnData-based representation of the data. After the conversion, it is normalized to 10,000
 counts per cell, log-transformed, and then
@@ -285,22 +285,19 @@ steps can be
 executed by entering the following commands into a bash terminal. The
 preprocessed data will be saved to
 <code>tutorial_data/vanGalen2019/5000hvgs_vanGalen2019_preprocessed.h5ad</code>.</p> 
-<pre><code>python utility_scripts/preprocess_tutorial_data.py --path_to_data
-tutorial_data/vanGalen2019/ --path_to_save
-tutorial_data/vanGalen2019/5000hvgs_vanGalen2019_preprocessed.h5ad --data_name
-"vanGalen" --n_hvgs 5000</code></pre>  For
+<pre><code>. tutorial_scripts/preprocess.sh --data_path="tutorial_data/vanGalen2019/" --savepath="tutorial_data/vanGalen2019/5000hvgs_vanGalen2019_preprocessed.h5ad" --data_name="vanGalen" --n_hvgs=5000</code></pre>  For
 more detailed
-documentation of this script, run <code>python
-preprocess_tutorial_data.py --help</code>
+documentation of this script, run <code>.
+preprocess.sh --help</code>
 <div class="section level3">
 <h2 id="run-nclusion">Run NCLUSION<a class="anchor" aria-label="anchor" href="#run-nclusion"></a>
 </h2>
 <p> To run NCLUSION from your working direcorty, enter the following bash
-command. <b>Be sure to replace </b><code>PATH/TO/JULIA/ENV</code><b> with the
-relative path to your Julia project environment.</b></p>
+command. <b>NOTE: </b> set the <code>--julia_env</code> variable to the
+relative path to your Julia project environment where NCLUSION is installed.</p>
 <pre><code>mkdir -p vanGalen2019_outputs
 
-. utility_scripts/run_nclusion.sh 'tutorial_data/vanGalen2019/5000hvgs_vanGalen2019_preprocessed.h5ad' 'PATH/TO/JULIA/ENV' 'vanGalen2019' 'vanGalen2019_outputs/'</code></pre>
+. tutorial_scripts/run_nclusion.sh --datapath='tutorial_data/vanGalen2019/5000hvgs_vanGalen2019_preprocessed.h5ad' --julia_env='PATH/TO/JULIA/ENV' --data_name='vanGalen2019' --output_dir='vanGalen2019_outputs/'</code></pre>
 <p>The clustering results can be found in a csv that is saved to
 <code>vanGalen_outputs/nclusion_labels.csv</code> in your working directory. </p>
 <div class="section level3"><h2 id="eval-metrics">Analysis of NCLUSION
@@ -317,7 +314,7 @@ while intrinsic metric calculations are not. Enter the following command into a
 bash terminal to compute these metrics. The results will be saved to
 <code>vanGalen2019_outputs/nclusion_labels.csv</code>. <b>Be sure to replace </b><code>PATH/TO/JULIA/ENV</code><b> with the
   relative path to your Julia project environment.</b></p>
-<pre><code>. utility_scripts/QuantEval.sh vanGalen2019_outputs/nclusion_labels.csv "PATH/TO/JULIA/ENV" tutorial_data/vanGalen2019/5000hvgs_vanGalen2019_preprocessed.h5ad 
+<pre><code>. tutorial_scripts/QuantEval.sh --results_path="vanGalen2019_outputs/nclusion_labels.csv" --julia_env"PATH/TO/JULIA/ENV" --datapath="tutorial_data/vanGalen2019/5000hvgs_vanGalen2019_preprocessed.h5ad" 
 </code></pre>
 <h3 id="eval-metrics">B. Generate Cell Distribution Heatmap</h3><a class="anchor" aria-label="anchor" href="#eval-metrics"></a>
 </h3>
@@ -330,30 +327,38 @@ location <i>(i, j)</i> on the heatmap corresponds to percent of cells with
 "true" cell-type label <i>i</i> that were assigned to cluster <i>j</i> by
 NCLUSION.</p> <p>To generate the heatmap from the NCLUSION result, enter the
 following commands into a bash terminal. </p>
-<pre><code>python make_heatmaps.py --input_path $PATH_TO_RESULTS --pct_table_file "vanGalen2019_outputs/cell_distribution_table.csv" --cluster_dict_file "vanGalen2019_outputs/cluster_mapping_to_new_label.csv"
-
-Rscript make_heatmaps.R -f "vanGalen2019_outputs/cell_distribution_table.csv"
--s "vanGalen2019_outputs/cell_distribution_heatmap.pdf"</code></pre>
+<pre><code>. tutorial_scripts/make_heatmap.sh --nclusion_results="vanGalen2019_outputs/nclusion_labels.csv" --pct_table="vanGalen2019_outputs/cell_distribution_table.csv" --cluster_dict="vanGalen2019_outputs/cluster_mapping_to_new_label.csv" --save_heatmap="vanGalen2019_outputs/cell_distribution_heatmap.pdf"</code></pre>
 <p>This will produce a pdf file named <code>vanGalen2019_outputs/vanGalen_cell_distriubtion_heatmap.pdf</code>containing the cell distriubtion heatmap shown
 below. The
 column labels do not correspond to NCLUSION's cluster labels. The script labels
 each cluster with their positional values in the heatmap for aesthetic purposes. A
 mapping of the original NCLUSION cluster labels to these new positional labels can
 be found in a file named <code>vanGalen2019_outputs/mapping_cluster_to_new_label.csv</code></p>
-<img src="../images/cell_distriubtion_galen_5000hvgs-1.png" width="600" height="500">
-<h3 id="pip-heatmaps">C. Variable Selection Analysis <a
+<img src="../images/cell_distriubtion_galen_5000hvgs-1.png" width="600"
+height="500">
+<h3 id="tsnes">C. Annotated TSNEs <a
+  class="anchor" aria-label="anchor" href="#pip-heatmaps"></a> 
+  </h3>
+  <p>Now, we will plot the t-distributed stochastic neighbor embedding (tSNE)
+  for the data annotated with various labels: the called cell type labels that
+  were published along with the data, and the NCLUSION-inferred cell type labels. We
+  will also generate tSNEs corresponding to the boolean label of each cells'
+  membership to a given NCLUSION-inferred cluster, such that cells assigned to cluster
+  <i>n</i> are colored and all other cells are greyed out. The
+  total number of tSNEs produced are equal to the total number of
+  NCLUSION-inferred clusters plus two. However, for the sake of refining this analysis,
+  we only display cluster membership tSNEs for clusters of interest. Run the following command to generate
+  these plots: </p>
+  <pre><code>. tutorial_scripts/make_tsnes.sh --datapath="tutorial_data/vanGalen2019/5000hvgs_vanGalen2019_preprocessed.h5ad" --nclusion_results="vanGalen2019_outputs/nclusion_results.csv" --data_name="vanGalen2019"</code></pre>
+<h3 id="pip-heatmaps">D. Variable Selection Analysis <a
 class="anchor" aria-label="anchor" href="#pip-heatmaps"></a> 
 </h3>
 <p>Next, analyze results of NCLUSION's variable selection functionality to gain
 insight into the biological mechanisms driving the formation of each cluster.
 The reulting plots are described in detail in the following sub-sections. To
-generate these plots, enter the following command into a bash terminal. </p>
-<pre><code>PATH_TO_JULIA_ENV=nclusion/
-PATH_TO_DATA=tutorial_data/vanGalen2019/5000hvgs_vanGalen2019_preprocessed.h5ad
-R_LIB_PATH=r_packages
-
-Rscript utility_scripts/result_plots.R -path_to_data=${PATH_TO_DATA} -path_to_pips="outputs/nclusion_pips.csv" -path_to_labels="outputs/nclusion_labels.csv" -outfile_base="outputs/" -dataset_name='vanGalen'
--r_library_path=${R_LIB_PATH}</code></pre>
+generate these plots, enter the following command into a bash terminal. <b>NOTE: </b> if you want to load packages from a specific R library, append <code>--rlib="/PATH/TO/R/LIBRARY"</code> onto
+this command.</p>
+<pre><code>. tutorial_scripts/analyze_results --datapath="tutorial_data/vanGalen2019/5000hvgs_vanGalen2019_preprocessed.h5ad" --pips="outputs/nclusion_pips.csv" --nclusion_results="outputs/nclusion_labels.csv" --output_dir="vanGalen2019_outputs/" --data_name='vanGalen2019'</code></pre>
 <p>All plots produced by this script can be found in the <code>outputs/</code>
   directory. Each plot is described in detail below. </p>
 <h4 id="pip-heatmaps">i. Adjusted Posterior Inclusion Probability (PIP) Heatmap

@@ -16,9 +16,11 @@ case $i in
     echo "Usage: . convert_galen_dtype.sh [--rlib STR] [--datapath STR]"
     echo "-r | --rlib: path to r library, if applicable (Optional)"
     echo "-d | --datapath: path to  data (an .rds file) you want to make count and metadata csvs from"
+    return
     ;;
     *)
-    echo 'Input error. Please use the --help flag for input documentation'  # unknown option
+    echo 'Input error. Please use the --help flag for input documentation'
+    return
     ;;
 esac
 done
@@ -28,4 +30,4 @@ data=$DATA
 echo rlib = ${rlib}
 echo data = ${data}
 
-Rscript utility_scripts/read_rds.R $rlib $data
+Rscript tutorial_scripts/utility_scripts/read_rds.R $rlib $data

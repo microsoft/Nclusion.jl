@@ -2,6 +2,8 @@ import os
 os.environ['OPENBLAS_NUM_THREADS'] = '1'
 import scanpy as sc
 import pandas as pd
+import getopt
+import sys
 
 def make_tsnes(adata, res, figures_prefix):
 
@@ -11,8 +13,8 @@ def make_tsnes(adata, res, figures_prefix):
     adata.obs['called_label'] = pd.Categorical(res.loc[:, 'called_label'])
     adata.obs['cell_type'] = pd.Categorical(res.loc[:, "cell_type"])
 
-    sc.pl.tsne(adata, color="cell_type", save=figures_prefix+'_celltype.png')
-    sc.pl.tsne(adata, color="inferred_label", save='_'+model+'_'+dataset+'_'+hvgs+'_inferredlabel.png')
+    sc.pl.tsne(adata, color="cell_type", save=figures_prefix+'_called_cell_type.png')
+    sc.pl.tsne(adata, color="inferred_label", save='_'+figures_prefix+'_inferred_label.png')
         
 
 

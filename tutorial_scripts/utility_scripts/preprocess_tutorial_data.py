@@ -114,7 +114,7 @@ def main(argv):
     species = 'human'
     
     try:                                                                     
-        opts, args = getopt.getopt(argv, '', ["path_to_data=", "path_to_save=", "data_name=", "n_hvgs=", "min_genes=", "min_cells=", "pct_counts_mito=", "pct_countd_ribo=", "scale_factor=", "species="])
+        opts, args = getopt.getopt(argv, '', ["path_to_data=", "path_to_save=", "data_name=", "n_hvgs=", "min_genes=", "min_cells=", "pct_counts_mito=", "pct_counts_ribo=", "scale_factor=", "species="])
     except getopt.GetoptError: 
         sys.exit()
     
