@@ -44,12 +44,12 @@ case $i in
 esac
 done
 
-data_path = $DATAPATH
-rlib = $RLIB
-pips = $PIPS
-nclusion_results = $RESULTSPATH
-output_dir = $OUTPUTPATH
-data_name = $DATANAME
+data_path=$DATAPATH
+rlib=$RLIB
+pips=$PIPS
+nclusion_results=$RESULTSPATH
+output_dir=$OUTPUTPATH
+data_name=$DATANAME
 echo Rscript tutorial_scripts/utility_scripts/result_plots.R -path_to_data=$data_path -path_to_pips=$pips -path_to_labels=$nclusion_results -outfile_base=$output_dir -dataset_name=$data_name -r_library_path=$rlib
 
 Rscript tutorial_scripts/utility_scripts/result_plots.R -path_to_data=$data_path -path_to_pips=$pips -path_to_labels=$nclusion_results -outfile_base=$output_dir -dataset_name=$data_name -r_library_path=$rlib

@@ -34,10 +34,10 @@ case $i in
 esac
 done
 
-nclusion_results = $RESULTSPATH
-pct_table = $PCTTABLE
-cluster_dict = $CLUSTERDICT
-save_heatmap = $HEATMAP
+nclusion_results=$RESULTSPATH
+pct_table=$PCTTABLE
+cluster_dict=$CLUSTERDICT
+save_heatmap=$HEATMAP
 
 python tutorial_scripts/utility_scripts/make_heatmaps.py --input_path $nclusion_results --pct_table_file $pct_table --cluster_dict_file $cluster_dict
 

@@ -29,8 +29,8 @@ case $i in
 esac
 done
 
-data_path = $DATAPATH
-nclusion_results = $RESULTSPATH
-data_name = $DATANAME
+data_path=$DATAPATH
+nclusion_results=$RESULTSPATH
+data_name=$DATANAME
 echo python tutorial_scripts/utility_scripts/plot_tsnes.py --path_to_data $data_path --path_to_labels $nclusion_results --figures_prefix $data_name
 python tutorial_scripts/utility_scripts/plot_tsnes.py --path_to_data $data_path --path_to_labels $nclusion_results --figures_prefix $data_name
