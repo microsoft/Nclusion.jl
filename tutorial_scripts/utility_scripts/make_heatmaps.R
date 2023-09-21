@@ -1,20 +1,21 @@
-path_to_pct_table <- NULL
 coltitle <- 'Inferred Cell Type'
 rowtitle <- 'Annotated Cell Type'
-save_path <- 'cell_type_distribution_heatmap.pdf'
-r_library_path <- NULL
 
-args <- commandArgs(asValues=TRUE, excludeReserved=TRUE)[-1]
-keys <- attachLocally(args)
+args <- commandArgs(trailingOnly=TRUE)
 
+path_to_pct_table <- args[1]
+save_path <- args[2]
+r_library_path <- args[3]
+
+if (r_library_path != ''){
 .libPaths(r_library_path)
+}
+
 library(circlize)
 library(reticulate)
 library(devtools)
-library(ClueR)
 library(R.utils)
 library(ComplexHeatmap)
-pd <- import("pandas")
 
 data <- read.csv(path_to_pct_table, row.names=1)
 

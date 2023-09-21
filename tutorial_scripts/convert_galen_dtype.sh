@@ -7,7 +7,6 @@ do
 case $i in
     -r=*|--rlib=*)
     RLIB="${i#*=}"
-
     ;;
     -d=*|--datapath=*)
     DATA="${i#*=}"

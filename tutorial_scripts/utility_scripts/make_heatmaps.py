@@ -89,11 +89,12 @@ def main(argv):
     input_path = ''
     cluster_dict_file = 'mapping_cluster_to_new_label.csv'
     pct_table_file = 'cell_type_distribution_table.csv'
-    col_sum_threshold = 0.2
-    display_details = False
+    data_name = ''
+    cluster_dict = None
+    tutorials_path = 'tutorial_scripts/'
     
     try:
-        opts, args = getopt.getopt(argv, '', ["input_path=", "save_path=", "pct_table_file=", "display_details"])
+        opts, args = getopt.getopt(argv, '', ["input_path=", "save_path=", "pct_table_file=", "cluster_dict_file=", "data_name=", "tutorials_path="])
         print(opts)
                                 
         for opt, arg in opts:
@@ -101,35 +102,42 @@ def main(argv):
                 input_path = arg
             elif opt == '--cluster_dict_file':
                 cluster_dict_file = arg
-            elif opt == 'pct_table_file':
+            elif opt == '--pct_table_file':
                 pct_table_file = arg
             elif opt == '--col_sum_threshold':
                 col_sum_threshold = float(arg)
-            elif opt == '--display_details':
-                display_details = True
+            elif opt == '--col_sum_threshold':
+                col_sum_threshold = float(arg)
+            elif opt == '--data_name':
+                data_name = arg
+            elif opt == 'tutorials_path':
+                tutorials_path = arg
     
     except getopt.GetoptError: 
         sys.exit()
         print(opts)   
     
+    if data_name == 'vanGalen':
+        clusters = pd.read_csv('tutorial_scripts/cluster_mapping/vanGalen_mapping.csv', index_col=0).to_dict()
+        cluster_dict = clusters['0']
+    elif data_name == 'dominguezconde':
+        clusters = pd.read_csv('tutorial_scripts/cluster_mapping/dominguezconde_mapping.csv', index_col=0).to_dict()
+        cluster_dict = clusters['0']
+    elif data_name == 'raghavan':
+        clusters = pd.read_csv('tutorial_scripts/cluster_mapping/raghavan_mapping.csv')
+        cluster_dict = clusters['0']
+    elif data_name == 'zheng':
+        clusters = pd.read_csv('tutorial_scripts/cluster_mapping/zheng_mapping.csv')
+        cluster_dict = clusters['0']
+
     data = pd.read_csv(input_path, index_col=1)
     
     pct_table = get_pcts(data)
     
-    df_optimal = optimize_diag(pct_table, col_sum_threshold)
-
-    pct_table = pct_table.reindex(columns=df_optimal.columns.values)
- 
-    
-    cluster_dict = {}
-    i = 1
-    for col in pct_table.columns.values:
-        cluster_dict[col] = i
-        i += 1
-    cluster_mapping = pd.DataFrame.from_dict(cluster_dict, orient='index')
-    cluster_mapping.to_csv(cluster_dict_file)  
-    
+    pct_table = pct_table.reindex(columns=list(cluster_dict.keys()))
+  
     pct_table = pct_table.rename(columns=cluster_dict)
+
     pct_table.to_csv(pct_table_file) 
     
                             

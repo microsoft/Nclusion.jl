@@ -15,7 +15,7 @@ case $i in
     -j=*|--julia_env=*)
     JULIAENV="${i#*=}"
     ;;
-    -n=*|--dataset_name=*)
+    -n=*|--data_name=*)
     DATASET="${i#*=}"
     ;;
     -o=*|--output_dir=*)

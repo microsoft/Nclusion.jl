@@ -140,16 +140,15 @@ def main(argv):
         elif opt == '--species':
             species = arg
     
-    if data_name == 'vanGalen':
+    if data_name == 'vanGalen':  
         counts = pd.read_csv(path_to_data+'galenAML_countsdf.csv', index_col=0)
         metadata = pd.read_csv(path_to_data+'galenAML_metadf.csv', index_col=0)
-        adata = ad.AnnData(counts.T)
+        adata = ad.AnnData(counts.T, dtype=np.float32)
         print(metadata['PredictionRefined'])
         adata.obs['state'] = metadata['PredictionRefined']
         adata.obs['donor'] = metadata['orig.ident']
         adata = adata[adata.obs['state'] != 'unclear']
         adata.obs['cell_type'] = metadata.apply(lambda x: annotate_vangalen(x), axis=1)
-        
     elif data_name == 'zheng':
        adata = concat_pbmc_data(path_to_data)
        min_genes = 200
@@ -166,8 +165,9 @@ def main(argv):
         counts = counts.T
         adata = ad.AnnData(counts)
         metadata = metadata.loc[counts.index.values]
-        adata.obs['cell_type'] = metadata.apply(lambda x: annotate_raghavan(x), axis=1)
-        adata.obs['donor'] = metadata.loc["donor_ID"]
+        metadata['cell_type'] = metadata.apply(lambda x: annotate_raghavan(x), axis=1)
+        adata.obs['cell_type'] = metadata['cell_type']
+        adata.obs['donor'] = metadata["donor_ID"]
         
     else:
         adata = sc.read_h5ad(path_to_data)

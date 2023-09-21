@@ -1,12 +1,11 @@
-r_library_path <- NULL
-path_to_data <- NULL 
-
 args <- commandArgs(trailingOnly=TRUE)
 
 r_library_path <- args[1]
 path_to_data <- args[2]
 
+if (r_library_path != ''){ 
 .libPaths(r_library_path)
+}
 
 library(devtools)
 library(R.utils)
