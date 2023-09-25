@@ -5,6 +5,8 @@ PIPS=''
 RESULTSPATH=''
 OUTPUTPATH=''
 DATANAME=''
+MAPPING=''
+NKPATH=''
 
 for i in "$@"
 do
@@ -26,6 +28,12 @@ case $i in
     ;;
     -n=*|--data_name=*)
     DATANAME="${i#*=}"
+    ;;
+    -m=*|--mapping=*)
+    MAPPING="${i#*=}"
+    ;;
+    -k=*|--path-to_nk=*)
+    NKPATH="${i#*=}"
     ;;
     -h|--help)
     echo "Usage: . analyze_results.sh [--rlib STR] [--datapath STR] [--pips STR] [--nclusion_results STR] [--output_dir STR] [--data_name STR]"
@@ -50,6 +58,14 @@ pips=$PIPS
 nclusion_results=$RESULTSPATH
 output_dir=$OUTPUTPATH
 data_name=$DATANAME
-echo Rscript tutorial_scripts/utility_scripts/result_plots.R -path_to_data=$data_path -path_to_pips=$pips -path_to_labels=$nclusion_results -outfile_base=$output_dir -dataset_name=$data_name -r_library_path=$rlib
+cluster_mapping=$MAPPING
+nk_path=$NKPATH
 
-Rscript tutorial_scripts/utility_scripts/result_plots.R -path_to_data=$data_path -path_to_pips=$pips -path_to_labels=$nclusion_results -outfile_base=$output_dir -dataset_name=$data_name -r_library_path=$rlib
+
+echo python make_gsea_csvs.py --path_to_pips $pips --path_to_labels $nclusion_results --path_to_translation $cluster_mapping --path_to_nk $nk_path --output_path $output_dir --path_to_data $data_path
+
+echo Rscript analyze_results.R $data_path $pips $nclusion_results $output_dir $data_name $rlib
+
+python make_gsea_csvs.py --path_to_pips $pips --path_to_labels $nclusion_results --path_to_translation $cluster_mapping --path_to_nk $nk_path --output_path $output_dir --path_to_data $data_path
+
+Rscript analyze_results.R $data_path $pips $nclusion_results $output_dir $data_name $rlib

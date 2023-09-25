@@ -58,13 +58,12 @@ library(genekitr)
 library(patchwork)
 library(organism, character.only = TRUE)
 
-path_to_data <- "/home/v-mahughes/nclusion_preprocessed_data/galenAML2019/5000hvgs_galenAML_preprocessed.h5ad"
-path_to_pips<- "/home/v-mahughes/archive/galenAML/5000G-2023-09-09T201816-pips.csv"
-path_to_labels <- "/home/v-mahughes/archive/galenAML/galen-AML_5000HVGs-43690N_nclusion-2023-09-09T201816.csv"
-outfile_base <- "/home/v-mahughes/test_result_plots/galen/"
-path_to_translation <- "/home/v-mahughes/archive/galenAML/mapping_cluster_to_new_label.csv"
-data_name <- "vanGalen"
-go_term_base <- "/home/v-mahughes/test_result_plots/galen/go_csvs"
+# path_to_data <- "/home/v-mahughes/nclusion_preprocessed_data/galenAML2019/5000hvgs_galenAML_preprocessed.h5ad"
+# path_to_pips<- "/home/v-mahughes/archive/galenAML/5000G-2023-09-09T201816-pips.csv"
+# path_to_labels <- "/home/v-mahughes/archive/galenAML/galen-AML_5000HVGs-43690N_nclusion-2023-09-09T201816.csv"
+# outfile_base <- "/home/v-mahughes/test_result_plots/galen/"
+# path_to_translation <- "/home/v-mahughes/archive/galenAML/mapping_cluster_to_new_label.csv"
+# data_name <- "vanGalen"
 # path_to_data <- "/home/v-mahughes/nclusion_preprocessed_data/tissueimmuneatlas/5000hvgs_tissue_immune_atlas_donorD496_preprocessed.h5ad"
 # path_to_pips<- "/home/v-mahughes/archive/tissueimmune/5000G-2023-09-09T201820-pips.csv"
 # path_to_labels <- "/home/v-mahughes/archive/tissueimmune/tissue-immune-pt496_5000HVGs-88057N_nclusion-2023-09-09T201820.csv"
@@ -77,6 +76,12 @@ go_term_base <- "/home/v-mahughes/test_result_plots/galen/go_csvs"
 # outfile_base <- "/home/v-mahughes/test_result_plots/pdac_biopsy/"
 # path_to_translation <- "/home/v-mahughes/archive/pdac/mapping_cluster_to_new_label.csv"
 # data_name <- "raghavan"
+path_to_data <- "/home/v-mahughes/nclusion_preprocessed_data/pure_pbmc/pbmc_5000hvg.h5ad"
+path_to_pips<- "/home/v-mahughes/archive/pbmc/5000G-2023-09-10T012525-pips.csv"
+path_to_labels <- "/home/v-mahughes/archive/pbmc/labelled-pbmc_5000HVGs-94615N_nclusion-2023-09-10T012525.csv"
+outfile_base <- "/home/v-mahughes/test_result_plots/pbmc/"
+path_to_translation <- "/home/v-mahughes/archive/pbmc/mapping_cluster_to_new_label.csv"
+data_name <- "zheng"
 
 data <- read.csv(path_to_pips, row.names = 1, header= TRUE)
 num_col = dim(data)[2]
@@ -136,6 +141,10 @@ permutation_vec <- c(4, 5, 6, 3, 9, 8, 1, 2, 7)
   permutation_vec <- c(4, 5, 1, 3, 7, 9, 8, 6, 2)
 } else if (data_name == "raghavan"){
   permutation_vec <- c(8, 1, 5, 4, 3, 6, 2, 7)
+}else if (data_name == 'zheng'){
+  permutation_vec = c(15, 11, 12, 3, 9, 14, 7, 8, 6, 13, 4, 1, 2, 10, 5)
+} else {
+  permuation_vec = translation$X0
 }
 
 file_name1 = paste0(outfile_base,data_set,"heatmap_AdjustedPips_KbyG_defaultclustering.pdf")
@@ -332,7 +341,8 @@ for (i in c(1:num_clus)){
 
 }
 
-# go_term_base <-"/users/cnwizu/data/cnwizu/SCoOP-sc/outputs/nclusion_experiments/RESULTS_9112023/galenAML/NCLUSION/5000hvgs/go_csvs"
+go_term_base <- paste0(outfile_base, 'go_csvs')
+
 for (c in c(1:num_clus)){
   path_to_go_term_file = paste0(go_term_base,"/Cluster_",c,"_GOTerms.csv")
   print(path_to_go_term_file)
