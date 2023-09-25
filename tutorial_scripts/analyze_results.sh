@@ -43,6 +43,8 @@ case $i in
     echo "-r | --nclusion_results: path to NCLUSION cluster assignment results"
     echo "-o | --output_dir: path to directory where all plots will be saved"
     echo "-n | --data_name: name of dataset for naming plot files"
+    echo "-m | --mapping: path to cluster mapping file"
+    echo "-k | --path_to_nk: path to file that estimates number of cells per cluster"
     return
     ;;
     *)

@@ -91,10 +91,9 @@ def main(argv):
     pct_table_file = 'cell_type_distribution_table.csv'
     data_name = ''
     cluster_dict = None
-    tutorials_path = 'tutorial_scripts/'
     
     try:
-        opts, args = getopt.getopt(argv, '', ["input_path=", "save_path=", "pct_table_file=", "cluster_dict_file=", "data_name=", "tutorials_path="])
+        opts, args = getopt.getopt(argv, '', ["input_path=", "save_path=", "pct_table_file=", "cluster_dict_file=", "data_name="])
         print(opts)
                                 
         for opt, arg in opts:
@@ -110,8 +109,6 @@ def main(argv):
                 col_sum_threshold = float(arg)
             elif opt == '--data_name':
                 data_name = arg
-            elif opt == 'tutorials_path':
-                tutorials_path = arg
     
     except getopt.GetoptError: 
         sys.exit()

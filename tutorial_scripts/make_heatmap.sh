@@ -4,6 +4,7 @@ PCTTABLE=''
 CLUSTERDICT=''
 HEATMAP=''
 RLIB=''
+DATANAME=''
 
 for i in "$@"
 do
@@ -22,6 +23,9 @@ case $i in
     ;;
     -l=*|--rlib=*)
     RLIB="${i#*=}"
+    ;;
+    -n=*|--data_name=*)
+    DATANAME="${i#*=}"
     ;;
     -h|--help)
     echo "Usage: . preprocess.sh [--nclusion_results STR] [--pct_table STR] [--cluster_dict STR] [--save_heatmap INT]"
@@ -44,11 +48,12 @@ pct_table=$PCTTABLE
 cluster_dict=$CLUSTERDICT
 save_heatmap=$HEATMAP
 rlib=$RLIB
+data_name=$DATANAME
 
 echo python tutorial_scripts/utility_scripts/make_heatmaps.py --input_path $nclusion_results --pct_table_file $pct_table --cluster_dict_file $cluster_dict
 
 echo Rscript tutorial_scripts/utility_scripts/make_heatmaps.R -f $pct_table -s $save_heatmap
 
-python tutorial_scripts/utility_scripts/make_heatmaps.py --input_path $nclusion_results --pct_table_file $pct_table --cluster_dict_file $cluster_dict
+python tutorial_scripts/utility_scripts/make_heatmaps.py --input_path $nclusion_results --pct_table_file $pct_table --cluster_dict_file $cluster_dict --data_name $data_name
 
 Rscript tutorial_scripts/utility_scripts/make_heatmaps.R $pct_table $save_heatmap $rlib

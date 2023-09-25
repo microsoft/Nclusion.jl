@@ -168,27 +168,30 @@ dataset.
   <code>julia --project=/path/to/julia/env --thread=auto</code>, with the
   <code>--project</code> input being set to the path that points to your Julia
   nclusion environment. Then, enter the following code into the activated Julia repl:</p>
-<pre><code>curr_dir = ENV["PWD"]
+<pre><code>ENV["GKSwstype"] = "100"
+curr_dir = ENV["PWD"]
 
-  logger = FormatLogger() do io, args
-      println(io, args._module, " | ", "[", args.level, "] ", args.message)
-  end;
-  
-  
-  datafilename1 = "tutorial_data/raghavan2021/5000hvgs_raghavan2021_preprocessed.h5ad" # 
-  alpha1 = 1 * 10^(-7.0)
-  gamma1 = 1 * 10^(-7.0)
-  KMax = 25
-  seed = 12345
-  elbo_ep = 10^(-0.0)
-  dataset = "raghavan2021"
-  outdir = "${curr_dir}"
-  
-  outputs_dict = run_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outdir; logger = logger)
-  filepath = outputs_dict[:filepath]
-  filename = "$filepath/output.jld2"
-  
-  jldsave(filename,true;outputs_dict=outputs_dict)</code></pre>
+using nclusion
+
+logger = FormatLogger() do io, args
+    println(io, args._module, " | ", "[", args.level, "] ", args.message)
+end;
+
+
+datafilename1 = "tutorial_data/raghavan2021/5000hvgs_raghavan2021_preprocessed.h5ad" # 
+alpha1 = 1 * 10^(-7.0)
+gamma1 = 1 * 10^(-7.0)
+KMax = 25
+seed = 12345
+elbo_ep = 10^(-0.0)
+dataset = "raghavan2021"
+outdir = "${curr_dir}"
+
+outputs_dict = run_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outdir; logger = logger)
+filepath = outputs_dict[:filepath]
+filename = "$filepath/output.jld2"
+
+jldsave(filename,true;outputs_dict=outputs_dict)</code></pre>
 <p>The output files will be saved to a directory named <code>outputs/</code>
 which will be written to your working directory, by default. NCLUSIN clustering assignments can be found in a file named
 <code>outputs/nclusion_labels.csv</code>. Run the following command in your
