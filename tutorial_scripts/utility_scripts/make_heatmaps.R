@@ -7,7 +7,7 @@ path_to_pct_table <- args[1]
 save_path <- args[2]
 r_library_path <- args[3]
 
-if (r_library_path != ''){
+if (r_library_path != 'NULL'){
 .libPaths(r_library_path)
 }
 

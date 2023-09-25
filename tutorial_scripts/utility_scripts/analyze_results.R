@@ -16,6 +16,8 @@ path_to_data <- args[1]
 path_to_pips <- args[2]
 path_to_labels <- args[3]
 outfile_base <- args[4]
+dataset_name <- args[5]
+r_library_path <- args[6]
 
 if (length(args) > 4){
 dataset_name <- args[5]
@@ -25,11 +27,10 @@ if (length(args) == 6){
 r_library_path <- args[6]
 }
 
-if (!is.null(r_library_path)){
+if (r_library_path != "NULL"){
 .libPaths(r_library_path)
 }
 
-.libPaths("/home/v-mahughes/r_packages/")
 seed = 12345
 library(devtools)
 library(ggplot2)
@@ -76,12 +77,12 @@ library(organism, character.only = TRUE)
 # outfile_base <- "/home/v-mahughes/test_result_plots/pdac_biopsy/"
 # path_to_translation <- "/home/v-mahughes/archive/pdac/mapping_cluster_to_new_label.csv"
 # data_name <- "raghavan"
-path_to_data <- "/home/v-mahughes/nclusion_preprocessed_data/pure_pbmc/pbmc_5000hvg.h5ad"
-path_to_pips<- "/home/v-mahughes/archive/pbmc/5000G-2023-09-10T012525-pips.csv"
-path_to_labels <- "/home/v-mahughes/archive/pbmc/labelled-pbmc_5000HVGs-94615N_nclusion-2023-09-10T012525.csv"
-outfile_base <- "/home/v-mahughes/test_result_plots/pbmc/"
-path_to_translation <- "/home/v-mahughes/archive/pbmc/mapping_cluster_to_new_label.csv"
-data_name <- "zheng"
+# path_to_data <- "/home/v-mahughes/nclusion_preprocessed_data/pure_pbmc/pbmc_5000hvg.h5ad"
+# path_to_pips<- "/home/v-mahughes/archive/pbmc/5000G-2023-09-10T012525-pips.csv"
+# path_to_labels <- "/home/v-mahughes/archive/pbmc/labelled-pbmc_5000HVGs-94615N_nclusion-2023-09-10T012525.csv"
+# outfile_base <- "/home/v-mahughes/test_result_plots/pbmc/"
+# path_to_translation <- "/home/v-mahughes/archive/pbmc/mapping_cluster_to_new_label.csv"
+# data_name <- "zheng"
 
 data <- read.csv(path_to_pips, row.names = 1, header= TRUE)
 num_col = dim(data)[2]

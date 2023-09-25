@@ -375,7 +375,7 @@ location <i>(i, j)</i> on the heatmap corresponds to percent of cells with
 NCLUSION.</p> <p>To generate the heatmap from the NCLUSION result, enter the
 following commands into a bash terminal. <b>NOTE: be sure to replace --nclusion_results input with the
   relative path to your NCLUSION clustering results.</b></p>
-<pre><code>. tutorial_scripts/make_heatmap.sh --nclusion_results="/PATH/TO/NCLUSION/CLUSTERING/FILE" --pct_table="vanGalen2019_outputs/cell_distribution_table.csv" --cluster_dict="vanGalen2019_outputs/cluster_mapping_to_new_label.csv" --save_heatmap="vanGalen2019_outputs/cell_distribution_heatmap.pdf"</code></pre>
+<pre><code>. tutorial_scripts/make_heatmap.sh --nclusion_results="/PATH/TO/NCLUSION/CLUSTERING/FILE" --pct_table="vanGalen2019_outputs/cell_distribution_table.csv" --cluster_dict="vanGalen2019_outputs/cluster_mapping_to_new_label.csv" --save_heatmap="vanGalen2019_outputs/cell_distribution_heatmap.pdf" --data_name="vanGalen"</code></pre>
 <p>This will produce a pdf file named <code>vanGalen2019_outputs/vanGalen_cell_distriubtion_heatmap.pdf</code>containing the cell distriubtion heatmap shown
 below. The
 column labels do not correspond to NCLUSION's cluster labels. The script labels
@@ -394,8 +394,7 @@ height="800">
   membership to a given NCLUSION-inferred cluster, such that cells assigned to cluster
   <i>n</i> are colored and all other cells are greyed out. The
   total number of tSNEs produced are equal to the total number of
-  NCLUSION-inferred clusters plus two. However, for the sake of refining this analysis,
-  we only display cluster membership tSNEs for clusters of interest. Run the following command to generate
+  NCLUSION-inferred clusters plus two. Run the following command to generate
   these plots. <b>NOTE: be sure to replace --nclusion_results input with the
   relative path to your NCLUSION clustering results. </b> </p>
   <pre><code>. tutorial_scripts/make_tsnes.sh --datapath="tutorial_data/vanGalen2019/5000hvgs_vanGalen2019_preprocessed.h5ad" --nclusion_results="/PATH/TO/NCLUSION/CLUSTERING/FILE" --data_name="vanGalen2019"
@@ -455,16 +454,15 @@ other clusters. </p>
     class="anchor" aria-label="anchor" href="#violin-plot"></a> 
     </h4>
   <p>In addition to the heatmaps, this script generated module expression violin
-  plots for select clusters of interest. Each violin plot compares the expression of
+  plots for each cluster. Each violin plot compares the expression of
   significant genes identified in a particular cluster to the expression of
- those genes in the other clusters. </p>
+ that group of genes in the other clusters. </p>
   <h4 id="go-enrich">v. Gene-set Over-Enrichment (GO) Analysis<a
     class="anchor" aria-label="anchor" href="#go-enrich"></a> 
     </h4>
-    <p>Lastly, this script geneated plots that display biological pathway
-    enrichment analysis of cells in each cluster of interest we identified in
-    the previous section. For each cluster, these pathways are identified
-    based on the expression of genes with significant PIPs (>0.5).</p>
+    <p>Lastly, this script produced biological pathway
+    enrichment plots. For each cluster, enrichment is calculated based on the expression of genes with
+    significant PIPs (>0.5) in that cluster.</p>
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 </div>

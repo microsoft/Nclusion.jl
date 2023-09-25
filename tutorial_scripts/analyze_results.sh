@@ -1,6 +1,6 @@
 #!/bin/bash
 DATAPATH=''
-RLIB=''
+RLIB=NULL
 PIPS=''
 RESULTSPATH=''
 OUTPUTPATH=''

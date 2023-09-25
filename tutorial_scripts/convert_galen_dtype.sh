@@ -1,5 +1,5 @@
 #!/bin/bash
-RLIB=''
+RLIB=NULL
 DATA="tutorial_data/vanGalen2019/Seurat_AML.rds"
 
 for i in "$@"

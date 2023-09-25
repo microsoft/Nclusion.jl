@@ -3,7 +3,7 @@ args <- commandArgs(trailingOnly=TRUE)
 r_library_path <- args[1]
 path_to_data <- args[2]
 
-if (r_library_path != ''){ 
+if (r_library_path != 'NULL'){ 
 .libPaths(r_library_path)
 }
 

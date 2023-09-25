@@ -3,7 +3,7 @@ RESULTSPATH=''
 PCTTABLE=''
 CLUSTERDICT=''
 HEATMAP=''
-RLIB=''
+RLIB=NULL
 DATANAME=''
 
 for i in "$@"
