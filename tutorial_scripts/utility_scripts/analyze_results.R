@@ -1,17 +1,7 @@
-r_library_path <- NULL
 organism = "org.Hs.eg.db"
-path_to_data <- NULL
-path_to_pips<- NULL
-path_to_labels <- NULL
-outfile_base <- NULL
 thresh = 0.5
-dataset_name <- ''
 
-# args <- commandArgs(asValues=TRUE, excludeReserved=TRUE)[-1]
 args <- commandArgs(trailingOnly=TRUE)
-# keys <- attachLocally(args)
-# print(keys)
-# str(mget(keys, envir=globalenv()))
 path_to_data <- args[1]
 path_to_pips <- args[2]
 path_to_labels <- args[3]
@@ -138,12 +128,16 @@ suffix <- ""
 
 if (data_name == "vanGalen"){
 permutation_vec <- c(4, 5, 6, 3, 9, 8, 1, 2, 7)
+path_to_translation <- "tutorial_scripts/cluster_mapping/vanGalen_mapping.csv"
 } else if (data_name == "dominguezconde"){
   permutation_vec <- c(4, 5, 1, 3, 7, 9, 8, 6, 2)
+  path_to_translation <- "tutorial_scripts/cluster_mapping/dominguezconde_mapping.csv"
 } else if (data_name == "raghavan"){
   permutation_vec <- c(8, 1, 5, 4, 3, 6, 2, 7)
+  path_to_translation <- "tutorial_scripts/cluster_mapping/raghavan_mapping.csv"
 }else if (data_name == 'zheng'){
   permutation_vec = c(15, 11, 12, 3, 9, 14, 7, 8, 6, 13, 4, 1, 2, 10, 5)
+  path_to_translation <- "tutorial_scripts/cluster_mapping/zheng_mapping.csv"
 } else {
   permuation_vec = translation$X0
 }

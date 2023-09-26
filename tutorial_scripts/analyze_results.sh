@@ -15,7 +15,7 @@ case $i in
     RLIB="${i#*=}"
     ;;
     -d=*|--datapath=*)
-    DATA="${i#*=}"
+    DATAPATH="${i#*=}"
     ;;
     -p=*|--pips=*)
     PIPS="${i#*=}"
@@ -32,7 +32,7 @@ case $i in
     -m=*|--mapping=*)
     MAPPING="${i#*=}"
     ;;
-    -k=*|--path-to_nk=*)
+    -k=*|--path_to_nk=*)
     NKPATH="${i#*=}"
     ;;
     -h|--help)
@@ -68,6 +68,6 @@ echo python make_gsea_csvs.py --path_to_pips $pips --path_to_labels $nclusion_re
 
 echo Rscript analyze_results.R $data_path $pips $nclusion_results $output_dir $data_name $rlib
 
-python make_gsea_csvs.py --path_to_pips $pips --path_to_labels $nclusion_results --path_to_translation $cluster_mapping --path_to_nk $nk_path --output_path $output_dir --path_to_data $data_path
+python tutorial_scripts/utility_scripts/make_gsea_csvs.py --path_to_pips $pips --path_to_labels $nclusion_results --path_to_translation $cluster_mapping --path_to_nk $nk_path --output_path $output_dir --path_to_data $data_path
 
-Rscript analyze_results.R $data_path $pips $nclusion_results $output_dir $data_name $rlib
+Rscript tutorial_scripts/utility_scripts/analyze_results.R $data_path $pips $nclusion_results $output_dir $data_name $rlib

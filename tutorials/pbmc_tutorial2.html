@@ -97,12 +97,12 @@ et al 2019</a></li>
       </header><script src="study-compare-p-value-combine-methods_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Clustering van Galen et al 2019</h1>
+      <h1 data-toc-skip>Clustering Zheng et al 2017</h1>
     </div>
     <p>
     This tutorial demonstrates how to replicate NCLUSION clustering results for
-    43,690 acute myeloid leukemia (AML) cells obtained from
-    van Galen et al 2019 (PAPER REF HERE). Open a bash
+    ~94k pure peripheral blood mononuclear cells obtained from 
+    Zheng et al 2017 (PAPER REF HERE). Open a bash
     terminal and follow along with the tutorial from your working directory. </p> 
     <h2 data-toc-skip>Required Tutorial Installations</h2>
     <p>First, install NCLUSION into a Julia environment following the
@@ -196,11 +196,8 @@ BiocManager::install(c("SingleCellExperiment", "ComplexHeatmap",
   </ul>
   <p>To install these packages, activate a new Anaconda environment and enter the
   following commands into a bash terminal:</p>
- <pre><code>conda install -c conda-forge scanpy</code></pre>
-<pre><code>conda install -c anaconda pandas</code></pre>
-<pre><code>conda install -c conda-forge matplotlib</code></pre>
-<pre><code>conda install -c conda-forge numpy</code></pre>
-<pre><code>conda install -c conda-forge anndata</code></pre>
+ <pre><code>conda install -c anaconda pip</code></pre>
+<pre><code>pip install scanpy pandas matplotlib numpy anndata</code></pre>
   </div>
   <h3 id="preprocess-data">The Julia Environment<a class="anchor" aria-label="anchor" href="#preprocess-data"></a>
   </h3> 
@@ -257,8 +254,8 @@ class="external-link">wget</a> commands to create a directory named
 <code>tutorial_data/</code> in your current working directory and download the
 data, named as <code>Seurat_AML.rds</code>, into that directory. </p>
 <pre><code>mkdir -p tutorial_data/
-mkdir -p tutorial_data/vanGalen2019/
-cd tutorial_data/vanGalen2019/
+mkdir -p tutorial_data/zheng2017/
+cd tutorial_data/zheng2017/
 
 wget https://www.dropbox.com/s/399x045zc57fiut/Seurat_AML.rds?dl=0 --content-disposition
 
@@ -269,11 +266,11 @@ cd ../../
 converted to an AnnData object and preprocessed. Enter the following command
 into a bash terminal to extract the count and meta data from the
 <code>.rds</code> object and save them as dataframes to <code>.csv</code> files,
-named <code>'tutorial_data/vanGalen2019/galenAML_countsdf.csv'</code> and
-<code>'tutorial_data/vanGalen2019/galenAML_metadf.csv'</code>, respectively.
+named <code>'tutorial_data/zheng2017/galenAML_countsdf.csv'</code> and
+<code>'tutorial_data/zheng2017/galenAML_metadf.csv'</code>, respectively.
 <b>NOTE: </b> if you want to load packages from a specific R library, append <code>--rlib="/PATH/TO/R/LIBRARY"</code> onto
 this command. </p>
-<pre><code>. tutorial_scripts/convert_galen_dtype.sh --datapath="tutorial_data/vanGalen2019/Seurat_AML.rds"</code></pre>
+<pre><code>. tutorial_scripts/convert_galen_dtype.sh --datapath="tutorial_data/zheng2017/Seurat_AML.rds"</code></pre>
 Next, the count and cell-type data must be extracted from these dataframes to
 generate an AnnData-based representation of the data. After the conversion, it is normalized to 10,000
 counts per cell, log-transformed, and then
@@ -284,8 +281,8 @@ we appended the cell line name onto cell-type labels where applicable, producing
 steps can be
 executed by entering the following commands into a bash terminal. The
 preprocessed data will be saved to
-<code>tutorial_data/vanGalen2019/5000hvgs_vanGalen2019_preprocessed.h5ad</code>.</p> 
-<pre><code>. tutorial_scripts/preprocess.sh --datapath="tutorial_data/vanGalen2019/" --savepath="tutorial_data/vanGalen2019/5000hvgs_vanGalen2019_preprocessed.h5ad" --data_name="vanGalen" --n_hvgs=5000</code></pre>  For
+<code>tutorial_data/zheng2017/5000hvgs_zheng2017_preprocessed.h5ad</code>.</p> 
+<pre><code>. tutorial_scripts/preprocess.sh --datapath="tutorial_data/zheng2017/" --savepath="tutorial_data/zheng2017/5000hvgs_zheng2017_preprocessed.h5ad" --data_name="vanGalen" --n_hvgs=5000</code></pre>  For
 more detailed
 documentation of this script, run <code>.
 preprocess.sh --help</code>
@@ -295,22 +292,22 @@ preprocess.sh --help</code>
 <p> To run NCLUSION from your working direcorty, enter the following bash
 command. <b>NOTE: set the <code>--julia_env</code> variable to the
 relative path to your Julia project environment where NCLUSION is installed. </b> </p>
-<pre><code>mkdir -p vanGalen2019_outputs
+<pre><code>mkdir -p zheng2017_outputs
 
-. tutorial_scripts/run_nclusion.sh --datapath='tutorial_data/vanGalen2019/5000hvgs_vanGalen2019_preprocessed.h5ad' --julia_env='PATH/TO/JULIA/ENV' --data_name='vanGalen2019' --output_dir='vanGalen2019_outputs/'</code></pre>
+. tutorial_scripts/run_nclusion.sh --datapath='tutorial_data/zheng2017/5000hvgs_zheng2017_preprocessed.h5ad' --julia_env='PATH/TO/JULIA/ENV' --data_name='zheng2017' --output_dir='zheng2017_outputs/'</code></pre>
 <p>All NCLUSION output files can be found in a sudirectory of the specified output
 directory:
 <code>vanGalen_outputs/</code>. The complete path for the output direcotry
 generated by NCLUSION is as follows:
-<code>vanGalen_outputs/outputs/EXPERIMENT_nclusion_vanGalen2019/DATASET_vanGalen2019_5000HVGs-43690N/YEAR_MONTH_DATE_TIME/</code>
+<code>vanGalen_outputs/outputs/EXPERIMENT_nclusion_zheng2017/DATASET_zheng2017_5000HVGs-43690N/YEAR_MONTH_DATE_TIME/</code>
 where "YEAR_MONTH_DATE_TIME/" is equivalent to the time stamp of the results,
 following the year-month-date-time format (i.e 2023-09-19T224247). An example of
 the full output path might be:
-<code>vanGalen_outputs/outputs/EXPERIMENT_nclusion_vanGalen2019/DATASET_vanGalen2019_5000HVGs-43690N/2023-09-19T224247/</code>. <b>NOTE: 'YEAR-MONTH-DATE-TIME'
+<code>vanGalen_outputs/outputs/EXPERIMENT_nclusion_zheng2017/DATASET_zheng2017_5000HVGs-43690N/2023-09-19T224247/</code>. <b>NOTE: 'YEAR-MONTH-DATE-TIME'
 labels in the output path/files corresponds to the time stamp of when the
 results were generated. The time stamp is added automatically by NCLUSION. </b></p>
 <p>In the output directory, you can find the following output files:</p>
-<ol><li><b>vanGalen2019_5000HVGs-43690N_nclusion-YEAR-MONTH-DATE-TIME.csv</b>
+<ol><li><b>zheng2017_5000HVGs-43690N_nclusion-YEAR-MONTH-DATE-TIME.csv</b>
   <ul><li>This csv file contains the NCLUSION clustering assignments, where each row displays relevant metadata and
   clustering results for each cell. </li>
   <li> The 'condition' column
@@ -375,13 +372,13 @@ location <i>(i, j)</i> on the heatmap corresponds to percent of cells with
 NCLUSION.</p> <p>To generate the heatmap from the NCLUSION result, enter the
 following commands into a bash terminal. <b>NOTE: be sure to replace --nclusion_results input with the
   relative path to your NCLUSION clustering results.</b></p>
-<pre><code>. tutorial_scripts/make_heatmap.sh --nclusion_results="/PATH/TO/NCLUSION/CLUSTERING/FILE" --pct_table="vanGalen2019_outputs/cell_distribution_table.csv" --cluster_dict="tutorial_scripts/cluster_mapping/vanGalen_mapping.csv" --save_heatmap="vanGalen2019_outputs/cell_distribution_heatmap.pdf" --data_name="vanGalen"</code></pre>
-<p>This will produce a pdf file named <code>vanGalen2019_outputs/vanGalen_cell_distriubtion_heatmap.pdf</code>containing the cell distriubtion heatmap shown
+<pre><code>. tutorial_scripts/make_heatmap.sh --nclusion_results="/PATH/TO/NCLUSION/CLUSTERING/FILE" --pct_table="zheng2017_outputs/cell_distribution_table.csv" --cluster_dict="tutorial_scripts/cluster_mapping/vanGalen_mapping.csv" --save_heatmap="zheng2017_outputs/cell_distribution_heatmap.pdf" --data_name="vanGalen"</code></pre>
+<p>This will produce a pdf file named <code>zheng2017_outputs/vanGalen_cell_distriubtion_heatmap.pdf</code>containing the cell distriubtion heatmap shown
 below. The
 column labels do not correspond to NCLUSION's cluster labels. The script labels
 each cluster with their positional values in the heatmap for aesthetic purposes. A
 mapping of the original NCLUSION cluster labels to these new positional labels can
-be found in a file named <code>vanGalen2019_outputs/mapping_cluster_to_new_label.csv</code></p>
+be found in a file named <code>zheng2017_outputs/mapping_cluster_to_new_label.csv</code></p>
 <img src="../images/galen/cell_distrib_galen-1.png" width="600"
 height="800">
 <h3 id="tsnes">C. Annotated TSNEs <a
@@ -397,11 +394,11 @@ height="800">
   NCLUSION-inferred clusters plus two. Run the following command to generate
   these plots. <b>NOTE: be sure to replace --nclusion_results input with the
   relative path to your NCLUSION clustering results. </b> </p>
-  <pre><code>. tutorial_scripts/make_tsnes.sh --datapath="tutorial_data/vanGalen2019/5000hvgs_vanGalen2019_preprocessed.h5ad" --nclusion_results="/PATH/TO/NCLUSION/CLUSTERING/FILE" --data_name="vanGalen2019"
+  <pre><code>. tutorial_scripts/make_tsnes.sh --datapath="tutorial_data/zheng2017/5000hvgs_zheng2017_preprocessed.h5ad" --nclusion_results="/PATH/TO/NCLUSION/CLUSTERING/FILE" --data_name="zheng2017"
 
-mv figures/ vanGalen2019_outputs/</code></pre>
+mv figures/ zheng2017_outputs/</code></pre>
   <p>All tsnes produces by this script can be found in the output directory:
-    <code>vanGalen2019_outputs/figures/</code>. </p>
+    <code>zheng2017_outputs/figures/</code>. </p>
   <h3 id="pip-heatmaps">D. Variable Selection Analysis <a
 class="anchor" aria-label="anchor" href="#pip-heatmaps"></a> 
 </h3>
@@ -414,7 +411,7 @@ this command.  </b></p>
 <p><b>NOTE: be sure to replace --nclusion_results, --pips, and --path_to_nk inputs with the
 relative path to your clustering assignment, PIP, and Nk results files (generated by
 NCLUSION). </b> </p>
-<pre><code>. tutorial_scripts/analyze_results.sh --datapath="tutorial_data/vanGalen2019/5000hvgs_vanGalen2019_preprocessed.h5ad" --pips="/PATH/TO/PIPS/FILE" --nclusion_results="/PATH/TO/NCLUSION/CLUSTERING/FILE" --output_dir="vanGalen2019_outputs/" --data_name='vanGalen2019' --mapping="vanGalen2019_outputs/cluster_mapping_to_new_label.csv" --path_to_nk="PATH/TO/NK/FILE"</code></pre>
+<pre><code>. tutorial_scripts/analyze_results.sh --datapath="tutorial_data/zheng2017/5000hvgs_zheng2017_preprocessed.h5ad" --pips="/PATH/TO/PIPS/FILE" --nclusion_results="/PATH/TO/NCLUSION/CLUSTERING/FILE" --output_dir="zheng2017_outputs/" --data_name='zheng2017' --mapping="zheng2017_outputs/cluster_mapping_to_new_label.csv" --path_to_nk="PATH/TO/NK/FILE"</code></pre>
 <p>All plots produced by this script can be found in the specified output
 directory: <code>vanGalen_outputs/</code>
   directory. Each plot is described in detail below. </p>

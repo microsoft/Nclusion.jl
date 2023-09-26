@@ -6,7 +6,7 @@ import getopt
 import sys
 
 def make_tsnes(adata, res, figures_prefix):
-
+    sc.pp.pca(adata)
     sc.tl.tsne(adata)
     
     adata.obs['inferred_label'] = pd.Categorical(res.loc[:, 'inferred_label'])
