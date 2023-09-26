@@ -240,52 +240,73 @@ unzip tutorial_scripts.zip</code></pre>
     </p>
 
 <div class="section level3">
-<h2 id="preprocess-data">Download and Preprocess Data<a class="anchor" aria-label="anchor" href="#preprocess-data"></a>
-</h2>
-<p>The van Galen + 2019 scRNA-seq data contains 43,690 acute myeloid leukemia
-(AML) cells taken from 16 AML patients, 5 healthy donors, and 2 cell lines. It
-is comprised of 13,489 patient-derived malignant cells, 23,005 non-malignant
-donor cells, 6,018 cells from the MUTZ-3 AML cell line, and 1,178 cells from the
-OCI-AML3 cell line. The filtered, raw counts can be downloaded from <a
-href="https://www.dropbox.com/s/399x045zc57fiut/Seurat_AML.rds?dl=0"
-class="external-link"e>here</a>.
-Alternatively, run the following <a href="https://www.gnu.org/software/wget/"
-class="external-link">wget</a> commands to create a directory named
-<code>tutorial_data/</code> in your current working directory and download the
-data, named as <code>Seurat_AML.rds</code>, into that directory. </p>
-<pre><code>mkdir -p tutorial_data/
-mkdir -p tutorial_data/zheng2017/
-cd tutorial_data/zheng2017/
-
-wget https://www.dropbox.com/s/399x045zc57fiut/Seurat_AML.rds?dl=0 --content-disposition
-
-cd ../../
-</code></pre>
-
-<p> Before running NCLUSION to cluster the van Galen + 2019 cells, the data must be
-converted to an AnnData object and preprocessed. Enter the following command
-into a bash terminal to extract the count and meta data from the
-<code>.rds</code> object and save them as dataframes to <code>.csv</code> files,
-named <code>'tutorial_data/zheng2017/galenAML_countsdf.csv'</code> and
-<code>'tutorial_data/zheng2017/galenAML_metadf.csv'</code>, respectively.
-<b>NOTE: </b> if you want to load packages from a specific R library, append <code>--rlib="/PATH/TO/R/LIBRARY"</code> onto
-this command. </p>
-<pre><code>. tutorial_scripts/convert_galen_dtype.sh --datapath="tutorial_data/zheng2017/Seurat_AML.rds"</code></pre>
-Next, the count and cell-type data must be extracted from these dataframes to
-generate an AnnData-based representation of the data. After the conversion, it is normalized to 10,000
-counts per cell, log-transformed, and then
-subsetted to include the top 5000 highly-variable genes. Due to the biological
-differences between cell lines and donor cells of the same cell-type annotation,
-we appended the cell line name onto cell-type labels where applicable, producing
-33 distinct cell-types overall. These preprocessing
-steps can be
-executed by entering the following commands into a bash terminal. The
-preprocessed data will be saved to
-<code>tutorial_data/zheng2017/5000hvgs_zheng2017_preprocessed.h5ad</code>.</p> 
-<pre><code>. tutorial_scripts/preprocess.sh --datapath="tutorial_data/zheng2017/" --savepath="tutorial_data/zheng2017/5000hvgs_zheng2017_preprocessed.h5ad" --data_name="vanGalen" --n_hvgs=5000</code></pre>  For
-more detailed
-documentation of this script, run <code>.
-preprocess.sh --help</code>
+  <h2 id="preprocess-data">Download and Preprocess Data<a class="anchor" aria-label="anchor" href="#preprocess-data"></a>
+  </h2>
+  <p>The Zheng + 2017 data contains scRNA-seq data for ~94k pure
+    peripheral blood mononuclear cells of 10 distinct cell types. The filtered, raw counts can be downloaded from <a
+  href="https://www.10xgenomics.com/resources/datasets?query=cd&page=1&configure%5BhitsPerPage%5D=50&configure%5BmaxValuesPerFacet%5D=1000&refinementList%5BbiomaterialTypes%5D=&refinementList%5Bproduct.name%5D%5B0%5D=Single%20Cell%20Gene%20Expression&refinementList%5Bspecies%5D%5B0%5D=Human&refinementList%5BdiseaseStates%5D=&refinementList%5BanatomicalEntities%5D="
+  class="external-link"e>here</a>.
+  Alternatively, run the following <a href="https://www.gnu.org/software/wget/"
+  class="external-link">wget</a> commands to create a directory named
+  <code>tutorial_data/zheng2017/</code> in your current working directory and download the filtered count files for each
+  cell type into that directory. </p>
+  <pre><code>mkdir -p tutorial_data/
+  mkdir -p tutorial_data/zheng2017/
+  cd tutorial_data/zheng2017/
+  
+  wget https://cf.10xgenomics.com/samples/cell-exp/1.1.0/cytotoxic_t/cytotoxic_t_filtered_gene_bc_matrices.tar.gz
+  
+  wget https://cf.10xgenomics.com/samples/cell-exp/1.1.0/naive_cytotoxic/naive_cytotoxic_filtered_gene_bc_matrices.tar.gz
+  
+  wget https://cf.10xgenomics.com/samples/cell-exp/1.1.0/cd56_nk/cd56_nk_filtered_gene_bc_matrices.tar.gz
+  
+  wget https://cf.10xgenomics.com/samples/cell-exp/1.1.0/cd4_t_helper/cd4_t_helper_filtered_gene_bc_matrices.tar.gz
+  
+  wget https://cf.10xgenomics.com/samples/cell-exp/1.1.0/memory_t/memory_t_filtered_gene_bc_matrices.tar.gz
+  
+  wget https://cf.10xgenomics.com/samples/cell-exp/1.1.0/naive_t/naive_t_filtered_gene_bc_matrices.tar.gz
+  
+  wget https://cf.10xgenomics.com/samples/cell-exp/1.1.0/regulatory_t/regulatory_t_filtered_gene_bc_matrices.tar.gz
+  
+  wget https://cf.10xgenomics.com/samples/cell-exp/1.1.0/cd34/cd34_filtered_gene_bc_matrices.tar.gz
+  
+  wget https://cf.10xgenomics.com/samples/cell-exp/1.1.0/b_cells/b_cells_filtered_gene_bc_matrices.tar.gz
+  
+  wget https://cf.10xgenomics.com/samples/cell-exp/1.1.0/cd14_monocytes/cd14_monocytes_filtered_gene_bc_matrices.tar.gz</code></pre>
+  <p>Then, unzip the files in the data directory with the following bash command:</p>
+  
+  <pre><code>for f in `ls *.gz`; do
+  filename=$(basename -- "$f")
+  extension="${filename##*.}"
+  filename="${filename%.*}"
+  filename=$(basename -- "$filename")
+  filename="${filename%.*}"
+  echo "$filename";
+  mkdir "${filename}"
+  mv "${f}" "${filename}"
+  cd "${filename}"
+  tar -xzvf "$f"
+  cd ../
+  done 
+  cd ../../</code></pre>
+  <p> Before running NCLUSION to cluster the Zheng + 2017 cells, the data must be
+  converted to the AnnData type, and
+  concatenated into a single data object. Then, to preprocess the data, we filter out genes that were expressed in less than 3 cells, cells
+  with less than 200 genes expressed, greater than 20% mitochondrial reads, and
+  less than 5% ribosomal reads to obtain 94,615 high-quality cells representing 10
+  distinct cell types. We then subset the data to the top 5000 highly-variable
+  genes. The data conversion, concatenation, and preprocessing can be
+  executed by entering the following command into a bash terminal, which then
+  saves the
+  filtered, preprocessed data as an AnnData file located at
+  <code>tutorial_data/zheng2017/5000hvgs_zheng2017_preprocessed.h5ad</code>.</p> 
+  <pre><code>python utility_scripts/preprocess_tutorial_data.py --path_to_data
+  tutorial_data/zheng2017/ --path_to_save
+  tutorial_data/zheng2017/5000hvgs_zheng2017_preprocessed.h5ad --data_name "zheng"
+  --n_hvgs 5000</code></pre> <p>For
+    more detailed
+    documentation of this script, run <code>python
+    preprocess_tutorial_data.py --help</code></p>
 <div class="section level3">
 <h2 id="run-nclusion">Run NCLUSION<a class="anchor" aria-label="anchor" href="#run-nclusion"></a>
 </h2>
@@ -297,17 +318,17 @@ relative path to your Julia project environment where NCLUSION is installed. </b
 . tutorial_scripts/run_nclusion.sh --datapath='tutorial_data/zheng2017/5000hvgs_zheng2017_preprocessed.h5ad' --julia_env='PATH/TO/JULIA/ENV' --data_name='zheng2017' --output_dir='zheng2017_outputs/'</code></pre>
 <p>All NCLUSION output files can be found in a sudirectory of the specified output
 directory:
-<code>vanGalen_outputs/</code>. The complete path for the output direcotry
+<code>zheng2017_outputs/</code>. The complete path for the output direcotry
 generated by NCLUSION is as follows:
-<code>vanGalen_outputs/outputs/EXPERIMENT_nclusion_zheng2017/DATASET_zheng2017_5000HVGs-43690N/YEAR_MONTH_DATE_TIME/</code>
+<code>zheng2017_outputs/outputs/EXPERIMENT_nclusion_zheng2017/DATASET_zheng2017_5000HVGs-94615N/YEAR_MONTH_DATE_TIME/</code>
 where "YEAR_MONTH_DATE_TIME/" is equivalent to the time stamp of the results,
 following the year-month-date-time format (i.e 2023-09-19T224247). An example of
 the full output path might be:
-<code>vanGalen_outputs/outputs/EXPERIMENT_nclusion_zheng2017/DATASET_zheng2017_5000HVGs-43690N/2023-09-19T224247/</code>. <b>NOTE: 'YEAR-MONTH-DATE-TIME'
+<code>zheng2017_outputs/outputs/EXPERIMENT_nclusion_zheng2017/DATASET_zheng2017_5000HVGs-94615N/2023-09-19T224247/</code>. <b>NOTE: 'YEAR-MONTH-DATE-TIME'
 labels in the output path/files corresponds to the time stamp of when the
 results were generated. The time stamp is added automatically by NCLUSION. </b></p>
 <p>In the output directory, you can find the following output files:</p>
-<ol><li><b>zheng2017_5000HVGs-43690N_nclusion-YEAR-MONTH-DATE-TIME.csv</b>
+<ol><li><b>zheng2017_5000HVGs-94615N_nclusion-YEAR-MONTH-DATE-TIME.csv</b>
   <ul><li>This csv file contains the NCLUSION clustering assignments, where each row displays relevant metadata and
   clustering results for each cell. </li>
   <li> The 'condition' column
@@ -364,7 +385,7 @@ name of the metric, appended to <code>'_Summary.csv'</code>.
 </h3>
 <p>Next, generate a heatmap that displays how cells from each cell-type
 (determined by the
-"true" labels obtained from van Galen et al 2019) are distributed across
+"true" labels obtained from Zheng et al 2017) are distributed across
 clusters that are identified by NCLUSION. Each row, <i>i</i>, represents one cell-type, and
 each column, <i>j</i>, represents one cluster. Therefore the color intensity at
 location <i>(i, j)</i> on the heatmap corresponds to percent of cells with
@@ -372,17 +393,16 @@ location <i>(i, j)</i> on the heatmap corresponds to percent of cells with
 NCLUSION.</p> <p>To generate the heatmap from the NCLUSION result, enter the
 following commands into a bash terminal. <b>NOTE: be sure to replace --nclusion_results input with the
   relative path to your NCLUSION clustering results.</b></p>
-<pre><code>. tutorial_scripts/make_heatmap.sh --nclusion_results="/PATH/TO/NCLUSION/CLUSTERING/FILE" --pct_table="zheng2017_outputs/cell_distribution_table.csv" --cluster_dict="tutorial_scripts/cluster_mapping/vanGalen_mapping.csv" --save_heatmap="zheng2017_outputs/cell_distribution_heatmap.pdf" --data_name="vanGalen"</code></pre>
-<p>This will produce a pdf file named <code>zheng2017_outputs/vanGalen_cell_distriubtion_heatmap.pdf</code>containing the cell distriubtion heatmap shown
+<pre><code>. tutorial_scripts/make_heatmap.sh --nclusion_results="/PATH/TO/NCLUSION/CLUSTERING/FILE" --pct_table="zheng2017_outputs/cell_distribution_table.csv" --cluster_dict="tutorial_scripts/cluster_mapping/zheng_mapping.csv" --save_heatmap="zheng2017_outputs/cell_distribution_heatmap.pdf" --data_name="zheng"</code></pre>
+<p>This will produce a pdf file named <code>zheng2017_outputs/cell_distriubtion_heatmap.pdf</code>containing the cell distriubtion heatmap shown
 below. The
 column labels do not correspond to NCLUSION's cluster labels. The script labels
 each cluster with their positional values in the heatmap for aesthetic purposes. A
 mapping of the original NCLUSION cluster labels to these new positional labels can
 be found in a file named <code>zheng2017_outputs/mapping_cluster_to_new_label.csv</code></p>
-<img src="../images/galen/cell_distrib_galen-1.png" width="600"
-height="800">
+<img src="../images/zheng/cell_distrib_zheng-1.png" width="800" height="400">
 <h3 id="tsnes">C. Annotated TSNEs <a
-  class="anchor" aria-label="anchor" href="#pip-heatmaps"></a> 
+  class="anchor" aria-label="anchor" href="#pip-heatmaps"></a>  
   </h3>
   <p>Now, we will plot the t-distributed stochastic neighbor embedding (tSNE)
   for the data annotated with various labels: the called cell type labels that
@@ -411,9 +431,9 @@ this command.  </b></p>
 <p><b>NOTE: be sure to replace --nclusion_results, --pips, and --path_to_nk inputs with the
 relative path to your clustering assignment, PIP, and Nk results files (generated by
 NCLUSION). </b> </p>
-<pre><code>. tutorial_scripts/analyze_results.sh --datapath="tutorial_data/zheng2017/5000hvgs_zheng2017_preprocessed.h5ad" --pips="/PATH/TO/PIPS/FILE" --nclusion_results="/PATH/TO/NCLUSION/CLUSTERING/FILE" --output_dir="zheng2017_outputs/" --data_name='zheng2017' --mapping="zheng2017_outputs/cluster_mapping_to_new_label.csv" --path_to_nk="PATH/TO/NK/FILE"</code></pre>
+<pre><code>. tutorial_scripts/analyze_results.sh --datapath="tutorial_data/zheng2017/5000hvgs_zheng2017_preprocessed.h5ad" --pips="/PATH/TO/PIPS/FILE" --nclusion_results="/PATH/TO/NCLUSION/CLUSTERING/FILE" --output_dir="zheng2017_outputs/" --data_name='zheng' --mapping="zheng2017_outputs/cluster_mapping_to_new_label.csv" --path_to_nk="PATH/TO/NK/FILE"</code></pre>
 <p>All plots produced by this script can be found in the specified output
-directory: <code>vanGalen_outputs/</code>
+directory: <code>zheng2017_outputs/</code>
   directory. Each plot is described in detail below. </p>
 <h4 id="pip-heatmaps">i. Adjusted Posterior Inclusion Probability (PIP) Heatmap
 <a
@@ -433,7 +453,7 @@ scaled down, as it is less helpful for identifying important differences between
 cluster compared to unique significant genes that are identified in fewer clusters. Only
 genes with adjusted PIPs above a threshold of 0.5 are included in this analysis.
 </p>
-<img src="../images/galen/Adjusted_pip_galen-1.png" height="600" width="600">
+<img src="../images/zheng/adjusted_pips_zheng-1.png" height="800" width="800">
 <h4 id="effectsize-heatmaps">ii. Effect Size Heatmap
   <a
     class="anchor" aria-label="anchor" href="#effectsize-heatmaps"></a> 
@@ -442,7 +462,7 @@ genes with adjusted PIPs above a threshold of 0.5 are included in this analysis.
 in the adjusted PIP heatmap, which is shown below. For a given cluster, the effect size of each gene
 indicates whether that gene is upregulated (+) or downregulated (-) relative to cells in
 other clusters. </p>
-<img src="../images/galen/effect_size_galen-1.png" height="600" width="600">
+<img src="../images/zheng/effect_size_zheng-1.png" height="800" width="800"> 
 <h4 id="violin-plot">iii. Module Expression Violin Analysis<a
     class="anchor" aria-label="anchor" href="#violin-plot"></a> 
     </h4>

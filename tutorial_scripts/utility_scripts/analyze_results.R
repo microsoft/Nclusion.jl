@@ -6,16 +6,8 @@ path_to_data <- args[1]
 path_to_pips <- args[2]
 path_to_labels <- args[3]
 outfile_base <- args[4]
-dataset_name <- args[5]
+data_name <- args[5]
 r_library_path <- args[6]
-
-if (length(args) > 4){
-dataset_name <- args[5]
-}
-
-if (length(args) == 6){
-r_library_path <- args[6]
-}
 
 if (r_library_path != "NULL"){
 .libPaths(r_library_path)
@@ -49,31 +41,6 @@ library(genekitr)
 library(patchwork)
 library(organism, character.only = TRUE)
 
-# path_to_data <- "/home/v-mahughes/nclusion_preprocessed_data/galenAML2019/5000hvgs_galenAML_preprocessed.h5ad"
-# path_to_pips<- "/home/v-mahughes/archive/galenAML/5000G-2023-09-09T201816-pips.csv"
-# path_to_labels <- "/home/v-mahughes/archive/galenAML/galen-AML_5000HVGs-43690N_nclusion-2023-09-09T201816.csv"
-# outfile_base <- "/home/v-mahughes/test_result_plots/galen/"
-# path_to_translation <- "/home/v-mahughes/archive/galenAML/mapping_cluster_to_new_label.csv"
-# data_name <- "vanGalen"
-# path_to_data <- "/home/v-mahughes/nclusion_preprocessed_data/tissueimmuneatlas/5000hvgs_tissue_immune_atlas_donorD496_preprocessed.h5ad"
-# path_to_pips<- "/home/v-mahughes/archive/tissueimmune/5000G-2023-09-09T201820-pips.csv"
-# path_to_labels <- "/home/v-mahughes/archive/tissueimmune/tissue-immune-pt496_5000HVGs-88057N_nclusion-2023-09-09T201820.csv"
-# outfile_base <- "/home/v-mahughes/test_result_plots/tissueimmune/"
-# path_to_translation <- "/home/v-mahughes/archive/tissueimmune/mapping_cluster_to_new_label.csv"
-# data_name <- "dominguezconde"
-# path_to_data <- "/home/v-mahughes/nclusion_preprocessed_data/pdac_biopsy/5000hvgs_pdac_biopsy_preprocessed.h5ad"
-# path_to_pips<- "/home/v-mahughes/archive/pdac/5000G-2023-09-09T201816-pips.csv"
-# path_to_labels <- "/home/v-mahughes/archive/pdac/pdac-biopsy_5000HVGs-23042N_nclusion-2023-09-09T201816.csv"
-# outfile_base <- "/home/v-mahughes/test_result_plots/pdac_biopsy/"
-# path_to_translation <- "/home/v-mahughes/archive/pdac/mapping_cluster_to_new_label.csv"
-# data_name <- "raghavan"
-# path_to_data <- "/home/v-mahughes/nclusion_preprocessed_data/pure_pbmc/pbmc_5000hvg.h5ad"
-# path_to_pips<- "/home/v-mahughes/archive/pbmc/5000G-2023-09-10T012525-pips.csv"
-# path_to_labels <- "/home/v-mahughes/archive/pbmc/labelled-pbmc_5000HVGs-94615N_nclusion-2023-09-10T012525.csv"
-# outfile_base <- "/home/v-mahughes/test_result_plots/pbmc/"
-# path_to_translation <- "/home/v-mahughes/archive/pbmc/mapping_cluster_to_new_label.csv"
-# data_name <- "zheng"
-
 data <- read.csv(path_to_pips, row.names = 1, header= TRUE)
 num_col = dim(data)[2]
 num_row = dim(data)[1]
@@ -81,10 +48,6 @@ mat = data.matrix(data)
 pips = mat
 K = dim(pips)[1]
 G = dim(pips)[2]
-
-translation <- read.csv(path_to_translation,  header= TRUE)
-translation <- translation[order(translation$X), ]
-print(translation)
 
 # Adjust PIPs to reflect significance more accurately
 genes_names <- colnames(pips)
@@ -103,32 +66,12 @@ row_bool = apply(adj_pips_mat_occ[,ro_tc] >= thresh, 1, any)
 
 # this reorders the columns, but initially you wont know that order do id set it to the identity permutation vec
 num_clus <- length(ro_tc)
-permutation_vec <- c(1:num_clus)
 new_clust <- ro_tc
-
-
-# Generate Adjusted PIP Heatmap (Only shows genes above specified PIP threshold)
-only_sig_genes_names = genes_names[row_bool]
-only_sig_mat = t(adj_pips_mat_occ[row_bool,ro_tc])
-print(rownames(only_sig_mat))
-original_clus_order <- rownames(only_sig_mat)
-og_clus_order <- lapply(original_clus_order, function(x)strsplit(x, "_", fixed=FALSE)[[1]][2])
-
-translation <- translation %>% arrange(factor(X, levels = og_clus_order))
-print(translation)
-
-# old indices: 
-# 24:1, 3:2, 7:3, 1;4, 23:5, 2:6, 25:7, 9:8, 4:9
-
-rownames(only_sig_mat) <- translation$X0
-print(translation$X0)
-
-data_set<-""
-suffix <- ""
+pemutation_vec = c(1:num_clus)
 
 if (data_name == "vanGalen"){
-permutation_vec <- c(4, 5, 6, 3, 9, 8, 1, 2, 7)
-path_to_translation <- "tutorial_scripts/cluster_mapping/vanGalen_mapping.csv"
+  permutation_vec <- c(4, 5, 6, 3, 9, 8, 1, 2, 7)
+  path_to_translation <- "tutorial_scripts/cluster_mapping/vanGalen_mapping.csv"
 } else if (data_name == "dominguezconde"){
   permutation_vec <- c(4, 5, 1, 3, 7, 9, 8, 6, 2)
   path_to_translation <- "tutorial_scripts/cluster_mapping/dominguezconde_mapping.csv"
@@ -138,9 +81,23 @@ path_to_translation <- "tutorial_scripts/cluster_mapping/vanGalen_mapping.csv"
 }else if (data_name == 'zheng'){
   permutation_vec = c(15, 11, 12, 3, 9, 14, 7, 8, 6, 13, 4, 1, 2, 10, 5)
   path_to_translation <- "tutorial_scripts/cluster_mapping/zheng_mapping.csv"
-} else {
-  permuation_vec = translation$X0
 }
+
+
+# Generate Adjusted PIP Heatmap (Only shows genes above specified PIP threshold)
+translation <- read.csv(path_to_translation,  header= TRUE)
+translation <- translation[order(translation$X), ]
+only_sig_genes_names = genes_names[row_bool]
+only_sig_mat = t(adj_pips_mat_occ[row_bool,ro_tc])
+original_clus_order <- rownames(only_sig_mat)
+og_clus_order <- lapply(original_clus_order, function(x)strsplit(x, "_", fixed=FALSE)[[1]][2])
+
+translation <- translation %>% arrange(factor(X, levels = og_clus_order))
+
+rownames(only_sig_mat) <- translation$X0
+
+data_set<-""
+suffix <- ""
 
 file_name1 = paste0(outfile_base,data_set,"heatmap_AdjustedPips_KbyG_defaultclustering.pdf")
 pdf(file=file_name1, width = 8.5, height = 11)
@@ -151,7 +108,6 @@ colors_hex<-  c("#D70000", "#8C3CFF", "#028800", "#00ACC7", "#E7A500", "#FF7FD1"
 anno_labels<-rownames(only_sig_mat)[permutation_vec]
 
 anno_fill<- colors_hex[translation$X0][permutation_vec]  #anno_fill<-
-
 #### MAKE ADJUSTED PIP HEATMAP
 ht = Heatmap(t(only_sig_mat)[,permutation_vec], name = "Adjusted \n PIPS", col = colorRamp2(c(0, 0.9), c("#e4e1e1", "#b40000")), column_title = "Adj. PIPS", cluster_rows = TRUE,  row_dend_side = "right",cluster_columns = FALSE, column_names_rot = 90, use_raster=FALSE ,row_names_side = "left",row_names_gp = gpar(fontsize = genefontsize),show_column_names = FALSE,column_split = c(1:num_clus),bottom_annotation = HeatmapAnnotation(foo = anno_block(gp = gpar(fill =anno_fill),labels = anno_labels, labels_gp = gpar(col = "white", fontsize = 10))))
 
@@ -289,9 +245,6 @@ for (i in c(1:num_factors)){
 levels(sdata_reorder$new.cell.types) <- new_factors_list
 sdata_reorder$new.cell.types <- factor(sdata_reorder$new.cell.types, levels = anno_labels)
 
-# #### FIG 3E
-print("FIG 3E")
-thresh=0.5
 ### Violin Plot (Sig and Positive)
 
 for (i in c(1:num_clus)){ 
@@ -302,7 +255,6 @@ for (i in c(1:num_clus)){
   row_bool = only_sig_mat[rownames(only_sig_mat)==paste0(new_clus),] >= thresh & signed_effect_size_mat[rownames(signed_effect_size_mat)==paste0(new_clus),] == "+"
   if (sum(row_bool) > 1) {
     only_sig_genes_names = colnames(only_sig_mat)[row_bool]
-    print(pltname)
     flist <- sub('[.]', '-', only_sig_genes_names)
     flist[flist == "AC092580-4"] <- "AC092580.4"
     flist[flist == "AC013264-2"] <- "AC013264.2"
@@ -322,13 +274,11 @@ for (i in c(1:num_clus)){
     file_name_feature = paste0(outfile_base,"violinplot_tsne_normedmodulescore_colored_nolegend_",pltname,"-",suffix,".pdf")
     pdf(file=file_name_feature, width = 8.5, height = 7)
     abc <- ggplot(sdata_reorder[[c('new.cell.types',norm_pltname)]], aes(x = new.cell.types, y= .data[[norm_pltname]],fill=new.cell.types)) + geom_violin(trim=FALSE, scale = 'width')+ scale_fill_manual(values= anno_fill) + theme_classic()+ geom_boxplot(width=0.1, fill="white", outlier.colour=rgb(.5,.5,.5, 0.5)) + ylab(paste0("Normalized Cluster ",new_clus, " Expression")) + xlab("Inferred Clusters")+ ylim(-0.1, 1.1) + labs(fill='Inferred\nCluster') 
-    print(abc)
     dev.off()
 
     file_name_feature = paste0(outfile_base,"violinplot_tsne_modulescore_colored_nolegend_",pltname,"-",suffix,".pdf")
     pdf(file=file_name_feature, width = 8.5, height = 7)
     abc <- ggplot(sdata_reorder[[c('new.cell.types',paste0(pltname,"1"))]], aes(x = new.cell.types, y= .data[[paste0(pltname,"1")]],fill=new.cell.types)) + geom_violin(trim=FALSE, scale = 'width')+ scale_fill_manual(values= anno_fill) + theme_classic()+ geom_boxplot(width=0.1, fill="white", outlier.colour=rgb(.5,.5,.5, 0.5)) + ylab(paste0("Cluster ",new_clus, " Expression")) + xlab("Inferred Clusters") + labs(fill='Inferred\nCluster') 
-    print(abc)
     dev.off()
     
   }
@@ -340,7 +290,6 @@ go_term_base <- paste0(outfile_base, 'go_csvs')
 
 for (c in c(1:num_clus)){
   path_to_go_term_file = paste0(go_term_base,"/Cluster_",c,"_GOTerms.csv")
-  print(path_to_go_term_file)
   go_term__df = read.csv(path_to_go_term_file, row.names = 1, header= TRUE)
   num_genes_in_set = go_term__df$cluster_geneset_size[1]
   globalmax = go_term__df$xlimmax[1]
@@ -352,7 +301,7 @@ for (c in c(1:num_clus)){
       file_name_feature_lolli = paste0(outfile_base,"GO_bp_enrichmentplots_",pltname,"-",suffix,".pdf")
       pdf(file=file_name_feature_lolli, width = 5, height = 11)
       efg <-ego %>% head(10)  %>%  ggplot( aes(x=X.log10FDR , y= reorder(GO_term, X.log10FDR)))  +  geom_segment( aes( xend=0, yend=GO_term)) + geom_point( size=4, color=color_) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))  + xlab("-Log(FDR q value)") + ylab(element_blank()) + ggtitle(paste0("Cluster ",c,"\n Biological Pathway Enrichment \n n = ",num_genes_in_set," genes")) +theme(plot.title = element_text(hjust = 0.5)) + xlim(-1,globalmax)+ scale_y_discrete(labels = function(x) lapply(strwrap(x, width = 25, simplify = FALSE), paste, collapse="\n"))
-      print(efg)
+
       dev.off()
     } else if  (dim(go_term__df)[1] == 0) {
         next
@@ -361,7 +310,7 @@ for (c in c(1:num_clus)){
       file_name_feature_lolli = paste0(outfile_base,"GO_bp_enrichmentplots_",pltname,"-",suffix,".pdf")
       pdf(file=file_name_feature_lolli, width = 5, height = 11)
       efg <-ego %>% ggplot( aes(x=X.log10FDR , y= reorder(GO_term, X.log10FDR)))  +  geom_segment( aes( xend=0, yend=GO_term)) + geom_point( size=4, color=color_) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))  + xlab("-Log(FDR q value)") + ylab(element_blank()) + ggtitle(paste0("Cluster ",c,"\n Biological Pathway Enrichment \n n = ",num_genes_in_set," genes")) +theme(plot.title = element_text(hjust = 0.5)) + xlim(-1,globalmax)+ scale_y_discrete(labels = function(x) lapply(strwrap(x, width = 25, simplify = FALSE), paste, collapse="\n"))
-      print(efg)
+
       dev.off()
     }
 
