@@ -196,7 +196,7 @@ BiocManager::install(c("SingleCellExperiment", "ComplexHeatmap",
   <p>To install these packages, activate a new Anaconda environment and enter the
   following commands into a bash terminal:</p>
  <pre><code>conda install -c anaconda pip</code></pre>
-<pre><code>pip install scanpy pandas matplotlib numpy anndata</code></pre>
+<pre><code>pip install scanpy pandas matplotlib numpy anndata gseapy</code></pre>
   </div>
   <h3 id="preprocess-data">The Julia Environment<a class="anchor" aria-label="anchor" href="#preprocess-data"></a>
   </h3> 
@@ -275,10 +275,7 @@ unzip tutorial_scripts.zip</code></pre>
     detailed
     documentation of this script, run <code>python
     preprocess_tutorial_data.py --help</code></p> 
-    <pre><code>python utility_scripts/preprocess_tutorial_data.py --path_to_data
-    tutorial_data/raghavan2021/ --path_to_save
-    tutorial_data/raghavan2021/5000hvgs_raghavan2021_preprocessed.h5ad --data_name
-    "raghavan" --n_hvgs 5000</code></pre>
+    <pre><code>. tutorial_scripts/preprocess.sh --datapath="tutorial_data/raghavan2021/" --savepath="tutorial_data/raghavan2021/5000hvgs_raghavan2021_preprocessed.h5ad" --data_name="raghavan" --n_hvgs=5000</code></pre>
 <div class="section level3">
 <h2 id="run-nclusion">Run NCLUSION<a class="anchor" aria-label="anchor" href="#run-nclusion"></a>
 </h2>
@@ -365,14 +362,14 @@ location <i>(i, j)</i> on the heatmap corresponds to percent of cells with
 NCLUSION.</p> <p>To generate the heatmap from the NCLUSION result, enter the
 following commands into a bash terminal. <b>NOTE: be sure to replace --nclusion_results input with the
   relative path to your NCLUSION clustering results.</b></p>
-<pre><code>. tutorial_scripts/make_heatmap.sh --nclusion_results="/PATH/TO/NCLUSION/CLUSTERING/FILE" --pct_table="raghavan2021_outputs/cell_distribution_table.csv" --cluster_dict="tutorial_scripts/cluster_mapping/zheng_mapping.csv" --save_heatmap="raghavan2021_outputs/cell_distribution_heatmap.pdf" --data_name="zheng"</code></pre>
+<pre><code>. tutorial_scripts/make_heatmap.sh --nclusion_results="/PATH/TO/NCLUSION/CLUSTERING/FILE" --pct_table="raghavan2021_outputs/cell_distribution_table.csv" --cluster_dict="tutorial_scripts/cluster_mapping/raghavan_mapping.csv" --save_heatmap="raghavan2021_outputs/cell_distribution_heatmap.pdf" --data_name="raghavan"</code></pre>
 <p>This will produce a pdf file named <code>raghavan2021_outputs/cell_distriubtion_heatmap.pdf</code>containing the cell distriubtion heatmap shown
 below. The
 column labels do not correspond to NCLUSION's cluster labels. The script labels
 each cluster with their positional values in the heatmap for aesthetic purposes. A
 mapping of the original NCLUSION cluster labels to these new positional labels can
 be found in a file named <code>raghavan2021_outputs/mapping_cluster_to_new_label.csv</code></p>
-<img src="../images/zheng/cell_distrib_zheng-1.png" width="800" height="400">
+<img src="../images/raghavan/cell_distrib_raghavan-1.png" width="600" height="900"> 
 <h3 id="tsnes">C. Annotated TSNEs <a
   class="anchor" aria-label="anchor" href="#pip-heatmaps"></a>  
   </h3>

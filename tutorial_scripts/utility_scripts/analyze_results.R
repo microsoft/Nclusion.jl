@@ -274,11 +274,13 @@ for (i in c(1:num_clus)){
     file_name_feature = paste0(outfile_base,"violinplot_tsne_normedmodulescore_colored_nolegend_",pltname,"-",suffix,".pdf")
     pdf(file=file_name_feature, width = 8.5, height = 7)
     abc <- ggplot(sdata_reorder[[c('new.cell.types',norm_pltname)]], aes(x = new.cell.types, y= .data[[norm_pltname]],fill=new.cell.types)) + geom_violin(trim=FALSE, scale = 'width')+ scale_fill_manual(values= anno_fill) + theme_classic()+ geom_boxplot(width=0.1, fill="white", outlier.colour=rgb(.5,.5,.5, 0.5)) + ylab(paste0("Normalized Cluster ",new_clus, " Expression")) + xlab("Inferred Clusters")+ ylim(-0.1, 1.1) + labs(fill='Inferred\nCluster') 
+    print(abc)
     dev.off()
 
     file_name_feature = paste0(outfile_base,"violinplot_tsne_modulescore_colored_nolegend_",pltname,"-",suffix,".pdf")
     pdf(file=file_name_feature, width = 8.5, height = 7)
     abc <- ggplot(sdata_reorder[[c('new.cell.types',paste0(pltname,"1"))]], aes(x = new.cell.types, y= .data[[paste0(pltname,"1")]],fill=new.cell.types)) + geom_violin(trim=FALSE, scale = 'width')+ scale_fill_manual(values= anno_fill) + theme_classic()+ geom_boxplot(width=0.1, fill="white", outlier.colour=rgb(.5,.5,.5, 0.5)) + ylab(paste0("Cluster ",new_clus, " Expression")) + xlab("Inferred Clusters") + labs(fill='Inferred\nCluster') 
+    print(abc)
     dev.off()
     
   }
@@ -301,7 +303,7 @@ for (c in c(1:num_clus)){
       file_name_feature_lolli = paste0(outfile_base,"GO_bp_enrichmentplots_",pltname,"-",suffix,".pdf")
       pdf(file=file_name_feature_lolli, width = 5, height = 11)
       efg <-ego %>% head(10)  %>%  ggplot( aes(x=X.log10FDR , y= reorder(GO_term, X.log10FDR)))  +  geom_segment( aes( xend=0, yend=GO_term)) + geom_point( size=4, color=color_) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))  + xlab("-Log(FDR q value)") + ylab(element_blank()) + ggtitle(paste0("Cluster ",c,"\n Biological Pathway Enrichment \n n = ",num_genes_in_set," genes")) +theme(plot.title = element_text(hjust = 0.5)) + xlim(-1,globalmax)+ scale_y_discrete(labels = function(x) lapply(strwrap(x, width = 25, simplify = FALSE), paste, collapse="\n"))
-
+      print(efg)
       dev.off()
     } else if  (dim(go_term__df)[1] == 0) {
         next
@@ -310,7 +312,7 @@ for (c in c(1:num_clus)){
       file_name_feature_lolli = paste0(outfile_base,"GO_bp_enrichmentplots_",pltname,"-",suffix,".pdf")
       pdf(file=file_name_feature_lolli, width = 5, height = 11)
       efg <-ego %>% ggplot( aes(x=X.log10FDR , y= reorder(GO_term, X.log10FDR)))  +  geom_segment( aes( xend=0, yend=GO_term)) + geom_point( size=4, color=color_) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))  + xlab("-Log(FDR q value)") + ylab(element_blank()) + ggtitle(paste0("Cluster ",c,"\n Biological Pathway Enrichment \n n = ",num_genes_in_set," genes")) +theme(plot.title = element_text(hjust = 0.5)) + xlim(-1,globalmax)+ scale_y_discrete(labels = function(x) lapply(strwrap(x, width = 25, simplify = FALSE), paste, collapse="\n"))
-
+      print(efg)
       dev.off()
     }
 
