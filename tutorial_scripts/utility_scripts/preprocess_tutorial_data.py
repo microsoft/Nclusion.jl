@@ -10,6 +10,7 @@ import getopt
 def transform_tissue(path_to_data):
     pt_id="D496"
     adata = sc.read_h5ad(path_to_data)
+    adata.obs['cell_type'] = adata.obs['Manually_curated_celltype']
     adata.X = adata.layers['counts']
     data = adata.X
     data = data.todense()
@@ -163,7 +164,7 @@ def main(argv):
         counts = pd.read_csv(path_to_data+'Biopsy_RawDGE_23042cells.csv', index_col=0)
         metadata = pd.read_csv(path_to_data+'complete_MetaData_70170cells_scp.csv', index_col=0)
         counts = counts.T
-        adata = ad.AnnData(counts)
+        adata = ad.AnnData(counts, dtype=np.float32)
         metadata = metadata.loc[counts.index.values]
         metadata['cell_type'] = metadata.apply(lambda x: annotate_raghavan(x), axis=1)
         adata.obs['cell_type'] = metadata['cell_type']

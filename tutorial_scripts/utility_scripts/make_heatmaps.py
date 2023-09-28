@@ -113,7 +113,7 @@ def main(argv):
     except getopt.GetoptError: 
         sys.exit()
         print(opts)   
-    
+        
     if data_name == 'vanGalen':
         clusters = pd.read_csv('tutorial_scripts/cluster_mapping/vanGalen_mapping.csv', index_col=0).to_dict()
         cluster_dict = clusters['0']
@@ -121,10 +121,10 @@ def main(argv):
         clusters = pd.read_csv('tutorial_scripts/cluster_mapping/dominguezconde_mapping.csv', index_col=0).to_dict()
         cluster_dict = clusters['0']
     elif data_name == 'raghavan':
-        clusters = pd.read_csv('tutorial_scripts/cluster_mapping/raghavan_mapping.csv')
+        clusters = pd.read_csv('tutorial_scripts/cluster_mapping/raghavan_mapping.csv', index_col=0).to_dict()
         cluster_dict = clusters['0']
     elif data_name == 'zheng':
-        clusters = pd.read_csv('tutorial_scripts/cluster_mapping/zheng_mapping.csv')
+        clusters = pd.read_csv('tutorial_scripts/cluster_mapping/zheng_mapping.csv', index_col=0).to_dict()
         cluster_dict = clusters['0']
 
     data = pd.read_csv(input_path, index_col=1)

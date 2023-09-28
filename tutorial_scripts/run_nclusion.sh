@@ -42,8 +42,14 @@ dataset_name=$DATASET
 output_dir=$OUTPUTDIR
 echo julia --project=${julia_env} --thread=${NUM_THREADS} tutorial_scripts/utility_scripts/run_nclusion.jl  "${input_file}" "${k}" "${a}" "${b}"  "12345" "${elbo_ep}" "${dataset_name}" "${output_dir}" 
 
-a=1.0
-b=1.0
+if [$dataset_name=="zheng2017"];
+then
+    a=0.0000001
+    b=0.0000001
+else
+    a=1.0
+    b=1.0
+fi
 k=25
 elbo_ep="1.0"
 julia --project=${julia_env} --thread=${NUM_THREADS} tutorial_scripts/utility_scripts/run_nclusion.jl  "${input_file}" "${k}" "${a}" "${b}"  "12345" "${elbo_ep}" "${dataset_name}" "${output_dir}" 

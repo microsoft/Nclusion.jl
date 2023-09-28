@@ -60,10 +60,10 @@ def main(argv):
         clusters = pd.read_csv('tutorial_scripts/cluster_mapping/dominguezconde_mapping.csv', index_col=0).to_dict()
         cluster_dict = clusters['0']
     elif figures_prefix == 'raghavan2021':
-        clusters = pd.read_csv('tutorial_scripts/cluster_mapping/raghavan_mapping.csv')
+        clusters = pd.read_csv('tutorial_scripts/cluster_mapping/raghavan_mapping.csv', index_col=0).to_dict()
         cluster_dict = clusters['0']
     elif figures_prefix == 'zheng2017':
-        clusters = pd.read_csv('tutorial_scripts/cluster_mapping/zheng_mapping.csv')
+        clusters = pd.read_csv('tutorial_scripts/cluster_mapping/zheng_mapping.csv', index_col=0).to_dict()
         cluster_dict = clusters['0']
     
     res['inferred_label_mapped'] = res.apply(lambda x: cluster_dict[int(x['inferred_label'])], axis=1)
