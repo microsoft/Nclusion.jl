@@ -7,7 +7,9 @@ path_to_pips <- args[2]
 path_to_labels <- args[3]
 outfile_base <- args[4]
 data_name <- args[5]
-r_library_path <- args[6]
+path_to_translation <- args[7]
+r_library_path <- args[7]
+
 
 if (r_library_path != "NULL"){
 .libPaths(r_library_path)
@@ -71,16 +73,12 @@ pemutation_vec = c(1:num_clus)
 
 if (data_name == "vanGalen"){
   permutation_vec <- c(4, 5, 6, 3, 9, 8, 1, 2, 7)
-  path_to_translation <- "tutorial_scripts/cluster_mapping/vanGalen_mapping.csv"
 } else if (data_name == "dominguezconde"){
   permutation_vec <- c(4, 5, 1, 3, 7, 9, 8, 6, 2)
-  path_to_translation <- "tutorial_scripts/cluster_mapping/dominguezconde_mapping.csv"
 } else if (data_name == "raghavan"){
   permutation_vec <- c(8, 1, 5, 4, 3, 6, 2, 7)
-  path_to_translation <- "tutorial_scripts/cluster_mapping/raghavan_mapping.csv"
 }else if (data_name == 'zheng'){
   permutation_vec = c(15, 11, 12, 3, 9, 14, 7, 8, 6, 13, 4, 1, 2, 10, 5)
-  path_to_translation <- "tutorial_scripts/cluster_mapping/zheng_mapping.csv"
 }
 
 
