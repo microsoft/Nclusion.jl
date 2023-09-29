@@ -1,4 +1,3 @@
-organism = "org.Hs.eg.db"
 thresh = 0.5
 
 args <- commandArgs(trailingOnly=TRUE)
@@ -7,7 +6,7 @@ path_to_pips <- args[2]
 path_to_labels <- args[3]
 outfile_base <- args[4]
 data_name <- args[5]
-path_to_translation <- args[7]
+path_to_translation <- args[6]
 r_library_path <- args[7]
 
 
@@ -18,7 +17,6 @@ if (r_library_path != "NULL"){
 seed = 12345
 library(devtools)
 library(ggplot2)
-library(reticulate)
 library(R.utils)
 library(stringr)
 library(Matrix)
@@ -30,7 +28,6 @@ library(tidyverse)
 library(scales)
 library(cowplot)
 library(RCurl)
-library(optparse)
 set.seed(seed)
 
 library(ComplexHeatmap)
@@ -38,10 +35,7 @@ library(circlize)
 
 library(clusterProfiler)
 library(enrichplot)
-library(geneset)
-library(genekitr)
 library(patchwork)
-library(organism, character.only = TRUE)
 
 data <- read.csv(path_to_pips, row.names = 1, header= TRUE)
 num_col = dim(data)[2]
@@ -269,7 +263,7 @@ for (i in c(1:num_clus)){
     sdata_reorder[[norm_pltname]] <- (sdata_reorder[[paste0(pltname,"1")]] - min(sdata_reorder[[paste0(pltname,"1")]]))/(max(sdata_reorder[[paste0(pltname,"1")]]) - min(sdata_reorder[[paste0(pltname,"1")]]))
 
 
-    file_name_feature = paste0(outfile_base,"violinplot_tsne_normedmodulescore_colored_nolegend_",pltname,"-",suffix,".pdf")
+    file_name_feature = paste0(outfile_base,"violinplot_tsne_normedmodulescore_colored_nolegend_",pltname,".pdf")
     pdf(file=file_name_feature, width = 8.5, height = 7)
     abc <- ggplot(sdata_reorder[[c('new.cell.types',norm_pltname)]], aes(x = new.cell.types, y= .data[[norm_pltname]],fill=new.cell.types)) + geom_violin(trim=FALSE, scale = 'width')+ scale_fill_manual(values= anno_fill) + theme_classic()+ geom_boxplot(width=0.1, fill="white", outlier.colour=rgb(.5,.5,.5, 0.5)) + ylab(paste0("Normalized Cluster ",new_clus, " Expression")) + xlab("Inferred Clusters")+ ylim(-0.1, 1.1) + labs(fill='Inferred\nCluster') 
     print(abc)
@@ -285,7 +279,7 @@ go_term_base <- paste0(outfile_base, 'go_csvs')
 
 for (c in c(1:num_clus)){
   path_to_go_term_file = paste0(go_term_base,"/Cluster_",c,"_GOTerms.csv")
-  if file.exists(path_to_go_term_file){
+  if (file.exists(path_to_go_term_file)){
     go_term__df = read.csv(path_to_go_term_file, row.names = 1, header= TRUE)
     num_genes_in_set = go_term__df$cluster_geneset_size[1]
     globalmax = go_term__df$xlimmax[1]
@@ -294,7 +288,7 @@ for (c in c(1:num_clus)){
     if (dim(go_term__df)[1] >=10) {
         ego <- go_term__df
 
-        file_name_feature_lolli = paste0(outfile_base,"GO_bp_enrichmentplots_",pltname,"-",suffix,".pdf")
+        file_name_feature_lolli = paste0(outfile_base,"GO_bp_enrichmentplots_",pltname,".pdf")
         pdf(file=file_name_feature_lolli, width = 5, height = 11)
         efg <-ego %>% head(10)  %>%  ggplot( aes(x=X.log10FDR , y= reorder(GO_term, X.log10FDR)))  +  geom_segment( aes( xend=0, yend=GO_term)) + geom_point( size=4, color=color_) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))  + xlab("-Log(FDR q value)") + ylab(element_blank()) + ggtitle(paste0("Cluster ",c,"\n Biological Pathway Enrichment \n n = ",num_genes_in_set," genes")) +theme(plot.title = element_text(hjust = 0.5)) + xlim(-1,globalmax)+ scale_y_discrete(labels = function(x) lapply(strwrap(x, width = 25, simplify = FALSE), paste, collapse="\n"))
         print(efg)
@@ -303,7 +297,7 @@ for (c in c(1:num_clus)){
           next
       } else {
         ego <- go_term__df
-        file_name_feature_lolli = paste0(outfile_base,"GO_bp_enrichmentplots_",pltname,"-",suffix,".pdf")
+        file_name_feature_lolli = paste0(outfile_base,"GO_bp_enrichmentplots_",pltname,".pdf")
         pdf(file=file_name_feature_lolli, width = 5, height = 11)
         efg <-ego %>% ggplot( aes(x=X.log10FDR , y= reorder(GO_term, X.log10FDR)))  +  geom_segment( aes( xend=0, yend=GO_term)) + geom_point( size=4, color=color_) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))  + xlab("-Log(FDR q value)") + ylab(element_blank()) + ggtitle(paste0("Cluster ",c,"\n Biological Pathway Enrichment \n n = ",num_genes_in_set," genes")) +theme(plot.title = element_text(hjust = 0.5)) + xlim(-1,globalmax)+ scale_y_discrete(labels = function(x) lapply(strwrap(x, width = 25, simplify = FALSE), paste, collapse="\n"))
         print(efg)

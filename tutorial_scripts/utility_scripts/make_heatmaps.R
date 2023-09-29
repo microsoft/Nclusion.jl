@@ -12,7 +12,6 @@ if (r_library_path != 'NULL'){
 }
 
 library(circlize)
-library(reticulate)
 library(devtools)
 library(R.utils)
 library(ComplexHeatmap)

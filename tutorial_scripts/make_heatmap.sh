@@ -33,6 +33,7 @@ case $i in
     echo "-t | --pct_table: path to save cell type distribution (.csv) file"
     echo "-d | --cluster_dict: path to file that maps orignal nclusion cluster labels to new labels on heatmap"
     echo "-m | --save_heatmap: path to save the cell distribution heatmap (.pdf)"
+    echo "-n | --data_name: name of dataset"
     echo "-l | --rlib: path to r library (Optional)"
     return
     ;;
@@ -50,9 +51,6 @@ save_heatmap=$HEATMAP
 rlib=$RLIB
 data_name=$DATANAME
 
-echo python tutorial_scripts/utility_scripts/make_heatmaps.py --input_path $nclusion_results --pct_table_file $pct_table --cluster_dict_file $cluster_dict
-
-echo Rscript tutorial_scripts/utility_scripts/make_heatmaps.R -f $pct_table -s $save_heatmap
 
 python tutorial_scripts/utility_scripts/make_heatmaps.py --input_path $nclusion_results --pct_table_file $pct_table --cluster_dict_file $cluster_dict --data_name $data_name
 

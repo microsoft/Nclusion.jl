@@ -14,7 +14,7 @@ def make_tsnes(adata, res, figures_prefix):
     adata.obs['called_label'] = pd.Categorical(res.loc[:, 'called_label'])
     adata.obs['cell_type'] = pd.Categorical(res.loc[:, "cell_type"])
 
-    sc.pl.tsne(adata, color="cell_type", save=figures_prefix+'_called_cell_type.png')
+    sc.pl.tsne(adata, color="cell_type", save='_'+figures_prefix+'_called_cell_type.png')
     sc.pl.tsne(adata, color="inferred_label", save='_'+figures_prefix+'_inferred_label.png')
         
 
@@ -25,7 +25,7 @@ def make_tsnes(adata, res, figures_prefix):
     for c in clusters:
         obs_label = 'cluster'+str(c)
         adata.obs[obs_label] = pd.Categorical((adata.obs['inferred_label'] == c))
-        sc.pl.tsne(adata, color=obs_label, save=figures_prefix+'_cluster_'+str(c)+'.png', palette=color_dict, title='Cluster '+str(c))
+        sc.pl.tsne(adata, color=obs_label, save='_'+figures_prefix+'_cluster_'+str(c)+'.png', palette=color_dict, title='Cluster '+str(c))
 
 
 

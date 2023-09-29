@@ -26,7 +26,6 @@ done
 
 rlib=$RLIB
 data=$DATA
-echo rlib = ${rlib}
-echo data = ${data}
+
 
 Rscript tutorial_scripts/utility_scripts/read_rds.R $rlib $data

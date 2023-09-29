@@ -10,7 +10,6 @@ if (r_library_path != 'NULL'){
 library(devtools)
 library(R.utils)
 library(Seurat)
-library(reticulate)
 
 data <- readRDS(path_to_data)
 

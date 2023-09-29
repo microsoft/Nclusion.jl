@@ -93,8 +93,6 @@ et al 2019</a></li>
 </div>
 <!--/.navbar -->
       
-
-      </header><script src="study-compare-p-value-combine-methods_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Clustering van Galen et al 2019</h1>
@@ -102,62 +100,55 @@ et al 2019</a></li>
     <p>
     This tutorial demonstrates how to replicate NCLUSION clustering results for
     43,690 acute myeloid leukemia (AML) cells obtained from
-    van Galen et al 2019 (PAPER REF HERE). Open a bash
+    van Galen et al 2019 <a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>. Open a bash
     terminal and follow along with the tutorial from your working directory. </p> 
     <h2 data-toc-skip>Required Tutorial Installations</h2>
     <p>First, install NCLUSION into a Julia environment following the
     installation instructions <a
     href="../index.html">here</a>. The NCLUSION tutorials also require
-    installation of additional R, python, and Julia libraries. These packages are NOT required for running NCLUSION only.</p>
+    installation of additional R and python libraries. These packages are NOT required for running NCLUSION only.</p>
       <h3 data-toc-skip>The R environment</h3>
-    <p>R is a widely used, free, and open source software environment for
+    <p>R is an open source software environment for
     statistical computing and graphics. The most recent version of R can be
     downloaded from the <a href="https://cran.r-project.org/"
     class="external-link">Comprehensive R Archive Network (CRAN)</a>. CRAN
     provides precompiled binary versions of R for Windows, macOS, and select Linux
-    distributions that are likely sufficient for many users’ needs. For detailed
+    distributions. For detailed
    installation instructions for R and R libraries click <a
     href="https://cran.r-project.org/doc/manuals/r-release/R-admin.html"
     class="external-link">here</a>.</p>
     <p>The following R libraries are required for replicating results in the
     NCLUSION tutorials: </p>
-    </div>
-  <ul>
-  <li><a href="https://cran.r-project.org/web/packages/devtools/index.html" class="external-link"> devtools </a></li>
-  <li><a href="https://cran.r-project.org/web/packages/ggplot2/index.html" class="external-link"> ggplot2 </a></li>
-  <li><a href="https://cran.r-project.org/web/packages/reticulate/index.html" class="external-link"> reticulate </a></li>
-  <li><a href="https://cran.r-project.org/web/packages/R.utils/index.html" class="external-link"> R.utils </a></li>
-  <li><a href="https://cran.r-project.org/web/packages/stringr/index.html" class="external-link"> stringr </a></li>
-  <li><a href="https://cran.r-project.org/web/packages/Matrix/index.html" class="external-link"> Matrix </a></li>
-  <li><a href="https://cran.r-project.org/web/packages/Seurat/index.html" class="external-link"> Seurat </a></li>
-  <li><a href="https://cran.r-project.org/web/packages/dplyr/index.html" class="external-link"> dplyr </a></li>
-  <li><a href="https://cran.r-project.org/web/packages/RColorBrewer/index.html" class="external-link"> RColorBrewer </a></li>
-  <li><a href="https://www.bioconductor.org/packages/release/bioc/html/SingleCellExperiment.html" class="external-link"> SingleCellExperiment </a></li>
-  <li><a href="https://cran.r-project.org/web/packages/tidyverse/index.html" class="external-link"> tidyverse </a></li>
-  <li><a href="https://cran.r-project.org/web/packages/scales/index.html" class="external-link"> scales </a></li>
-  <li><a href="https://cran.r-project.org/web/packages/cowplot/index.html" class="external-link"> cowplot </a></li>
-  <li><a href="https://cran.r-project.org/web/packages/RCurl/index.html" class="external-link"> RCurl </a></li>
-  <li><a href="https://cran.r-project.org/web/packages/optparse/index.html" class="external-link"> optparse </a></li>
-  <li><a href="https://bioconductor.org/packages/release/bioc/html/ComplexHeatmap.html" class="external-link"> ComplexHeatmap </a></li>
-  <li><a href="https://cran.r-project.org/web/packages/circlize/index.html" class="external-link"> circilize </a></li>
-  <li><a href="https://bioconductor.org/packages/release/bioc/html/clusterProfiler.html" class="external-link"> clusterProfiler </a></li>
-  <li><a href="https://bioconductor.org/packages/release/bioc/html/enrichplot.html" class="external-link"> enrichplot </a></li>
-  <li><a href="https://cran.r-project.org/web/packages/geneset/index.html" class="external-link"> geneset </a></li>
-  <li><a href="https://cran.r-project.org/web/packages/genekitr/index.html" class="external-link"> genekitr </a></li>
-  <li><a href="https://cran.r-project.org/web/packages/patchwork/index.html" class="external-link"> patchwork </a></li>
-  <li><a href="https://www.bioconductor.org/packages/release/data/annotation/html/org.Hs.eg.db.html" class="external-link"> org.Hs.eg.db </a></li>
-  </ul>
+<ul>
+<li><a href="https://cran.r-project.org/web/packages/devtools/index.html" class="external-link"> devtools </a></li>
+<li><a href="https://cran.r-project.org/web/packages/ggplot2/index.html" class="external-link"> ggplot2 </a></li>
+<li><a href="https://cran.r-project.org/web/packages/R.utils/index.html" class="external-link"> R.utils </a></li>
+<li><a href="https://cran.r-project.org/web/packages/stringr/index.html" class="external-link"> stringr </a></li>
+<li><a href="https://cran.r-project.org/web/packages/Matrix/index.html" class="external-link"> Matrix </a></li>
+<li><a href="https://cran.r-project.org/web/packages/Seurat/index.html" class="external-link"> Seurat </a></li>
+<li><a href="https://cran.r-project.org/web/packages/dplyr/index.html" class="external-link"> dplyr </a></li>
+<li><a href="https://cran.r-project.org/web/packages/RColorBrewer/index.html" class="external-link"> RColorBrewer </a></li>
+<li><a href="https://www.bioconductor.org/packages/release/bioc/html/SingleCellExperiment.html" class="external-link"> SingleCellExperiment </a></li>
+<li><a href="https://cran.r-project.org/web/packages/tidyverse/index.html" class="external-link"> tidyverse </a></li>
+<li><a href="https://cran.r-project.org/web/packages/scales/index.html" class="external-link"> scales </a></li>
+<li><a href="https://cran.r-project.org/web/packages/cowplot/index.html" class="external-link"> cowplot </a></li>
+<li><a href="https://cran.r-project.org/web/packages/RCurl/index.html" class="external-link"> RCurl </a></li>
+<li><a href="https://bioconductor.org/packages/release/bioc/html/ComplexHeatmap.html" class="external-link"> ComplexHeatmap </a></li>
+<li><a href="https://cran.r-project.org/web/packages/circlize/index.html" class="external-link"> circilize </a></li>
+<li><a href="https://bioconductor.org/packages/release/bioc/html/clusterProfiler.html" class="external-link"> clusterProfiler </a></li>
+<li><a href="https://bioconductor.org/packages/release/bioc/html/enrichplot.html" class="external-link"> enrichplot </a></li>
+<li><a href="https://cran.r-project.org/web/packages/patchwork/index.html" class="external-link"> patchwork </a></li>
+</ul>
   <p>The easiest method to install these packages is with the following example
   command entered in an R shell:</p> <div class="sourceCode" id="cb2"><pre
   class="sourceCode R"><code class="sourceCode r">if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
   
 BiocManager::install(c("SingleCellExperiment", "ComplexHeatmap",
-"clusterProfiler", "enrichplot", "org.Hs.eg.db"))
+"clusterProfiler", "enrichplot"))
 
 <span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">install.packages</span>(<span class="kw">c</span>(<span class="st">'devtools'</span>, </span>
   <span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>                    <span class="st">'ggplot2'</span>, </span>
-  <span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>                    <span class="st">'reticulate'</span>, </span>
   <span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>                    <span class="st">'R.utils'</span>, </span>
   <span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>                    <span class="st">'stringr'</span>, </span>
   <span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>                    <span class="st">'Matrix'</span>, </span>
@@ -168,19 +159,15 @@ BiocManager::install(c("SingleCellExperiment", "ComplexHeatmap",
   <span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a>                    <span class="st">'scales'</span>, </span>
   <span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a>                    <span class="st">'cowplot'</span>, </span>
   <span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>                    <span class="st">'RCurl'</span>,</span>
-  <span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>                    <span class="st">'optparse'</span>, </span>
   <span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>                    <span class="st">'circilize'</span>, </span>
-  <span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>                    <span class="st">'geneset'</span>, </span>
-  <span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>                    <span class="st">'genekitr'</span>, </span>
   <span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>                    <span class="st">'patchwork'</span>), </span> 
   <span id="cb2-15"><a href="#cb2-15" aria-hidden="true"></a>                    <span class="dt">dependencies =</span> <span class="ot">TRUE</span>);</span></code></pre></div>
-  </div>
   <div class="section level3">
   <h3 id="installing-mvmapit-from-sources">The Python Environment<a class="anchor" aria-label="anchor" href="#installing-mvmapit-from-sources"></a>
   </h3>
   <p>We recommend that users install python packages into a new Anconda
   environment. Details for installing Anaconda and setting up a new environment
-  can be found here.</p>
+  can be found <a href="https://www.anaconda.com/download/" class="external-link">here.</a></p>
   <p>Packages that are required to run NCLUSION tutorials include:</p>
   <ul>
   <li><a href="https://scanpy.readthedocs.io/en/stable/" class="external-link"> scanpy </a> </li>
@@ -193,52 +180,27 @@ BiocManager::install(c("SingleCellExperiment", "ComplexHeatmap",
   <li> <a href="https://numpy.org/install/" class="external-link"> numpy </a>
   </li>
   <li> <a href="https://anndata.readthedocs.io/en/latest/" class="external-link"> anndata </a> </li>
-  </ul>
+  <li> <a href="https://gseapy.readthedocs.io/en/latest/" class="external-link"> gseapy </a> </li>
+</ul>
   <p>To install these packages, activate a new Anaconda environment and enter the
   following commands into a bash terminal:</p>
  <pre><code>conda install -c anaconda pip</code></pre>
 <pre><code>pip install scanpy pandas matplotlib numpy anndata gseapy</code></pre>
   </div>
-  <h3 id="preprocess-data">The Julia Environment<a class="anchor" aria-label="anchor" href="#preprocess-data"></a>
-  </h3> 
-<p>In addition to NCLUSION, you will need to have the following Julia packages
-installed: 
-<ul>
-  <li><a href="https://www.juliapackages.com/p/dataframesmeta" class="external-link"> DataFramesMeta </a> </li>
-  <li><a
-  href="https://juliapackages.com/p/hyperopt"
-  class="external-link">
-  Hyperopt </a> </li> 
-  <li> <a href="https://juliapackages.com/p/blackboxoptim"
-  class="external-link"> BlackBoxOptim </a> </li>
-  <li> <a href="https://www.juliapackages.com/p/turing" class="external-link">
-  Turing </a> </li>
-  <li> <a href="https://juliapackages.com/p/rcall" class="external-link"> RCall
-  </a> </li>
-  <li> <a href="https://juliapackages.com/p/hungarian" class="external-link">
-  Hungarian </a> </li>
-  <li> <a href="https://www.juliapackages.com/p/combinatorics" class="external-link"> Combinatorics </a> </li>
-  </ul> 
-To install these packages, first start a Julia repl in your
-NCLUSION Julia environment using <code>julia --project=/PATH/TO/JULIA/ENV</code>
-where <code>/PATH/TO/JULIA/ENV</code> is the relative path to the NCLUSION Julia
-environment, or whichever Julia environment you want to use. Then, install the
-required packages by entering the following commands into the Julia repl: </p>
-<pre><code>import Pkg; Pkg.add.(["DataFramesMeta", "Hyperopt", "BlackBoxOptim",
-"Turing", "RCall", "Hungarian", "Combinatorics"])</code></pre>
-<p>To exit the Julia repl, enter <code>exit()</code>.</p>
   <h3 id="preprocess-data">Tutorial Scripts<a class="anchor" aria-label="anchor" href="#preprocess-data"></a>
   </h3> 
     Next, download the necessary tutorial scripts
     into your current working directory with the following bash commands.
     Alternatively, you can download the tutorial files as a zipped directory
     from <a
-    href="../tutorial_scripts.zip" download>here</a>, transfer them to your
+    href="https://microsoft.github.io/nclusion/tutorial_scripts.zip" download>here</a>, transfer them to your
     working directory, and unzip to use. 
     <pre><code>wget https://microsoft.github.io/nclusion/tutorial_scripts.zip
 unzip tutorial_scripts.zip</code></pre>
     </p>
-
+<p><b>NOTE: to find more detailed documentation for each step of this tutorial, run each
+bash script with the
+<code>--help</code> flag.  </b></p>
 <div class="section level3">
 <h2 id="preprocess-data">Download and Preprocess Data<a class="anchor" aria-label="anchor" href="#preprocess-data"></a>
 </h2>
@@ -267,25 +229,19 @@ converted to an AnnData object and preprocessed. Enter the following command
 into a bash terminal to extract the count and meta data from the
 <code>.rds</code> object and save them as dataframes to <code>.csv</code> files,
 named <code>'tutorial_data/vanGalen2019/galenAML_countsdf.csv'</code> and
-<code>'tutorial_data/vanGalen2019/galenAML_metadf.csv'</code>, respectively.
-<b>NOTE: </b> if you want to load packages from a specific R library, append <code>--rlib="/PATH/TO/R/LIBRARY"</code> onto
-this command. </p>
+<code>'tutorial_data/vanGalen2019/galenAML_metadf.csv'</code>, respectively. </p>
+<p><b>NOTE: if you want to load packages from a specific R library, append <code>--rlib="/PATH/TO/R/LIBRARY"</code> onto
+this command. </b> </p>
 <pre><code>. tutorial_scripts/convert_galen_dtype.sh --datapath="tutorial_data/vanGalen2019/Seurat_AML.rds"</code></pre>
 Next, the count and cell-type data must be extracted from these dataframes to
-generate an AnnData-based representation of the data. After the conversion, it is normalized to 10,000
+convert the data into an AnnData format. After the conversion, the data is normalized to 10,000
 counts per cell, log-transformed, and then
 subsetted to include the top 5000 highly-variable genes. Due to the biological
 differences between cell lines and donor cells of the same cell-type annotation,
 we appended the cell line name onto cell-type labels where applicable, producing
-33 distinct cell-types overall. These preprocessing
-steps can be
-executed by entering the following commands into a bash terminal. The
-preprocessed data will be saved to
-<code>tutorial_data/vanGalen2019/5000hvgs_vanGalen2019_preprocessed.h5ad</code>.</p> 
-<pre><code>. tutorial_scripts/preprocess.sh --datapath="tutorial_data/vanGalen2019/" --savepath="tutorial_data/vanGalen2019/5000hvgs_vanGalen2019_preprocessed.h5ad" --data_name="vanGalen" --n_hvgs=5000</code></pre>  For
-more detailed
-documentation of this script, run <code>.
-preprocess.sh --help</code>
+33 distinct cell-types overall. Complete these preprocessing steps by entering the following commands into a bash terminal:</p> 
+<pre><code>. tutorial_scripts/preprocess.sh --datapath="tutorial_data/vanGalen2019/" --savepath="tutorial_data/vanGalen2019/5000hvgs_vanGalen2019_preprocessed.h5ad" --data_name="vanGalen" --n_hvgs=5000</code></pre>
+<p>The preprocessed AnnData object will be saved to <code>tutorial_data/vanGalen2019/5000hvgs_vanGalen2019_preprocessed.h5ad</code>.</p>
 <div class="section level3">
 <h2 id="run-nclusion">Run NCLUSION<a class="anchor" aria-label="anchor" href="#run-nclusion"></a>
 </h2>
@@ -295,20 +251,18 @@ relative path to your Julia project environment where NCLUSION is installed. </b
 <pre><code>mkdir -p vanGalen2019_outputs
 
 . tutorial_scripts/run_nclusion.sh --datapath='tutorial_data/vanGalen2019/5000hvgs_vanGalen2019_preprocessed.h5ad' --julia_env='PATH/TO/JULIA/ENV' --data_name='vanGalen2019' --output_dir='vanGalen2019_outputs/'</code></pre>
-<p>All NCLUSION output files can be found in a sudirectory of the specified output
+<p>All tutorial output files can be found in the specified output
 directory:
-<code>vanGalen2019_outputs/</code>. The complete path for the output direcotry
-generated by NCLUSION is as follows:
+<code>vanGalen2019_outputs/</code>. All output files generated by NCLUSION can
+found in:
 <code>vanGalen2019_outputs/outputs/EXPERIMENT_nclusion_vanGalen2019/DATASET_vanGalen2019_5000HVGs-43690N/YEAR_MONTH_DATE_TIME/</code>
-where "YEAR_MONTH_DATE_TIME/" is equivalent to the time stamp of the results,
-following the year-month-date-time format (i.e 2023-09-19T224247). An example of
-the full output path might be:
-<code>vanGalen2019_outputs/outputs/EXPERIMENT_nclusion_vanGalen2019/DATASET_vanGalen2019_5000HVGs-43690N/2023-09-19T224247/</code>. <b>NOTE: 'YEAR-MONTH-DATE-TIME'
+</p>
+<p><b>NOTE: 'YEAR-MONTH-DATE-TIME'
 labels in the output path/files corresponds to the time stamp of when the
 results were generated. The time stamp is added automatically by NCLUSION. </b></p>
 <p>In the output directory, you can find the following output files:</p>
 <ol><li><b>vanGalen2019_5000HVGs-43690N_nclusion-YEAR-MONTH-DATE-TIME.csv</b>
-  <ul><li>This csv file contains the NCLUSION clustering assignments, where each row displays relevant metadata and
+  <ul><li>.csv file that contains the NCLUSION clustering assignments, where each row displays relevant metadata and
   clustering results for each cell. </li>
   <li> The 'condition' column
     displays the cell's experimental condition labels (all cells in this study
@@ -322,19 +276,19 @@ results were generated. The time stamp is added automatically by NCLUSION. </b><
 <li>The 'inferred_label' column displays the cell's NCLUSION cluster assignment.
 </li></ul></li>
 <li><b>5000G-YEAR-MONTH-DATE-TIME-pips.csv</b>
-  <ul><li>This csv file contains the Posterior Inclusion Probabilities (PIPs) of
-  genes across clusters identified by NCLUSION. PIPs represent the probability
-  that a given variable (gene) is present in the true model of the cells'
-  biology, and its value ranges from 0-1. For a particular cluster, a higher PIP
+  <ul><li>.csv file that contains the Posterior Inclusion Probabilities (PIPs) of
+  genes across clusters identified by NCLUSION. PIPs are used as a summary of
+  evidence for a gene being associated with driving the identity of any
+  phenotypic cluster. For a particular cluster, a higher PIP
   indicates that a gene is more significant to the formation of that cluster.
 </li> 
 </ul></li>
 <li><b>_QuickSummary_YEAR-MONTH-DATE-TIME.txt</b>
-  <ul><li>This text file contains the input parameters that were used to run
+  <ul><li>.txt file that contains the input parameters that were used to run
   NCLUSION.</li></ul></li>
 <li><b>output.jld2</b>
-<ul><li>This .jld2 file contains all model parameters</li></ul></li>
-<li><b>YEAR-MONTH-DATE-TIME-Nk.csv</b><ul><li>This .csv contains estimated
+<ul><li>.jld2 file that contains all model parameters</li></ul></li>
+<li><b>YEAR-MONTH-DATE-TIME-Nk.csv</b><ul><li>.csv file that contains estimated
 number of cells in each cluster identified by NCLUSION</li></ul></li>
 <li><b>*_Summary.csv (if manual cell-type annotations are provided)</b></li>
 <ul><li>There should be .csv files following this labeling format, corresponding to
@@ -349,62 +303,72 @@ produce these metric calculation files (more information on these metrics below)
 <div class="section level3"><h2 id="eval-metrics">Analysis of NCLUSION
 Clustering and Variable Selection<a class="anchor" aria-label="anchor" href="#eval-metrics"></a>
 </h2></div>
+<p><b>NOTE: In the following analyses, clusters are named according to the cluster mapping file:
+  <code>tutorial_scripts/cluster_mapping/vanGalen_mapping.csv</code> which maps
+  the NCLUSION labels to labels in [1:number of clusters], for aesthetic
+  purposes. This mapping retains NCLUSION cluster memberships. </b></p>
 <h3 id="eval-metrics">A. Quantitative Evaluation Metrics<a class="anchor" aria-label="anchor" href="#eval-metrics"></a>
 </h3>
 <p> To evaluate the clustering results, NCLUSION automatically calculates
 various extrinsic evaluation metrics: Adjusted Rand Index (ARI), Jaccard Index, Normalized
-Mutual Information (NMI), and Variation of Information (VarInfo). Extrinsic metric calculations dependent on
+Mutual Information (NMI), V-Measure, and Variation of Information (VarInfo).
+Extrinsic metric calculations are dependent on
 experimental annotations of the data, that act as the "true" labels. Therefore, extrinsic metrics are
 only calculated when "true" labels are provided in the "cell_type" observation
 layer of the input AnnData object. The metric calculations are
-automatically saved to <code>.csv</code> files in the specified output
+automatically saved to <code>.csv</code> files in the NCLUSION output
 directory. Each file is labeled with the
 name of the metric, appended to <code>'_Summary.csv'</code>. 
 <h3 id="eval-metrics">B. Generate Cell Distribution Heatmap</h3><a class="anchor" aria-label="anchor" href="#eval-metrics"></a>
 </h3>
 <p>Next, generate a heatmap that displays how cells from each cell-type
 (determined by the
-"true" labels obtained from van Galen et al 2019) are distributed across
+annotations obtained from van Galen et al 2019) are distributed across
 clusters that are identified by NCLUSION. Each row, <i>i</i>, represents one cell-type, and
 each column, <i>j</i>, represents one cluster. Therefore the color intensity at
 location <i>(i, j)</i> on the heatmap corresponds to percent of cells with
 "true" cell-type label <i>i</i> that were assigned to cluster <i>j</i> by
 NCLUSION.</p> <p>To generate the heatmap from the NCLUSION result, enter the
-following commands into a bash terminal. <b>NOTE: be sure to replace --nclusion_results input with the
+following commands into a bash terminal. </p> <p><b>NOTE: be sure to replace --nclusion_results input with the
   relative path to your NCLUSION clustering results.</b></p>
+  <p><b>NOTE: if you want to load packages from a specific R library, append <code>--rlib="/PATH/TO/R/LIBRARY"</code> onto
+    this command.  </b></p>
 <pre><code>. tutorial_scripts/make_heatmap.sh --nclusion_results="/PATH/TO/NCLUSION/CLUSTERING/FILE" --pct_table="vanGalen2019_outputs/cell_distribution_table.csv" --cluster_dict="tutorial_scripts/cluster_mapping/vanGalen_mapping.csv" --save_heatmap="vanGalen2019_outputs/cell_distribution_heatmap.pdf" --data_name="vanGalen"</code></pre>
 <p>This will produce a pdf file named <code>vanGalen2019_outputs/cell_distriubtion_heatmap.pdf</code>containing the cell distriubtion heatmap shown
 below. The
 column labels do not correspond to NCLUSION's cluster labels. The script labels
 each cluster with their positional values in the heatmap for aesthetic purposes. A
 mapping of the original NCLUSION cluster labels to these new positional labels can
-be found in a file named <code>vanGalen2019_outputs/mapping_cluster_to_new_label.csv</code></p>
+be found in a file named
+<code>tutorial_scripts/cluster_mapping/vanGalen_mapping.csv</code> which was
+downloaded along with the tutorial scripts.</p>
 <img src="../images/galen/cell_distrib_galen-1.png" width="600"
 height="800">
 <h3 id="tsnes">C. Annotated TSNEs <a
   class="anchor" aria-label="anchor" href="#pip-heatmaps"></a> 
   </h3>
   <p>Now, we will plot the t-distributed stochastic neighbor embedding (tSNE)
-  for the data annotated with various labels: the called cell type labels that
-  were published along with the data, and the NCLUSION-inferred cell type labels. We
+  for the data colored according to the following annotations: the called cell type labels that
+  were published along with the data, and the NCLUSION-inferred cell-type labels. We
   will also generate tSNEs corresponding to the boolean label of each cells'
   membership to a given NCLUSION-inferred cluster, such that cells assigned to cluster
   <i>n</i> are colored and all other cells are greyed out. The
   total number of tSNEs produced are equal to the total number of
   NCLUSION-inferred clusters plus two. Run the following command to generate
-  these plots. <b>NOTE: be sure to replace --nclusion_results input with the
+  these plots. </p> <p><b>NOTE: be sure to replace --nclusion_results input with the
   relative path to your NCLUSION clustering results. </b> </p>
   <pre><code>. tutorial_scripts/make_tsnes.sh --datapath="tutorial_data/vanGalen2019/5000hvgs_vanGalen2019_preprocessed.h5ad" --nclusion_results="/PATH/TO/NCLUSION/CLUSTERING/FILE" --data_name="vanGalen2019"
 
 mv figures/ vanGalen2019_outputs/</code></pre>
   <p>All tsnes produces by this script can be found in the output directory:
-    <code>vanGalen2019_outputs/figures/</code>. </p>
+    <code>vanGalen2019_outputs/figures/</code>. The tSNEs colored by called
+    cell-type, inferred cell-type, and Cluster 1 membership are shown below.</p>
   <h3 id="pip-heatmaps">D. Variable Selection Analysis <a
 class="anchor" aria-label="anchor" href="#pip-heatmaps"></a> 
 </h3>
 <p>Next, analyze results of NCLUSION's variable selection functionality to gain
 insight into the biological mechanisms driving the formation of each cluster.
-The reulting plots are described in detail in the following sub-sections. To
+The resulting plots are described in detail in the following sub-sections. To
 generate these plots, enter the following command into a bash terminal. </p> 
 <p><b>NOTE: if you want to load packages from a specific R library, append <code>--rlib="/PATH/TO/R/LIBRARY"</code> onto
 this command.  </b></p>
@@ -421,8 +385,7 @@ directory: <code>vanGalen2019_outputs/</code>
   </h4>
 <p>We generated a heatmap that displays adjusted Posterior Inclusion
 Probabilities (PIPs) of genes across
-clusters identified by NCLUSION. PIPs represent the probability that a given
-variable (gene) is present in the true model of the cells' biology, and its value ranges from 0-1.
+clusters identified by NCLUSION. We use PIPs as a summary of evidence for gene being associated with driving the identity of any phenotypic cluster.
 For a particular cluster, a
 higher PIP indicates that a gene is more significant to the formation of that
 cluster. Before generating this heatmap, the plotting script adjusted the PIP
@@ -432,6 +395,7 @@ is deemed to be significant in driving all clusters, its PIP score will be
 scaled down, as it is less helpful for identifying important differences between each
 cluster compared to unique significant genes that are identified in fewer clusters. Only
 genes with adjusted PIPs above a threshold of 0.5 are included in this analysis.
+The plot is saved to <code>vanGalen2019_outputs/heatmap_AdjustedPips_KbyG_defaultclustering.pdf</code>.
 </p>
 <img src="../images/galen/Adjusted_pip_galen-1.png" height="600" width="600">
 <h4 id="effectsize-heatmaps">ii. Effect Size Heatmap
@@ -439,9 +403,8 @@ genes with adjusted PIPs above a threshold of 0.5 are included in this analysis.
     class="anchor" aria-label="anchor" href="#effectsize-heatmaps"></a> 
     </h4>
 <p>The script also generated heatmap representing the effect size of the genes included
-in the adjusted PIP heatmap, which is shown below. For a given cluster, the effect size of each gene
-indicates whether that gene is upregulated (+) or downregulated (-) relative to cells in
-other clusters. </p>
+in the adjusted PIP heatmap, which is shown below. For a given cluster, the effect size
+indicates the direction of expression (+ or -) for each gene in that cluster. The plot is saved to <code>vanGalen2019_outputs/heatmap_EffectSizeSignMat_KbyG_basedonAdjPips.pdf</code></p>
 <img src="../images/galen/effect_size_galen-1.png" height="600" width="600">
 <h4 id="violin-plot">iii. Module Expression Violin Analysis<a
     class="anchor" aria-label="anchor" href="#violin-plot"></a> 
@@ -449,32 +412,44 @@ other clusters. </p>
   <p>In addition to the heatmaps, this script generated module expression violin
   plots for each cluster. Each violin plot compares the expression of
   significant genes identified in a particular cluster to the expression of
- that group of genes in the other clusters. </p>
+  that group of genes in the other clusters. The module expression analysis for
+  Cluster 1 is shown below. The plots are saved to
+  <code>vanGalen2019_outputs/violinplot_tsne_normedmodulescore_colored_nolegend_Cluster_NGenes.pdf</code>
+  where N is equal to the cluster label. </p>
+  <img src="../images/galen/violin_cluster1-1.png" width="600"
+  height="400">  
   <h4 id="go-enrich">v. Gene-set Over-Enrichment (GO) Analysis<a
     class="anchor" aria-label="anchor" href="#go-enrich"></a> 
     </h4>
     <p>Lastly, this script produced biological pathway
-    enrichment plots. For each cluster, enrichment is calculated based on the expression of genes with
-    significant PIPs (>0.5) in that cluster.</p>
+    enrichment plots. For each cluster, this analysis uses a
+    hypergeometric test to calculate the enrichment of genes in a supplied gene
+    set (genes with significant PIPs [>0.5] in that cluster). The GO analysis
+    for Cluster 1 is shown below. The plots are saved to
+    <code>vanGalen2019_outputs/GO_bp_enrichmentplots_Cluster_NGenes.pdf</code>
+    where N is equal to the cluster label.</p>
+    <img src="../images/galen/GO_cluster1-1.png" width="400"
+height="800"> 
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 </div>
 <div class="footnotes">
 <hr>
 <ol>
-<li id="fn1"><p> Ref 1 <a href="https://doi.org/10.1093/g3journal/jkad118" class="external-link uri">https://doi.org/10.1093/g3journal/jkad118</a><a href="#fnref1" class="footnote-back">↩︎</a></p></li>
-<li id="fn2"><p> Ref 2 <a href="#fnref2" class="footnote-back">↩︎</a></p></li>
-<li id="fn3"><p> Ref 3 <a href="https://doi.org/10.1073/pnas.1814092116" class="external-link uri">https://doi.org/10.1073/pnas.1814092116</a><a href="#fnref3" class="footnote-back">↩︎</a></p></li>
-<li id="fn4"><p>Ref 4 <a href="https://doi.org/10.1080/01621459.2018.1554485" class="external-link uri">https://doi.org/10.1080/01621459.2018.1554485</a><a href="#fnref4" class="footnote-back">↩︎</a></p></li>
+<li id="fn1"><p> Peter van Galen, Volker Hovestadt, Marc H. Wadsworth II, Travis K. Hughes, Gabriel K. Griffin,
+  Sofia Battaglia, Julia A. Verga, Jason Stephansky, Timothy J. Pastika, Jennifer Lombardi Story,
+  Geraldine S. Pinkus, Olga Pozdnyakova, Ilene Galinsky, Richard M. Stone, Timothy A. Graubert,
+  Alex K. Shalek, Jon C. Aster, Andrew A. Lane, and Bradley E. Bernstein. Single-cell rna-seq reveals
+aml hierarchies relevant to disease progression and immunity. Cell,
+176(6):1265–1281.e24, Mar 2019. 
+ISSN 00928674. doi: 10.1016/j.cell.2019.01.031. tex.ids:
+vangalenSingleCellRNASeqReveals2019a <a
+href="https://doi.org/10.1016/j.cell.2019.01.031"
+class="external-link">https://doi.org/10.1016/j.cell.2019.01.031</a><a
+href="#fnref1" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
   </div>
-
-  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-
-        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
-    </nav>
-</div>
 
 </div>
 

@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Illustrating mvMAPIT with Simulated Data • mvMAPIT</title>
+<title>Getting Started with NCLUSION using simulated data</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
@@ -17,89 +17,81 @@
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Illustrating mvMAPIT with Simulated Data">
-<meta property="og:description" content="Learn how to analyze data with mvMAPIT.
-">
-<meta property="og:image" content="https://lcrawlab.github.io/mvMAPIT/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
-<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
     
 
-    <div class="container template-article">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">NCLUSION</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title=""></span>
-      </span>
-    </div>
+  <div class="container template-article">
+    <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
+<div class="container">
+  <div class="navbar-header">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
+    <span class="navbar-brand">
+      <a class="navbar-link" href="../index.html">NCLUSION</a>
+      <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title=""></span>
+    </span>
+  </div>
 
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
+  <div id="navbar" class="navbar-collapse collapse">
+    <ul class="nav navbar-nav">
 <li>
-  <a href="../articles/get_started.html">Get started</a>
+<a href="../articles/get_started.html">Get started</a>
 </li>
 <li>
-  <a href="../reference/index.html">Reference</a>
+<a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Tutorials
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
+<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+  Tutorials
+   
+  <span class="caret"></span>
+</a>
+<ul class="dropdown-menu" role="menu">
 <li class="divider">
-    </li>
-<li><a href="../tutorials/galen_tutorial.html">Run
+  </li>
+<li><a href="../tutorials/galenAML_tutorial.html">Run
 NCLUSION on van Galen
 et al 2019</a></li>
-    <li>
-      <a href="../tutorials/tissue_tutorial.html">Run NCLUSION on Dominguez
-      Conde et al 2022 </a>
-    </li>
-    <li>
-      <a href="../tutorials/pdac_tutorial.html">Run NCLUSION on Raghavan et al 2021</a>
-    </li>
-    <li>
-      <a href="../tutorials/pbmc_tutorial.html">Run NCLUSION on Zheng et al 2017</a>
-    </li>
-  </ul>
-    <li class="divider">
-    </li>
-<li>
-  <a href="../news/index.html">Changelog</a>
-</li>
-  
+  <li>
+    <a href="../tutorials/tissue_tutorial.html">Run NCLUSION on Dominguez
+    Conde et al 2022 </a>
+  </li>
+  <li>
+    <a href="../tutorials/pdac_tutorial.html">Run NCLUSION on Raghavan et al 2021</a>
+  </li>
+  <li>
+    <a href="../tutorials/pbmc_tutorial.html">Run NCLUSION on Zheng et al 2017</a>
+  </li>
+</ul>
+  <li class="divider">
+  </li>
+
+
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/lcrawlab/mvMAPIT/" class="external-link">
-    <span class="fab fa-github fa-lg"></span>
-     
-  </a>
+<a href="https://github.com/microsoft/nclusion/" class="external-link">
+  <span class="fab fa-github fa-lg"></span>
+   
+</a>
 </li>
-      </ul>
+    </ul>
 </div>
 <!--/.nav-collapse -->
-  </div>
+</div>
 <!--/.container -->
 </div>
 <!--/.navbar -->
-
       
 
-      </header><script src="mvMAPIT_files/accessible-code-block-0.0.1/empty-anchor.js"></script><script src="mvMAPIT_files/kePrint-0.0.1/kePrint.js"></script><link href="mvMAPIT_files/lightable-0.0.1/lightable.css" rel="stylesheet">
+
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
@@ -117,7 +109,7 @@ et al 2019</a></li>
 <div class="section level2">
 <h2 id="getting-started">Getting Started<a class="anchor" aria-label="anchor" href="#getting-started"></a>
 </h2>
-<p>First, install all required packages. You can find installation instructions
+<p>First, install NCLUSION and its dependencies. You can find installation instructions
 <a href="../index.html">here.</a> If you have any questions or concerns
 regarding installation, please submit an issue. </p> <p>To get started
 with<code>NCLUSION</code>, the input data must be in the <a
@@ -132,37 +124,54 @@ for the expression matrix. Each cell in the expression data must also contain
 <b>'condition'</b> labels in the <code>AnnData.obs['condition']</code>
 observation layer. This is a one-dimensional array of categorical labels that
 maps each cell to a timepoint or experimental condition. If cell conditions are uniform,
-annotate all cells with the same <b>'condition;</b> label (i.e. "1"). </p> 
+annotate all cells with the same <b>'condition'</b> label (i.e. "1"). <b>It is
+not required to provide manually curated cell-type annotations. </b> However, if your
+dataset has been annotated and you wish to compare them to the NCLUSION-inferred
+labels, you can provide the cell-type annotations in the
+<code>AnnData.obs["cell_type"]</code> layer. If provided, NCLUSION will calculate
+various extrinsic evaluation metrics, as described in the <a
+href="../reference/index.html">Reference </a>documentation</p> 
 <p> We provie a simluated dataset to use as an example for how to set up your
 data and use NCLUSION, which can be downloaded from <a
-href="../simulated_data/simulated_data.zip">here</a>. Alternatively, enter the
-following <a href="https://www.gnu.org/software/wget/">wget</a> command into a bash terminal to download the data
-directly onto your machine:
-<pre><code>wget</code></pre>It loads in
+href="https://microsoft.github.io/nclusion/simulated_data.zip">here</a>. Alternatively, enter the
+following <a href="https://www.gnu.org/software/wget/">wget</a> command into a
+bash terminal to download the simulated data directory
+directly onto your machine and unzip it:
+<pre><code>wget https://microsoft.github.io/nclusion/simulated_data.zip
+unzip simulated_data.zip
+</code></pre>It loads in
 as a pandas dataframe, and can be converted
 into the proper AnnData format by entering the following commands into a Python
 terminal, with your virtual environment activated: </p> 
 <pre><code id="python">import pandas as pd
 import scanpy as sc
 import anndata as ad 
+import numpy as np
 
-expression_matrix = pd.read_csv("tutorial_data/simulated_data/simulated_data.csv")
+expression_matrix = pd.read_csv("simulated_data/simulated_data.csv")
 
-adata = ad.AnnData(expression_matrix, obs=expression_matrix.index.values, var)
+adata = ad.AnnData(expression_matrix, dtype=np.float32)
 
 condition = np.ones(shape=adata.n_obs)
 adata.obs['condition'] = pd.Categorical(condition)
+
+cell_type_labels = pd.read_csv("simulated_data/simulated_labels.csv")['z1']
+cell_type_labels.index = cell_type_labels.index.map(str)
+adata.obs["cell_type"] = cell_type_labels
+
+adata.write_h5ad('simulated_data/simulated_data.h5ad')
 
 print('Expression Matrix: ', adata.X)
 print('Cell IDs: ', adata.obs_names)
 print('Gene Names: ', adata.var_names)
 print('Condition Labels: ', adata.obs.condition)
+print('Manually-curated Cell Type Labels: ', adata.obs.cell_type)
 </code></pre>
 <p>Real data should be filtered to only high-quality cells. We recommend that
 you normalize the expression values such that the total counts per cell is
 uniform, and log-transformed. However, it is not necessary for this simulated
 dataset.
-<h3 id="running-mvmapit">Running NCLUSION<a class="anchor" aria-label="anchor" href="#running-mvmapit"></a>
+<h3 id="running-nclusion">Running NCLUSION<a class="anchor" aria-label="anchor" href="#running-nclusion"></a>
 </h3>
 <p> To run NCLUSION, start a julia repl in your nclusion environment by entering
   <code>julia --project=/path/to/julia/env --thread=auto</code>, with the
@@ -178,13 +187,13 @@ logger = FormatLogger() do io, args
 end;
 
 
-datafilename1 = "tutorial_data/raghavan2021/5000hvgs_raghavan2021_preprocessed.h5ad" # 
+datafilename1 = "tutorial_data/simulated_data/simulated_data.h5ad" # 
 alpha1 = 1 * 10^(-7.0)
 gamma1 = 1 * 10^(-7.0)
 KMax = 25
 seed = 12345
 elbo_ep = 10^(-0.0)
-dataset = "raghavan2021"
+dataset = "simulated_data"
 outdir = "${curr_dir}"
 
 outputs_dict = run_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outdir; logger = logger)
@@ -192,26 +201,18 @@ filepath = outputs_dict[:filepath]
 filename = "$filepath/output.jld2"
 
 jldsave(filename,true;outputs_dict=outputs_dict)</code></pre>
-<p>The output files will be saved to a directory named <code>outputs/</code>
-which will be written to your working directory, by default. NCLUSIN clustering assignments can be found in a file named
-<code>outputs/nclusion_labels.csv</code>. Run the following command in your
+<p>NCLUSION clustering assignments can be found in a file named
+<code>outputs/EXPERIMENT_nclusion_simulated_data/DATASET_simulated_data_5HVGs-1800N/YEAR_MONTH_DATE_TIME/simulated_data_5HVGs-1800N_nclusion-YEAR-MONTH-DATE-TIME.csv</code>
+where YEAR-MONTH-DATE-TIME corresponds to the time stamp of when the results
+were generated (produced automatically by NCLUSION). Run the following command in your
 terminal to compare your output to the expected output. Replace the
-<code>PATH_TO_NCLUSION</code> variable with the path to the location where you
-cloned the nclusion repository, if necessary.</p>
-<pre><code>PATH_TO_NCLUSION = ~/nclusion/
-file1 = outputs/nclusion_labels.csv
-file2 = ${PATH_TO_NCLUSION}/tutoiral_data/simulated_data/simulated_data_expected_labels.csv
-
-cmp --silent $file1 $file2 && echo '### SUCCESS: Files Are Identical! ###'||
-echo '### WARNING: Files Are Different! ###'</code></pre>
-<p> If NCLUSION is installed correctly, the command will print <code>'### SUCCESS: Files Are
+<code>PATH/TO/NCLUSION/OUTPUTS</code> variable with the path to the simulated
+data outputs you just generated. </p>
+<pre><code>cmp --silent PATH/TO/NCLUSION/OUTPUTS simulated_data/simulated_data_expected_output.csv && echo '### SUCCESS: Files Are Identical! ###'|| echo '### WARNING: Files Are Different! ###'</code></pre>
+<p> If NCLUSION ran successfully, the command will print <code>'### SUCCESS: Files Are
 Identical! ###'</code>. Otherwise, it will print <code>'### WARNING: Files Are Different! ###'</code>
 </p>
-  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
 
-        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
-    </nav>
-</div>
 
 </div>
 
