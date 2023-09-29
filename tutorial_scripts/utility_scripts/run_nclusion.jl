@@ -1,6 +1,7 @@
+using .nclusion
 ENV["GKSwstype"] = "100"
+curr_dir = ENV["PWD"]
 
-using Logging,LoggingExtras
 logger = FormatLogger() do io, args
     println(io, args._module, " | ", "[", args.level, "] ", args.message)
 end;
@@ -14,35 +15,6 @@ function flushed_logger(msg;logger=nothing)
 end
 flushed_logger("Using $(Threads.nthreads()) thread(s)....";logger)
 flushed_logger("Loading Packages....";logger)
-using Random
-using Distributions
-using Flux
-using StatsBase, StatsFuns, StatsModels, StatsPlots, Statistics, LinearAlgebra, HypothesisTests
-using Test
-using CSV,DataFrames
-using JSON, JSON3
-using Dates
-using TSne, MultivariateStats, Clustering
-using LaTeXStrings, TypedTables, PrettyTables
-using Gnuplot, Colors, ColorSchemes
-using SpecialFunctions
-using Optim
-using BenchmarkTools
-using Profile
-using JLD2,FileIO
-using OrderedCollections
-using HDF5
-using ClusterValidityIndices
-using StaticArrays
-using Pkg
-using Distributed
-curr_dir = ENV["PWD"]
-src_dir = "/src/"
-
-
-flushed_logger("Loading NCLUSION Modules....";logger)
-include(src_dir*"nclusion.jl")
-using .nclusion
 
 
 flushed_logger("Setting Plotting Settings....";logger)
