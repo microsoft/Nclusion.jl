@@ -159,28 +159,37 @@ end
 function preparing_data(anndata_dict1)
     gene_names = anndata_dict1["var"]["_index"]
     cell_ids = anndata_dict1["obs"]["_index"]
-    cell_cluster_labels = anndata_dict1["obs"]["cell_type"]["codes"]
-    cell_cluster_labels = cell_cluster_labels .+ 1
+    if haskey(anndata_dict1["obs"],"cell_type")
+        cell_cluster_labels = anndata_dict1["obs"]["cell_type"]["codes"]
+        cell_cluster_labels = cell_cluster_labels .+ 1
+    else
+        cell_cluster_labels = nothing
+    end
 
     return gene_names, cell_ids, cell_cluster_labels
 end
 
 
-function make_nclusion_inputs(anndata_dict1;T=1)
+function make_nclusion_inputs(anndata_dict1)
     x_mat = anndata_dict1["X"]
-    _, _, cell_cluster_labels=preparing_data(anndata_dict1)
+    gene_names, _, cell_cluster_labels=preparing_data(anndata_dict1)
+    new_order = sortperm(gene_names)
+    x_mat = deepcopy(x_mat[new_order,:])
     N = size(x_mat)[2]
     G = size(x_mat)[1]
-    x_input = Vector{Vector{Vector{Float64}}}(undef,T)
-    z = Vector{Vector{Int}}(undef,T)
-    C_t = Vector{Float64}(undef,T)
+    x_input = Vector{Vector{Vector{Float64}}}(undef,1)
+    z = nothing
+    C_t = Vector{Float64}(undef,1)
     C_t[1] = N
     x_input[1] = [Float64.(collect(col)) for col in eachcol(x_mat)]
-    z[1] = Int.(collect(cell_cluster_labels))
+    if !isnothing(cell_cluster_labels)
+        z = Vector{Vector{Int}}(undef,1)
+        z[1] = Int.(collect(cell_cluster_labels))
+    end
     return x_input,z
 end
 
-function select_cells_hvgs(x_mat,num_var_feat,num_cnts,gene_ids,cell_cluster_labels,scale_factor,N;T=1,chosen_cells=nothing)
+function select_cells_hvgs(x_mat,num_var_feat,num_cnts,gene_ids,cell_cluster_labels,scale_factor,N;chosen_cells=nothing)
     cell_intersect_bool = nothing 
     if !isnothing(chosen_cells)
         cell_intersect = Set(chosen_cells)
@@ -213,11 +222,11 @@ function select_cells_hvgs(x_mat,num_var_feat,num_cnts,gene_ids,cell_cluster_lab
 end
 
 
-function initialize_model_parameters(x_input,KMax,alpha1,gamma1;sparsity_lvl=nothing,phi1=1.0,num_iter=1000,rand_init = false, uniform_theta_init = true,mk_hat_init=nothing,v_sq_k_hat_init=nothing, λ_sq_init=nothing, σ_sq_k_init=nothing,st_hat_init=nothing,d_hat_init=nothing,c_ttprime_init = nothing,rtik_init=nothing,yjk_init=nothing, gk_hat_init=nothing, hk_hat_init=nothing)
+function initialize_model_parameters(x_input,KMax,alpha1,gamma1;sparsity_lvl=nothing,phi1=1.0,num_iter=500,rand_init = false, uniform_theta_init = true,mk_hat_init=nothing,v_sq_k_hat_init=nothing, λ_sq_init=nothing, σ_sq_k_init=nothing,st_hat_init=nothing,d_hat_init=nothing,c_ttprime_init = nothing,rtik_init=nothing,yjk_init=nothing, gk_hat_init=nothing, hk_hat_init=nothing)
     if typeof(KMax) <: AbstractFloat
         KMax = Int(round(KMax))
     end
-    T = length(x_input)
+    T = 1
     G = length(x_input[1][1])
     C_t = [length(el) for el in x_input]
     N = sum(C_t)
@@ -297,7 +306,7 @@ end
 function save_Nk(rtik_;unique_time_id="",filepath="")
     KMax = length(rtik_[1][1])
     N = length(rtik_[1])
-    T = length(rtik_)
+    T = 1
     cluster_name = ["Cluster_$el" for el in 1:KMax]
     suffix = "-Nk.csv"
     Nk = sum(sum.(rtik_))
@@ -447,19 +456,25 @@ function save_embeddings(anndata_dict1,filepath;logger = nothing,unique_time_id=
 end
 
 function make_labels(x_input,anndata_dict1,z_argmax)
-    T = length(x_input)
+    T = 1
     timepoint_map = [t * ones(Int,Int(length(x_input[t]))) for t in 1:T]
     timepoint_map = recursive_flatten(timepoint_map)
     # cluster_remap = Dict(v => k for (k,v) in cluster_map)
-    cell_ids = anndata_dict1["obs"]["_index"]
-    cell_cluster_labels = anndata_dict1["obs"]["cell_type"]["codes"]
-    cell_cluster_labels = cell_cluster_labels .+ 1
-    z = Vector{Vector{Int}}(undef,T)
-    z[1] = Int.(collect(cell_cluster_labels))
-    cluster_map = OrderedDict(k => v for (k,v) in enumerate(anndata_dict1["obs"]["cell_type"]["categories"]))
-    cell_type_vec = [cluster_map[el] for el in recursive_flatten(z)]
+    cluster_results_df = nothing
+    if haskey(anndata_dict1["obs"],"cell_type")
+        cell_ids = anndata_dict1["obs"]["_index"]
+        cell_cluster_labels = anndata_dict1["obs"]["cell_type"]["codes"]
+        cell_cluster_labels = cell_cluster_labels .+ 1
+        z = Vector{Vector{Int}}(undef,T)
+        z[1] = Int.(collect(cell_cluster_labels))
+        cluster_map = OrderedDict(k => v for (k,v) in enumerate(anndata_dict1["obs"]["cell_type"]["categories"]))
+        cell_type_vec = [cluster_map[el] for el in recursive_flatten(z)]
 
-    cluster_results_df = DataFrame(condtion=timepoint_map,cell_id = cell_ids,cell_type = cell_type_vec, called_label = recursive_flatten(z), inferred_label = recursive_flatten(z_argmax))
+        cluster_results_df = DataFrame(condtion=timepoint_map,cell_id = cell_ids,cell_type = cell_type_vec, called_label = recursive_flatten(z), inferred_label = recursive_flatten(z_argmax))
+    else
+        cell_type_vec = [ "NA" for el in recursive_flatten(z_argmax)]
+        cluster_results_df = DataFrame(condtion=timepoint_map,cell_id = cell_ids,cell_type = cell_type_vec, called_label = cell_type_vec, inferred_label = recursive_flatten(z_argmax))
+    end
     
     return cluster_results_df
     
@@ -467,7 +482,7 @@ end
 function save_labels(cluster_results_df;dataset_used="",G="",unique_time_id="",filepath="")
     CSV.write(filepath*"$(dataset_used)_nclusion-"*unique_time_id*".csv",  cluster_results_df)
 end
-function run_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outdir; logger = nothing)
+function run_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outdir; logger = nothing,num_iter=500,save_metrics=false)
     Random.seed!(seed)
     _flushed_logger("Loading data and metadata...";logger)
     anndata_dict1= load_data(datafilename1,seed)
@@ -480,6 +495,8 @@ function run_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outd
 
     _flushed_logger("Preparing Dataset ...";logger)
     gene_names, cell_ids, cell_cluster_labels = preparing_data(anndata_dict1)
+    new_order = sortperm(gene_names)
+    gene_names = gene_names[new_order]
     x_input,z = make_nclusion_inputs(anndata_dict1)
     
 
@@ -496,7 +513,7 @@ function run_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outd
     
 
     _flushed_logger("Initializing Model parameters...";logger)
-    inputs = initialize_model_parameters(x_input,KMax,alpha1,gamma1);
+    inputs = initialize_model_parameters(x_input,KMax,alpha1,gamma1;num_iter=num_iter);
 
     _flushed_logger("Starting Variational Inference";logger)
     outputs_dict = run_cavi(inputs;elbo_ep=elbo_ep,logger=logger)
@@ -532,10 +549,13 @@ function run_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outd
 
     _flushed_logger("Saving Cluster Memberships";logger)
     save_labels(cluster_results_df;dataset_used=dataset_used_id,G=G,unique_time_id=unique_time_id,filepath=filepath)
-
-
-    _flushed_logger("Calculating Extrinsic Metrics";logger)
-    clustering_quality_metrics(cluster_results_df,filepath);
+    
+    if !isnothing(z)
+        if save_metrics
+            _flushed_logger("Calculating Extrinsic Metrics";logger)
+            clustering_quality_metrics(cluster_results_df,filepath);
+        end
+    end
 
     return outputs_dict
 end
@@ -561,7 +581,7 @@ function create_results_dict(run_,function_name)
     results_dict[:num_evals] = [run_.params.evals]
     return results_dict
 end
-function benchmark_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outdir; logger = nothing)
+function benchmark_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outdir; logger = nothing,num_iter=500)
     Random.seed!(seed)
     _flushed_logger("Loading data and metadata...";logger)
     anndata_dict1= load_data(datafilename1,seed)
@@ -574,7 +594,9 @@ function benchmark_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,datase
 
     _flushed_logger("Preparing Dataset ...";logger)
     gene_names, cell_ids, cell_cluster_labels = preparing_data(anndata_dict1)
-    x_input,z = make_nclusion_inputs(anndata_dict1)
+    new_order = sortperm(gene_names)
+    gene_names = gene_names[new_order]
+    x_input,_ = make_nclusion_inputs(anndata_dict1)
     
 
     filepath = mk_outputs_filepath(outdir,experiment_id,dataset_used_id,unique_time_id)
@@ -586,7 +608,7 @@ function benchmark_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,datase
     summary_file = saving_summary_file(filepath;unique_time_id=unique_time_id,datafilename1=datafilename1,alpha1=alpha1,gamma1=gamma1,KMax=KMax, seed=seed,num_var_feat=num_var_feat,N=N,elbo_ep=elbo_ep,notes_=notes_)
     
     _flushed_logger("Initializing Model parameters...";logger)
-    inputs = initialize_model_parameters(x_input,KMax,alpha1,gamma1);
+    inputs = initialize_model_parameters(x_input,KMax,alpha1,gamma1;num_iter=num_iter);
 
     
     num_iter = inputs[:modelparams].num_iter

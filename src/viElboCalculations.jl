@@ -92,41 +92,37 @@ end
 """
 function calc_DataElbo_mpu(clusters,geneparams,elbolog,dataparams,modelparams,iter)
     float_type = dataparams.BitType
-    # if isnothing(float_type)
-    #     float_type =eltype(x[1][1])
-    # end
     G = dataparams.G
     T = dataparams.T
     N = dataparams.N
     K = modelparams.K
     one_half_const = 1/2
-    # λ_sq_vec = [geneparams[j].λ_sq[1] for j in 1:G]
     data_elbo = 0.0
     
     @fastmath @inbounds @simd for k in 1:K
         clusters[k].cache .= 0.0
         yjk_entropy_perK = 0.0
-    perK_data_elbo = 0.0
-    for j in 1:G
-        perK_data_elbo += -1*one_half_const * clusters[k].Nk[1] * log(2π)
-        perK_data_elbo += -1*one_half_const * clusters[k].Nk[1]  * log(clusters[k].σ_sq_k_hat[j])
-        perK_data_elbo += -1*one_half_const * 1 / clusters[k].σ_sq_k_hat[j] * clusters[k].x_hat_sq[j] 
-        perK_data_elbo +=  1 / clusters[k].σ_sq_k_hat[j] * clusters[k].x_hat[j] * clusters[k].κk_hat[j] # (clusters[k].yjk_hat[j] * clusters[k].mk_hat[j]) #
-        perK_data_elbo +=  -1*one_half_const * clusters[k].Nk[1]  * 1 / clusters[k].σ_sq_k_hat[j] * clusters[k].var_muk[j] #(clusters[k].yjk_hat[j] * (clusters[k].mk_hat[j] ^2  + clusters[k].v_sq_k_hat[j])   -  clusters[k].yjk_hat[j] * (clusters[k].mk_hat[j]) ^2) #
-        perK_data_elbo += -1* one_half_const * clusters[k].Nk[1]  * 1 / clusters[k].σ_sq_k_hat[j] * clusters[k].yjk_hat[j] *  (clusters[k].mk_hat[j]) ^2 - one_half_const * clusters[k].yjk_hat[j] * log(geneparams[j].λ_sq[1]) 
-        perK_data_elbo += -1*one_half_const * 1 /geneparams[j].λ_sq[1] * clusters[k].var_muk[j] #(clusters[k].yjk_hat[j] * (clusters[k].mk_hat[j] ^2  + clusters[k].v_sq_k_hat[j])   -  clusters[k].yjk_hat[j] * (clusters[k].mk_hat[j]) ^2)#
-        perK_data_elbo += -1*one_half_const * 1 /geneparams[j].λ_sq[1] * clusters[k].yjk_hat[j] *  (clusters[k].mk_hat[j]) ^2 
-        perK_data_elbo += clusters[k].yjk_hat[j] * log(modelparams.ηk[1]) + (1 - clusters[k].yjk_hat[j]) * log((1-modelparams.ηk[1]))
-        perK_data_elbo += one_half_const * clusters[k].yjk_hat[j] * log(clusters[k].v_sq_k_hat[j])
-        perK_data_elbo +=  one_half_const * clusters[k].yjk_hat[j]
-    end
+        perK_data_elbo = 0.0
+        for j in 1:G
+            perK_data_elbo += -1*one_half_const * clusters[k].Nk[1] * log(2π)
+            perK_data_elbo += -1*one_half_const * clusters[k].Nk[1]  * log(clusters[k].σ_sq_k_hat[j])
+            perK_data_elbo += -1*one_half_const * 1 / clusters[k].σ_sq_k_hat[j] * clusters[k].x_hat_sq[j] 
+            perK_data_elbo +=  1 / clusters[k].σ_sq_k_hat[j] * clusters[k].x_hat[j] * clusters[k].κk_hat[j]
+            perK_data_elbo +=  -1*one_half_const * clusters[k].Nk[1]  * 1 / clusters[k].σ_sq_k_hat[j] * clusters[k].var_muk[j]
+            perK_data_elbo += -1* one_half_const * clusters[k].Nk[1]  * 1 / clusters[k].σ_sq_k_hat[j] * clusters[k].yjk_hat[j] *  (clusters[k].mk_hat[j]) ^2 - one_half_const * clusters[k].yjk_hat[j] * log(geneparams[j].λ_sq[1]) 
+            perK_data_elbo += -1*one_half_const * 1 /geneparams[j].λ_sq[1] * clusters[k].var_muk[j] 
+            perK_data_elbo += -1*one_half_const * 1 /geneparams[j].λ_sq[1] * clusters[k].yjk_hat[j] *  (clusters[k].mk_hat[j]) ^2 
+            perK_data_elbo += clusters[k].yjk_hat[j] * log(modelparams.ηk[1]) + (1 - clusters[k].yjk_hat[j]) * log((1-modelparams.ηk[1]))
+            perK_data_elbo += one_half_const * clusters[k].yjk_hat[j] * log(clusters[k].v_sq_k_hat[j])
+            perK_data_elbo +=  one_half_const * clusters[k].yjk_hat[j]
+        end
     
 
-    yjk_entropy_perK += entropy(clusters[k].yjk_hat)
-    yjk_entropy_perK = -yjk_entropy_perK
-    perK_ebloval =   perK_data_elbo + yjk_entropy_perK
-    elbolog.per_k_elbo[k,iter] += perK_ebloval
-    data_elbo += perK_ebloval
+        yjk_entropy_perK += entropy(clusters[k].yjk_hat)
+        yjk_entropy_perK = -yjk_entropy_perK
+        perK_ebloval =   perK_data_elbo + yjk_entropy_perK
+        elbolog.per_k_elbo[k,iter] += perK_ebloval
+        data_elbo += perK_ebloval
     end
     return data_elbo,elbolog
 end

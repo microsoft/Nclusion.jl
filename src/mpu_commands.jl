@@ -41,10 +41,12 @@ gamma1 = 1 * 10^(-7.0)
 KMax = 25
 seed = 12345
 elbo_ep = 10^(-0.0)
+num_iter = 500
 dataset = "pdac_biopsy"
 outdir = "$curr_dir"
+save_metrics=true
 
-outputs_dict = run_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outdir; logger = logger)
+outputs_dict = run_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outdir; logger = logger,num_iter = num_iter,save_metrics=save_metrics)
 filepath = outputs_dict[:filepath]
 filename = "$filepath/output.jld2"
 
