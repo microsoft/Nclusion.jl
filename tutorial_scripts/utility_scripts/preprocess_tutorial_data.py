@@ -150,15 +150,18 @@ def main(argv):
         adata.obs['donor'] = metadata['orig.ident']
         adata = adata[adata.obs['state'] != 'unclear']
         adata.obs['cell_type'] = metadata.apply(lambda x: annotate_vangalen(x), axis=1)
+        tsne_coord = pd.read_csv('tutorial_scripts/tsne/galen_tsne_coord.csv')
     elif data_name == 'zheng':
        adata = concat_pbmc_data(path_to_data)
        min_genes = 200
        min_cells = 3
        pct_counts_mito = 20
        pct_counts_ribo = 5
+       tsne_coord = pd.read_csv('tutorial_scripts/tsne/pbmc_tsne_coord.csv')
        
     elif data_name == "dominguezconde":
         adata = transform_tissue(path_to_data)
+        tsne_coord = pd.read_csv('tutorial_scripts/tsne/tissue_tsne_coord.csv')
         
     elif data_name == "raghavan":
         counts = pd.read_csv(path_to_data+'Biopsy_RawDGE_23042cells.csv', index_col=0)
@@ -169,7 +172,7 @@ def main(argv):
         metadata['cell_type'] = metadata.apply(lambda x: annotate_raghavan(x), axis=1)
         adata.obs['cell_type'] = metadata['cell_type']
         adata.obs['donor'] = metadata["donor_ID"]
-        
+        tsne_coord = pd.read_csv('tutorial_scripts/tsne/pdac_tsne_coord.csv')
     else:
         adata = sc.read_h5ad(path_to_data)
     
@@ -190,7 +193,10 @@ def main(argv):
     sc.pp.calculate_qc_metrics(adata, qc_vars=qc_vars, percent_top=None, log1p=False, inplace=True)
     
     adata = preprocess(adata, data_name, n_hvgs, min_genes, min_cells, pct_counts_mito, pct_counts_ribo, scale_factor)
-
+    
+    if data_name in ["vanGalen", "zheng", "dominguezconde", "raghavan"]:
+        adata.obsm['X_tsne'] = tsne_coord.values
+        
     adata.write_h5ad(path_to_save)
     
 if __name__ == "__main__":
