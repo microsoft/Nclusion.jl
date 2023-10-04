@@ -15,6 +15,7 @@ if (r_library_path != "NULL"){
 }
 
 seed = 12345
+library(reticulate)
 library(devtools)
 library(ggplot2)
 library(R.utils)

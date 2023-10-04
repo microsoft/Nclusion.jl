@@ -41,7 +41,7 @@ julia_env=$JULIAENV
 dataset_name=$DATASET
 output_dir=$OUTPUTDIR
 
-if [$dataset_name=="zheng2017"];
+if [ $dataset_name == "zheng2017" ];
 then
     a=0.0000001
     b=0.0000001

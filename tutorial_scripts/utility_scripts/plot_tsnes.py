@@ -19,7 +19,7 @@ def make_tsnes(adata, res, figures_prefix):
         
 
 
-    clusters = res.loc[:, 'inferred_label'].unique()
+    clusters = res.loc[:, 'inferred_label_mapped'].unique()
     color_dict = {True: "#8567ad", False: 'lightgrey'}
 
     for c in clusters:
