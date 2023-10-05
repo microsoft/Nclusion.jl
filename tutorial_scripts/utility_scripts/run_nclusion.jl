@@ -1,4 +1,4 @@
-using .nclusion
+using nclusion
 ENV["GKSwstype"] = "100"
 curr_dir = ENV["PWD"]
 

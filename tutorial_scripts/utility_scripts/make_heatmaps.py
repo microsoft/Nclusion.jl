@@ -131,6 +131,9 @@ def main(argv):
     
     pct_table = get_pcts(data)
     
+    if data_name == "zheng":
+        pct_table = pct_table.reindex(index=["b_cells", "cd56_nk", "cd14_monocytes", "cd34", "regulatory_t", "memory_t", "naive_t", "naive_cytotoxic", "cytotoxic_t", "cd4_t_helper"])
+    
     pct_table = pct_table.reindex(columns=list(cluster_dict.keys()))
   
     pct_table = pct_table.rename(columns=cluster_dict)
