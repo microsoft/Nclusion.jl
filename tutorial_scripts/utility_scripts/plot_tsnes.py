@@ -6,10 +6,6 @@ import getopt
 import sys
 
 def make_tsnes(adata, res, figures_prefix):
-    sc.pp.neighbors(adata, n_neighbors=10, n_pcs=40)
-    sc.tl.umap(adata)
-    sc.tl.tsne(adata)
-    
     adata.obs['inferred_label'] = pd.Categorical(res.loc[:, 'inferred_label_mapped'])
     adata.obs['called_label'] = pd.Categorical(res.loc[:, 'called_label'])
     adata.obs['cell_type'] = pd.Categorical(res.loc[:, "cell_type"])

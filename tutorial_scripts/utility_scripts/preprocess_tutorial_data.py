@@ -192,6 +192,10 @@ def main(argv):
     
     adata = preprocess(adata, data_name, n_hvgs, min_genes, min_cells, pct_counts_mito, pct_counts_ribo, scale_factor)
     
+    sc.pp.neighbors(adata, n_neighbors=10, n_pcs=40)
+    sc.tl.umap(adata)
+    sc.tl.tsne(adata)
+    
     adata.write_h5ad(path_to_save)
     
 if __name__ == "__main__":
