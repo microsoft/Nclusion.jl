@@ -97,7 +97,15 @@ et al 2019</a></li>
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>datafilename1</dt>
-<dd><p>Absolute path to preprocessed Anndata object with scRNA-seq expression values</p></dd>
+<dd><p>Absolute path to preprocessed AnnData object with scRNA-seq expression
+values (cells x genes). The AnnData.obs_names layer must be occupied with
+the unique cell IDs, the AnnData.var_names with unique gene identifiers,
+AnnData.X with the expression matrix, and AnnData.obs["condition"] with the
+condition label for each cell. <i>Optional:</i> if the dataset has been
+pre-annotated, AnnData.obs["cell_type"] may be occupied with these annotations.
+For more detailed information on the required input data structure see <a
+href="../articles/get_started.html">Get started</a>.
+</p></dd>
 
 
 <dt>KMax</dt>
