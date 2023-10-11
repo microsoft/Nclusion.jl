@@ -147,6 +147,58 @@ determines whether or not convergence is reached.</p></dd>
 
 <p>Dictionary of all estimated parameters, including PIPs (yjk_) and cluster propbability (rtik_)</p>
     </div>
+    <div id="saved-files">
+      <h2>Saved Output Files</h2>
+  
+  <p>The following output files are automatically saved to the specified output
+  directory after running NCLUSION. <b>NOTE: {DATA-NAME} corresponds to the <code>dataset</code> input variable.
+    {NUM-GENES} corresponds to the number of genes included in the input AnnData
+    object. {YEAR-MONTH-DATE-TIME} corresponds to the time-stamp at which the
+    outputs were generated (calculated automatically by NCLUSION). </b> 
+  <ol><li><b>{DATA-NAME}_{NUM-GENES}HVGs-23042N_nclusion-{YEAR-MONTH-DATE-TIME}.csv</b>
+    <ul><li>.csv file that contains the NCLUSION clustering assignments, where each row displays relevant metadata and
+    clustering results for each cell. </li>
+    <li> The 'condition' column
+      displays the cell's experimental condition labels (all cells in this study
+      have the same condition label).</li> 
+      <li> The 'cell_id' column displays the cell's unique identifier label. </li>
+  <li>The 'inferred_label' column displays the cell's NCLUSION cluster assignment.
+  </li></ul> <b>NOTE:</b> the following columns are only filled if alternative cell-type
+  annotations are provided in the <code>AnnData.obs['cell_type']</code> layer of
+the input data. Otherwise they remain empty:
+<ul> <li> The 'cell_type' column displays the cell's alternative cell-type
+annotation obtained from a different study.
+  </li>
+<li> The 'called_label' column displays the numerical equivalent of the
+'cell_type' label, mapped automatically by NCLUSION. </li></ul></li>
+  <li><b>{NUM-GENES}G-{YEAR-MONTH-DATE-TIME}-pips.csv</b>
+    <ul><li>.csv file that contains the Posterior Inclusion Probabilities (PIPs) of
+      genes across clusters identified by NCLUSION. PIPs are used as a summary of
+      evidence for a gene being associated with driving the identity of any
+      phenotypic cluster. For a particular cluster, a higher PIP
+      indicates that a gene is more significant to the formation of that cluster.
+  </li> 
+  </ul></li>
+  <li><b>_QuickSummary_{YEAR-MONTH-DATE-TIME}.txt</b>
+    <ul><li>.txt file that contains the input parameters that were used to run
+    NCLUSION.</li></ul></li>
+  <li><b>output.jld2</b>
+  <ul><li>.jld2 file that contains all model parameters</li></ul></li>
+  <li><b>{YEAR-MONTH-DATE-TIME}-Nk.csv</b><ul><li>.csv file that contains estimated
+  number of cells in each cluster identified by NCLUSION</li></ul></li>
+  <li><b>*_Summary.csv</b></li>
+  <ul><li><b>NOTE: </b>These files are ONLY generated if alternative cell-type annotations are provided in the
+    <code>AnnData.obs['cell_type']</code> layer.</li>
+    <li>There should be .csv files following this labeling format, corresponding to
+  the quantitative metrics calculated to evaluate NCLUSION performance on this
+  dataset. </li>
+  <li>The files are named according to: {METRIC}_Summary.csv where
+  {METRIC} corresponds to the name of the metric that was calculated. The
+  following metrics are calculated automatically by NCLUSION: Adjusted Rand Index (ARI), Jaccard Index, Normalized
+  Mutual Information (NMI), V-Measure, and Variation of Information (VarInfo).
+  All metric calculations dependent on the <code>AnnData.obs['cell-type']</code> annotations.</li>
+</ul></ol></p>
+      </div>
 
 
 

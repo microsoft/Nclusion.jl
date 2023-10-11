@@ -96,19 +96,7 @@ et al 2019</a></li>
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Getting Started with NCLUSION using Simulated Data</h1>
-<div class="section level4">
-<h4 id="please-cite-us">Please Cite Us<a class="anchor" aria-label="anchor" href="#please-cite-us"></a>
-</h4>
-<p>If you use NCLUSION in published research, please cite:</p>
-<blockquote>
-<ul>
-<li><p> Ref here <a href="https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1006869" class="external-link uri">https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1006869</a></p></li>
-</ul>
-</blockquote>
-</div>
 <div class="section level2">
-<h2 id="getting-started">Getting Started<a class="anchor" aria-label="anchor" href="#getting-started"></a>
-</h2>
 <p>First, install NCLUSION and its dependencies. You can find installation instructions
 <a href="../index.html">here.</a> If you have any questions or concerns
 regarding installation, please submit an issue. </p> <p>To get started
@@ -120,18 +108,21 @@ dataset, and should be stored in the <code>AnnData.X</code> layer. The unique
 cell ids must be stored in the <code>AnnData.obs_names</code> layer,
 while the gene names must be stored in the <code>AnnData.var_names</code> layer,
 with both in the form of a one-dimensional array of strings. They serve as index annotations
-for the expression matrix. Each cell in the expression data must also contain
+for the rows and columns of the expression matrix, respectively. Each cell in the expression data must also contain
 <b>'condition'</b> labels in the <code>AnnData.obs['condition']</code>
 observation layer. This is a one-dimensional array of categorical labels that
 maps each cell to a timepoint or experimental condition. If cell conditions are uniform,
-annotate all cells with the same <b>'condition'</b> label (i.e. "1"). <b>It is
-not required to provide manually curated cell-type annotations. </b> However, if your
-dataset has been annotated and you wish to compare them to the NCLUSION-inferred
-labels, you can provide the cell-type annotations in the
-<code>AnnData.obs["cell_type"]</code> layer. If provided, NCLUSION will calculate
+annotate all cells with the same <b>'condition'</b> label (i.e. "1"). If your
+dataset contains cell-type annotations and you wish to compare them to the NCLUSION-inferred
+labels, you can provide them in the
+<code>AnnData.obs["cell_type"]</code> layer as a <a
+href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Categorical.html">pandas.Categorical</a>
+object. If provided, NCLUSION will calculate
 various extrinsic evaluation metrics, as described in the <a
-href="../reference/index.html">Reference </a>documentation</p> 
-<p> We provie a simluated dataset to use as an example for how to set up your
+href="../reference/index.html">Reference </a>documentation. <b> However, it is
+not required to provide manually curated cell-type annotations to run NCLUSION.
+If your dataset is unannotated, leave the <code>AnnData.obs["cell_type"]</code> layer empty</b>.</p> 
+<p> We provide a simluated dataset to use as an example for how to set up your
 data and use NCLUSION, which can be downloaded from <a
 href="https://microsoft.github.io/nclusion/simulated_data.zip">here</a>. Alternatively, enter the
 following <a href="https://www.gnu.org/software/wget/">wget</a> command into a
@@ -157,7 +148,7 @@ adata.obs['condition'] = pd.Categorical(condition)
 
 cell_type_labels = pd.read_csv("simulated_data/simulated_labels.csv")['z1']
 cell_type_labels.index = cell_type_labels.index.map(str)
-adata.obs["cell_type"] = cell_type_labels
+adata.obs["cell_type"] = pd.Categorical(cell_type_labels)
 
 adata.write_h5ad('simulated_data/simulated_data.h5ad')
 
@@ -220,7 +211,7 @@ Identical! ###'</code>. Otherwise, it will print <code>'### WARNING: Files Are D
 
       <footer><div class="copyright">
   <p></p>
-<p>Developed by Chibuikem Nwizu, Lorin Crawford, and Madeline Hughes</p>
+<p>Developed by Chibuikem Nwizu, Lorin Crawford, Ava Amini, and Madeline Hughes</p>
 </div>
 
 <div class="pkgdown">

@@ -11,8 +11,6 @@ def make_tsnes(adata, res, figures_prefix):
     sc.pl.tsne(adata, color="cell_type", save='_'+figures_prefix+'_called_cell_type.png')
     sc.pl.tsne(adata, color="inferred_label", save='_'+figures_prefix+'_inferred_label.png')
         
-
-
     clusters = res.loc[:, 'inferred_label_mapped'].unique()
     color_dict = {True: "#8567ad", False: 'lightgrey'}
 
