@@ -59,7 +59,6 @@ def main(argv):
         cluster_dict = clusters['0']
     
     res['inferred_label_mapped'] = res.apply(lambda x: cluster_dict[int(x['inferred_label'])], axis=1)
-    print(res)
     
     make_tsnes(adata, res, figures_prefix)
 
