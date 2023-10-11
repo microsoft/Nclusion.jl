@@ -130,10 +130,11 @@ bash terminal to download the simulated data directory
 directly onto your machine and unzip it:
 <pre><code>wget https://microsoft.github.io/nclusion/simulated_data.zip
 unzip simulated_data.zip
-</code></pre>It loads in
+</code></pre>The simulated data can be loaded in
 as a pandas dataframe, and can be converted
-into the proper AnnData format by entering the following commands into a Python
-terminal, with your virtual environment activated: </p> 
+into the proper AnnData format described above by entering the following commands into a Python
+terminal with your virtual environment activated (for more information on how to
+install Anaconda and set up a virtual environment, click <a href="https://www.anaconda.com/download/">here</a>): </p> 
 <pre><code id="python">import pandas as pd
 import scanpy as sc
 import anndata as ad 
@@ -165,9 +166,13 @@ dataset.
 <h3 id="running-nclusion">Running NCLUSION<a class="anchor" aria-label="anchor" href="#running-nclusion"></a>
 </h3>
 <p> To run NCLUSION, start a julia repl in your nclusion environment by entering
-  <code>julia --project=/path/to/julia/env --thread=auto</code>, with the
+  <code>julia --project=/PATH/TO/JULIA/ENV --thread=auto</code>, with the
   <code>--project</code> input being set to the path that points to your Julia
-  nclusion environment. Then, enter the following code into the activated Julia repl:</p>
+  nclusion environment. Then, enter the following code into the activated Julia
+  repl. <b>NOTE: </b> this code can also be pasted into a Julia script (i.e.
+  <code>nclusion.jl</code>) and executed by entering
+  <code>julia --project=PATH/TO/JULIA/ENV nclusion.jl</code> into a bash
+  terminal. </p>
 <pre><code>ENV["GKSwstype"] = "100"
 curr_dir = ENV["PWD"]
 
@@ -192,7 +197,9 @@ filepath = outputs_dict[:filepath]
 filename = "$filepath/output.jld2"
 
 jldsave(filename,true;outputs_dict=outputs_dict)</code></pre>
-<p>NCLUSION clustering assignments can be found in a file named
+<p>If you ran NCLUSION in a Julia repl, exit the repl by entering
+<code>exit()</code>. NCLUSION clustering assignments can be found in a file
+named
 <code>outputs/EXPERIMENT_nclusion_simulated_data/DATASET_simulated_data_5HVGs-1800N/YEAR_MONTH_DATE_TIME/simulated_data_5HVGs-1800N_nclusion-YEAR-MONTH-DATE-TIME.csv</code>
 where YEAR-MONTH-DATE-TIME corresponds to the time stamp of when the results
 were generated (produced automatically by NCLUSION). Run the following command in your
