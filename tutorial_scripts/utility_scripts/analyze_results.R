@@ -73,7 +73,7 @@ if (data_name == "vanGalen"){
 } else if (data_name == "raghavan"){
   permutation_vec <- c(8, 1, 5, 4, 3, 6, 2, 7)
 }else if (data_name == 'zheng'){
-  permutation_vec = c(15, 11, 12, 3, 9, 14, 7, 8, 6, 13, 4, 1, 2, 10, 5)
+  permutation_vec <- c(8, 11, 12, 9, 14, 6, 7, 5, 13, 3, 1, 2, 10, 4)
 }
 
 
