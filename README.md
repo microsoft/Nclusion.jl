@@ -1,3 +1,5 @@
+NCLUSION package documentation, examples, and tutorials can be found here: <a href="https://glowing-doodle-vr4mr7l.pages.github.io/index.html"> NCLUSION Documentation and Tutorials </a>
+
 ## Introduction
 
 Profiling phenotypic heterogenity in cellular populations has recieved a renewed interested recently due to the increased accuracy of single cell sequencing and the decrease in sequencing costs. As a result, new statistical methods have been developed to characterize the phenotypic heterogenity that result from single cell sequencing experiments such as single cell RNA-sequencing (scRNA-Seq) experiments. One popular way of carrying out this task is through clustering followed by performing additional statistical tests post-clustering to select salient genes that contribute to cluster identity. Current methods are limited in that the number of clusters in the data must be known prior to clustering and post-clustering variable selection does not leverage information about the cluster formation in order to elect salient genes.
