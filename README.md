@@ -1,6 +1,6 @@
 # Nonparametric CLUstering of SIngle cell PopulatiONs (NCLUSION)
 
-NCLUSION package documentation, examples, and tutorials can be found here: <a href="https://glowing-doodle-vr4mr7l.pages.github.io/index.html"> NCLUSION Documentation and Tutorials </a>
+NCLUSION package documentation, examples, and tutorials can be found here: <a href="https://microsoft.github.io/nclusion"> NCLUSION Documentation and Tutorials </a>
 
 ## Introduction
 
