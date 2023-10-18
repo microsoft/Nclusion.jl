@@ -79,7 +79,7 @@ et al 2019</a></li>
     </div>
 
     <div class="ref-description">
-    <p>This function runs the nclusion method</p>
+    <p>This function runs the NCLUSION method</p>
     </div>
 
     <div id="ref-usage">
@@ -116,7 +116,7 @@ href="../articles/get_started.html">Get started</a>.
 <dd><p>second level concentration parameter (smaller values give fewer cluster)</p></dd>
 
 
-<dt>gamm1</dt>
+<dt>gamma1</dt>
 <dd><p>top level concentration parameter (smaller values give fewer cluster)</p></dd>
 
 
@@ -147,7 +147,10 @@ determines whether or not convergence is reached.</p></dd>
 
 
 <dt>save_metrics</dt>
-<dd><p>Boolean that indicates whether or not NCLUSION should calculate label-dependent clustering metrics (Note: Requires reference labels to be present in the preprocessed Anndata object with scRNA-seq expression values under "cell_type") [Default: false]</p></dd>
+<dd><p>Boolean that indicates whether or not NCLUSION should calculate
+label-dependent clustering metrics (Note: Requires reference labels to be
+provided in the AnnData.obs["cell_type"] of the input data object)
+[Default: false]</p></dd>
 
 </dl></div>
     <div id="value">
@@ -158,12 +161,15 @@ determines whether or not convergence is reached.</p></dd>
     <div id="saved-files">
       <h2>Saved Output Files</h2>
   
-  <p>The following output files are automatically saved to the specified output
-  directory after running NCLUSION. <b>NOTE: {DATA-NAME} corresponds to the <code>dataset</code> input variable.
+  <p>The following output files are automatically saved to
+  <b>outputs/EXPERIMENT_nclusion_{DATA-NAME}/DATASET_{DATA-NAME}_{NUM-GENES}HVGs-{NUM-CELLS}N/{YEAR_MONTH_DATE_TIME}/ </b>
+  which is automatically generated in the specified output
+  directory, <code>outdir</code>, after running NCLUSION. </p> <p><b>NOTE: {DATA-NAME} corresponds to the <code>dataset</code> input variable.
     {NUM-GENES} corresponds to the number of genes included in the input AnnData
-    object. {YEAR-MONTH-DATE-TIME} corresponds to the time-stamp at which the
+  object. {NUM-CELLS} corresponds to the number of cells included in the input
+  AnnData object. {YEAR-MONTH-DATE-TIME} corresponds to the time-stamp at which the
     outputs were generated (calculated automatically by NCLUSION). </b> 
-  <ol><li><b>{DATA-NAME}_{NUM-GENES}HVGs-23042N_nclusion-{YEAR-MONTH-DATE-TIME}.csv</b>
+  <ol><li><b>{DATA-NAME}_{NUM-GENES}HVGs-{NUM-CELLS}N_nclusion-{YEAR-MONTH-DATE-TIME}.csv</b>
     <ul><li>.csv file that contains the NCLUSION clustering assignments, where each row displays relevant metadata and
     clustering results for each cell. </li>
     <li> The 'condition' column
@@ -196,7 +202,8 @@ annotation obtained from a different study.
   number of cells in each cluster identified by NCLUSION</li></ul></li>
   <li><b>*_Summary.csv</b></li>
   <ul><li><b>NOTE: </b>These files are ONLY generated if alternative cell-type annotations are provided in the
-    <code>AnnData.obs['cell_type']</code> layer.</li>
+    <code>AnnData.obs['cell_type']</code> layer and the
+    <code>save_metrics</code> input variable is set to <code>true</code>.</li>
     <li>There should be .csv files following this labeling format, corresponding to
   the quantitative metrics calculated to evaluate NCLUSION performance on this
   dataset. </li>
@@ -204,7 +211,7 @@ annotation obtained from a different study.
   {METRIC} corresponds to the name of the metric that was calculated. The
   following metrics are calculated automatically by NCLUSION: Adjusted Rand Index (ARI), Jaccard Index, Normalized
   Mutual Information (NMI), V-Measure, and Variation of Information (VarInfo).
-  All metric calculations dependent on the <code>AnnData.obs['cell-type']</code> annotations.</li>
+  All metric calculations dependent on the <code>AnnData.obs['cell_type']</code> annotations.</li>
 </ul></ol></p>
       </div>
 
