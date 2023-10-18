@@ -107,12 +107,12 @@ sequencing and the decrease in sequencing costs. As a result, new statistical
 methods have been developed to characterize the phenotypic heterogenity derived
 from single-cell sequencing experiments such as single-cell RNA-sequencing
 (scRNA-Seq). Current methods often utilize clustering followed
-by additional statistical tests post-clustering to select salient
+by additional statistical tests post-clustering to select marker
 genes that contribute to cluster identity. These methods are limited in that
 the number of clusters in the data must be known prior to clustering and
 post-clustering variable selection does not leverage information about the
-cluster formation in order to elect salient genes.</p>
-<p>We present a method for the Nonparametric CLUstering of SIngle cell PopulatiONs (NCLUSION) - a sparse Bayesian Nonparametric model based on a Hierarchical Dirichlet Process mixture model. By combining a sparsity-promoting spike-and-slab prior on the cluster means and a nonparametric Hierarchical Dirichlet Process prior on the number of clusters, NCLUSION jointly learns the salient genes defining cluster identity and an optimal number of clusters needed to partition the data. Together with reasonable model approximations using varaiational inference, our proposed approach is scalable to large single-cell RNA sequencing experiments.</p>
+cluster formation in order to elect marker genes.</p>
+<p>We present a method for the Nonparametric CLUstering of SIngle cell PopulatiONs (NCLUSION) - a sparse Bayesian Nonparametric model based on a Hierarchical Dirichlet Process mixture model. By combining a sparsity-promoting spike-and-slab prior on the cluster means and a nonparametric Hierarchical Dirichlet Process prior on the number of clusters, NCLUSION jointly learns the marker genes defining cluster identity and an optimal number of clusters needed to partition the data. Together with reasonable model approximations using varaiational inference, our proposed approach is scalable to large single-cell RNA sequencing experiments.</p>
 </div>
 <div class="section level3">
 <h3 id="the-method">The Method<a class="anchor" aria-label="anchor" href="#the-method"></a>
