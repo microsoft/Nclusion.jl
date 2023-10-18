@@ -130,11 +130,19 @@ bash terminal to download the simulated data directory
 directly onto your machine and unzip it:
 <pre><code>wget https://microsoft.github.io/nclusion/simulated_data.zip
 unzip simulated_data.zip
-</code></pre>The simulated data can be loaded in
+</code></pre>For this next step, be sure to set up a conda
+virtual environment activated with the following packages installed: </p>
+<p><ul><li><a
+href="https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html">pandas</a></li><li><a
+href="https://scanpy.readthedocs.io/en/stable/">scanpy</a></li><li><a
+href="https://anndata.readthedocs.io/en/latest/">anndata</a></li><li><a
+href="https://numpy.org/install/">numpy</a></li></ul></p><p>For more information
+on how to install Anaconda and set up a virtual environment, click <a
+href="https://www.anaconda.com/download/">here.</a> The simulated
+data can be loaded in
 as a pandas dataframe, and can be converted
 into the proper AnnData format described above by entering the following commands into a Python
-terminal with your virtual environment activated (for more information on how to
-install Anaconda and set up a virtual environment, click <a href="https://www.anaconda.com/download/">here</a>): </p> 
+terminal with your virtual environment activated: </p> 
 <pre><code id="python">import pandas as pd
 import scanpy as sc
 import anndata as ad 
@@ -159,9 +167,9 @@ print('Gene Names: ', adata.var_names)
 print('Condition Labels: ', adata.obs.condition)
 print('Manually-curated Cell Type Labels: ', adata.obs.cell_type)
 </code></pre>
-<p>Real data should be filtered to only high-quality cells. We recommend that
+<p>Real data should be filtered to include only high-quality cells, and preprocessed. We recommend that
 you normalize the expression values such that the total counts per cell is
-uniform, and log-transformed. However, it is not necessary for this simulated
+uniform, and log-transformed. However, this is not necessary for the simulated
 dataset.
 <h3 id="running-nclusion">Running NCLUSION<a class="anchor" aria-label="anchor" href="#running-nclusion"></a>
 </h3>
