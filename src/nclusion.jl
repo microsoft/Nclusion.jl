@@ -240,14 +240,14 @@ module nclusion
 
 
     
-    include(curr_dir*src_dir*"processing.jl")
-    include(curr_dir*src_dir*"math.jl")
-    include(curr_dir*src_dir*"modelMetrics.jl")
-    include(curr_dir*src_dir*"viCoordinateAscent.jl")
-    include(curr_dir*src_dir*"viCustomType.jl")
-    include(curr_dir*src_dir*"viElboCalculations.jl")
-    include(curr_dir*src_dir*"viExpectations.jl")
-    include(curr_dir*src_dir*"viInitializations.jl")
-    include(curr_dir*src_dir*"viSurragateHdpUpdates.jl")
-    include(curr_dir*src_dir*"viVariationalUpdates.jl")
+    include("processing.jl")
+    include("math.jl")
+    include("modelMetrics.jl")
+    include("viCoordinateAscent.jl")
+    include("viCustomType.jl")
+    include("viElboCalculations.jl")
+    include("viExpectations.jl")
+    include("viInitializations.jl")
+    include("viSurragateHdpUpdates.jl")
+    include("viVariationalUpdates.jl")
 end

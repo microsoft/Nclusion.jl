@@ -1,4 +1,4 @@
-push!(LOAD_PATH,"../src/")
+# push!(LOAD_PATH,"../src/")
 using nclusion
 using Documenter
 makedocs(
