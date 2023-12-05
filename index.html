@@ -16,8 +16,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="bootstrap-toc.css">
 <script src="bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
-<script src="pkgdown.js"></script><meta property="og:title" content="Multivariate Genome Wide Marginal Epistasis Test">
+
 </head>
 <body data-spy="scroll" data-target="#toc">
     
@@ -93,7 +92,7 @@ et al 2019</a></li>
   <div class="contents col-md-9">
 
 <div class="section level1">
-<div class="page-header"><h1 id="multivariate-mapit-documentation-">Nonparametric CLUstering of SIngle cell PopulatiONs (NCLUSION)
+<div class="page-header"><h1>Nonparametric CLUstering of SIngle cell PopulatiONs (NCLUSION)
 </h1></div>
 <p><b>NCLUSION package documentation, examples, and tutorials, can be found
 here: <a href="https://microsoft.github.io/nclusion">NCLUSION Documentation and Tutorials</a>.</b></p>
@@ -138,27 +137,27 @@ cells in the data.</p>
 </h2>
 <p>This package requires that Julia 1.6+ and its dependencies are installed.
 Instructions for installation can be found <a
-href="https://github.com/JuliaLang/julia" class="external-link"> here. </a></p>
+href="https://julialang.org/" class="external-link"> here. </a></p>
 <p> To create a new Julia project environment and install the NCLUSION package, follow these steps:</p>
 <ol><li> Start a Julia session by entering <code>julia</code> in a bash terminal while in
-your working directory.</li> <li>  Enter a Julia Pkg repl by pressing the right square bracket <code>]</code>.
+your working directory.</li> <li>  Enter a Julia Pkg REPL by pressing the right square bracket <code>]</code>.
   Create a new Julia project environment by typing <code>generate</code> followed by the name of your project (i.e. <code>generate nclusion_demo</code>). This creates a project
   directory named after the environment you created, and two files: <code>Project.toml</code>
   and <code>Manifest.toml</code>.
   These files, which can be found in the project
 directory, specify the packages that are downloaded in the environment.</li>
-<li>Activate the project environment in the Julia Pkg repl by typing <code>activate</code>
+<li>Activate the project environment in the Julia Pkg REPL by typing <code>activate</code>
 followed by the name of the Julia environment (i.e. <code>activate
 nclusion_demo</code>).</li> <li>Install NCLUSION in the project environment, by running the following command in the
-  Julia Pkg repl:<pre><code>using Pkg;Pkg.add("nclusion")</code></pre></li></ol>
+  Julia Pkg REPL:<pre><code>add nclusion</code></pre></li></ol>
  </p>
  <p>Alternatively, to install NCLUSION into an existing Julia project environment, follow these steps:</p>
 
-  <p><ol><li>Activate the project environment and start a Julia repl by entering <code>julia --project=/path/to/julia/env --thread=auto</code> into a bash terminal, where <code>--project</code> is set equal to the path to your existing Julia project environment.</li>
+  <p><ol><li>Activate the project environment and start a Julia REPL by entering <code>julia --project=/path/to/julia/env --thread=auto</code> into a bash terminal, where <code>--project</code> is set equal to the path to your existing Julia project environment.</li>
   <li>Install NCLUSION in the activated project environment by entering the
-  following command in the Julia repl: <pre><code>using Pkg;Pkg.add("nclusion")</code></pre></li></ol></p>
-  <p>You can exit the Julia Pkg repl by typing <code>Ctrl + C</code>, and
-  the Julia repl by entering <code>exit()</code>.</p>
+  following command in the Julia REPL: <pre><code>using Pkg;Pkg.add("nclusion")</code></pre></li></ol></p>
+  <p>You can exit the Julia Pkg REPL by typing <code>Ctrl + C</code>, and
+  the Julia REPL by entering <code>exit()</code>.</p>
 <h2 id="questions-and-feedback">Questions and Feedback<a class="anchor" aria-label="anchor" href="#questions-and-feedback"></a>
 </h2>
 <p>If you have any questions or concerns regarding NCLUSION or the tutorials,
@@ -174,7 +173,7 @@ repository, manuscript, and tutorials is appreciated.</p>
 
   </div>
 
-  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
@@ -192,11 +191,6 @@ repository, manuscript, and tutorials is appreciated.</p>
       <footer><div class="copyright">
   <p></p>
 <p>Developed by Chibuikem Nwizu, Lorin Crawford, Ava Amini, Madeline Hughes</p>
-</div>
-
-<div class="pkgdown">
-  <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>
@@ -218,6 +212,9 @@ pre button{
 
   /* more stuff */
 } 
+.page-header{
+  margin: 50px 0 0;
+}
 pre {  
   word-wrap: normal;  
 }  
