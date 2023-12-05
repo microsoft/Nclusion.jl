@@ -41,24 +41,24 @@ This package requires that Julia 1.6+ and its dependencies are installed. Instru
 To create a new Julia project environment and install the NCLUSION package, follow these steps:
 
 <ol><li> Start a Julia session by entering <code>julia</code> in a bash terminal while in
-your working directory.</li> <li>  Enter a Julia Pkg repl by pressing the right square bracket <code>]</code>.
+your working directory.</li> <li>  Enter a Julia Pkg REPL by pressing the right square bracket <code>]</code>.
   Create a new Julia project environment by typing <code>generate</code> followed by the name of your project (i.e. <code>generate nclusion_demo</code>). This creates a project
   directory named after the environment you created, and two files: <code>Project.toml</code>
   and <code>Manifest.toml</code>.
   These files, which can be found in the project
 directory, specify the packages that are downloaded in the environment.</li>
-<li>Activate the project environment in the Julia Pkg repl by typing <code>activate</code>
+<li>Activate the project environment in the Julia Pkg REPL by typing <code>activate</code>
 followed by the name of the Julia environment (i.e. <code>activate
 nclusion_demo</code>).</li> <li>Install NCLUSION in the project environment, by running the following command in the
-  Julia Pkg repl:<pre><code>using Pkg;Pkg.add("nclusion")</code></pre></li></ol>
+  Julia Pkg REPL:<pre><code>add nclusion</code></pre></li></ol>
 
 Alternatively, to install NCLUSION into an existing Julia project environment, follow these steps:
 
-<ol><li>Activate the project environment and start a Julia repl by entering <code>julia --project=/path/to/julia/env --thread=auto</code> into a bash terminal, where <code>--project</code> is set equal to the path to your existing Julia project environment.</li>
+<ol><li>Activate the project environment and start a Julia REPL by entering <code>julia --project=/path/to/julia/env --thread=auto</code> into a bash terminal, where <code>--project</code> is set equal to the path to your existing Julia project environment.</li>
   <li>Install NCLUSION in the activated project environment by entering the
-  following command in the Julia repl: <pre><code>using Pkg;Pkg.add("nclusion")</code></pre></li></ol>
+  following command in the Julia REPL: <pre><code>using Pkg;Pkg.add("nclusion")</code></pre></li></ol>
 
-You can exit the Julia Pkg repl by typing <code>Ctrl + C</code>, and the Julia repl by entering <code>exit()</code>.
+You can exit the Julia Pkg REPL by typing <code>Ctrl + C</code>, and the Julia REPL by entering <code>exit()</code>.
 
 ## Questions and Feedback
 
