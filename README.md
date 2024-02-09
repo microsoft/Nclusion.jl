@@ -4,35 +4,12 @@ NCLUSION package documentation, examples, and tutorials can be found here: <a hr
 
 ## Introduction
 
-<p>Profiling phenotypic heterogenity in cellular populations has recieved a
-renewed interested due to the increased accuracy of single-cell
-sequencing and the decrease in sequencing costs. As a result, new statistical
-methods have been developed to characterize the phenotypic heterogenity derived
-from single-cell sequencing experiments such as single-cell RNA-sequencing
-(scRNA-Seq). Current methods often utilize clustering followed
-by additional statistical tests post-clustering to select marker
-genes that contribute to cluster identity. These methods are limited in that
-the number of clusters in the data must be known prior to clustering and
-post-clustering variable selection does not leverage information about the
-cluster formation in order to elect marker genes.</p>
-<p>We present a method for the Nonparametric CLUstering of SIngle cell PopulatiONs (NCLUSION) - a sparse Bayesian Nonparametric model based on a Hierarchical Dirichlet Process mixture model. By combining a sparsity-promoting spike-and-slab prior on the cluster means and a nonparametric Hierarchical Dirichlet Process prior on the number of clusters, NCLUSION jointly learns the marker genes defining cluster identity and an optimal number of clusters needed to partition the data. Together with reasonable model approximations using varaiational inference, our proposed approach is scalable to large single-cell RNA sequencing experiments.</p>
+Clustering is commonly used in single-cell RNA-sequencing (scRNA-seq) pipelines to characterize cellular heterogeneity. However, current methods face two main limitations. First, they require user-specified heuristics which add time and complexity to bioinformatic workflows; and, second, they rely on post-selective differential expression analyses to identify marker genes driving cluster differences which has been shown to be subject to inflated false discovery rates. In this repository, we present a solution to those challenges by introducing "nonparametric clustering of single-cell populations" (NCLUSION): an infinite mixture model that leverages Bayesian sparse priors to simultaneously identify marker genes while performing clustering on single-cell expression data. NCLUSION uses a scalable variational inference algorithm to perform these analyses on datasets with up to millions of cells. In this package and corresponding [documentation](https://microsoft.github.io/nclusion) we demonstrate that NCLUSION (i) matches the performance of other state-of-the-art clustering techniques with significantly reduced runtime and (ii) provides statistically robust and biologically-relevant transcriptomic signatures for each of the clusters it identifies. Overall, NCLUSION represents a reliable hypothesis generating tool for understanding patterns of expression variation present in single-cell populations.
 
 ## The Method
 
-<p>The Nonparametric CLUstering of SIngle cell PopulatiONs (NCLUSION) is a
-sparse Bayesian Nonparametric model based on a Hierarchical Dirichlet Process
-mixture model, which aims to cluster cells from single-cell RNA sequencing
-experiments and extract genes defining cluster
-identity. It does this through the use of a
-sparsity-promoting spike-and-slab prior on the cluster means and a nonparametric
-Hierarchical Dirichlet Process prior on the number of clusters. The key idea
-behind the concept NCLUSION is the treatment of cluster formation as a shift in
-expression of particular genes away from a global mean. This mean shift is
-modeled by the spike-and-slab prior. The number of clusters is modeled via a
-stick-breaking proccess that allocates more clusters as the amount of variation
-in the data grows. The learning of the model parameters proceeds via a
-variational-EM algorithm that allows the method to scale with the number of
-cells in the data.</p>
+NCLUSION uses a sparse hierarchical Dirichlet process normal mixture model to reduce the number of choices that users need to make while simultaneously performing variable selection to identify top cluster-specific marker genes for downstream analyses. There are three key components to NCLUSION. First, NCLUSION is fit directly on single-cell expression matrices and does not require the data to be embedded within a lower-dimensional space. Second, it assumes that cells can belong to one of infinitely many different clusters. This is captured by placing a Dirichlet process prior over the cluster assignment probabilities for each cell. By always setting the number of possible clusters _K_ = &infin;, we remove the need for users to have to iterate through different values until they find the optimal choice. Instead, NCLUSION uses a stick-breaking proccess to naturally allow for more clusters as the amount of variation in a single cell dataset grows. Third, NCLUSION assumes that not all genes are important when assigning cells to a given cluster. To model this, we place a spike and slab prior on the mean expression of each gene within each cluster. This prior shrinks the mean of genes that play an insignificant role in cluster formation towards zero. The learning of the model parameters is done via a variational-EM algorithm that allows the method to scale with the number of
+cells in the data.
 
 ## Installation
 
@@ -59,6 +36,10 @@ Alternatively, to install NCLUSION into an existing Julia project environment, f
   following command in the Julia REPL: <pre><code>using Pkg;Pkg.add("nclusion")</code></pre></li></ol>
 
 You can exit the Julia Pkg REPL by typing <code>Ctrl + C</code>, and the Julia REPL by entering <code>exit()</code>.
+
+## Relevant Citations
+
+C. Nwizu, M. Hughes, M. Ramseier, A. Navia, A. Shalek, N. Fusi, S. Raghavan, P. Winter, A. Amini, and L. Crawford. Scalable nonparametric clustering with unified marker gene selection for single-cell RNA-seq data. _bioRxiv_.
 
 ## Questions and Feedback
 
