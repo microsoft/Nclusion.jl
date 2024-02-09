@@ -330,8 +330,8 @@ layer of the input AnnData object. The metric calculations are
 automatically saved to <code>.csv</code> files in the specified output
 directory. Each file is labeled according to the following format: '{name_of_metric}_NCLUSION_pbmc_5000hvgs.csv' </p>
 <p>To calculate evaluation metrics, enter the following command into your bash terminal. </p> 
-<p><b>NOTE: be sure to replace <code>--input_path</code> variable with the
-  relative path to your NCLUSION clustering results and "--project" with the path to your Julia environment where NCLUSION is installed. </b> </p>
+<p><b>NOTE: be sure to replace --input_path variable with the
+  relative path to your NCLUSION clustering results and --project with the path to your Julia environment where NCLUSION is installed. </b> </p>
 <pre><code>python tutorial_scripts/utility_scripts/make_intermediates.py --input_path "/PATH/TO/NCLUSION/CLUSTERING/FILE" --title "NCLUSION Zheng et al 2017" --output_path_file "zheng2017_outputs/" --output_path_figure "zheng2017_outputs/" --output_suffix '' --dataset_ordering_mode "pbmc" --col_sum_threshold '0.15'
 
 julia --project='PATH/TO/JULIA/ENV' tutorial_scripts/utility_scripts/get_Julia_jaccard_metrics.jl "zheng2017_outputs/pbmc_NCLUSION_mapped_clusters.csv" '4' '6' '1' 'NCLUSION' '5000' "pbmc" "" 'jaccardtrans' "zheng2017_outputs/"
