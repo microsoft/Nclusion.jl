@@ -64,6 +64,6 @@ cluster_mapping=$MAPPING
 nk_path=$NKPATH
 
 
-python tutorial_scripts/utility_scripts/make_gsea_csvs.py --path_to_pips $pips --path_to_labels $nclusion_results --path_to_translation $cluster_mapping --path_to_nk $nk_path --output_path $output_dir --path_to_data $data_path
+# python tutorial_scripts/utility_scripts/make_gsea_csvs.py --path_to_pips $pips --path_to_labels $nclusion_results --path_to_translation $cluster_mapping --path_to_nk $nk_path --output_path $output_dir --path_to_data $data_path
 
 Rscript tutorial_scripts/utility_scripts/analyze_results.R $data_path $pips $nclusion_results $output_dir $data_name $cluster_mapping $rlib

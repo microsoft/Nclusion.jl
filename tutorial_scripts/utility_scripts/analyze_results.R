@@ -137,12 +137,13 @@ X <-  X[inclusion_bool,]
 seurat_dataset <- CreateSeuratObject(counts = X, min.cells = 0, min.features = 0)
 Idents(object = seurat_dataset)<- labels[,dim(labels)[2]]
 seurat_dataset <- NormalizeData(seurat_dataset, normalization.method = "LogNormalize", scale.factor = scale_fator)
-seurat_dataset <- ScaleData(seurat_dataset)
+seurat_dataset <- ScaleData(seurat_dataset, assay = "RNA")
 seurat_dataset[["cell.types"]] <- Idents(object = seurat_dataset)
 seurat_dataset[["new.cell.types"]] <- seurat_dataset[["cell.types"]]
 
-scaled_mat <- seurat_dataset[["RNA"]]@scale.data
-counts_mat <- seurat_dataset@assays$RNA@counts
+# scaled_mat <- seurat_dataset[["RNA"]]@scale.data
+scaled_mat <- GetAssayData(seurat_dataset, assay = "RNA", layer = "scale.data")
+counts_mat <- GetAssayData(seurat_dataset, assay = "RNA", layer = "counts")
 num_cells = length(labels$cell_id)
 inclusion_bool_cells <- rep(FALSE, num_cells)
 for (i in 1:num_cells){
