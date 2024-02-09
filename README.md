@@ -45,7 +45,7 @@ C. Nwizu, M. Hughes, M. Ramseier, A. Navia, A. Shalek, N. Fusi, S. Raghavan, P. 
 
 ## Questions and Feedback
 
-If you have any questions or concerns regarding NCLUSION or the tutorials, please contact <a href="mailto:chibuikem_nwizu@brown.edu"> Chibuikem Nwizu</a>, <a href="mailto:lcrawford@microsoft.com"> Lorin Crawford</a>, <a href="mailto:ava.amini@microsoft.com"> Ava Amini</a>, or <a href="mailto:v-mahughes@microsoft.com"> Madeline Hughes</a>. All feedback on the repository, manuscript, and tutorials is appreciated.
+If you have any questions or concerns regarding NCLUSION or the tutorials, please contact <a href="mailto:chibuikem_nwizu@brown.edu"> Chibuikem Nwizu</a>, <a href="mailto:v-mahughes@microsoft.com"> Madeline Hughes</a>, <a href="mailto:ava.amini@microsoft.com"> Ava Amini</a>, or <a href="mailto:lcrawford@microsoft.com"> Lorin Crawford</a>. Any feedback on the repository, manuscript, and tutorials is appreciated.
 
 ## Contributing
 
