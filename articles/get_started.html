@@ -187,11 +187,11 @@ KMax = 25
 seed = 12345
 elbo_ep = 10^(-0.0)
 dataset = "simulated_data"
-outdir = "${curr_dir}"
+outdir = curr_dir
 num_iter = 150
 calc_metrics = "true"
 
-outputs_dict = run_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,num_iter,dataset,calc_metrics,outdir; logger = logger)
+outputs_dict = run_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outdir; logger = logger, num_iter=num_iter,save_metrics=calc_metrics)
 filepath = outputs_dict[:filepath]
 filename = "$filepath/output.jld2"
 
