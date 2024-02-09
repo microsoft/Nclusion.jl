@@ -193,19 +193,7 @@ annotation obtained from a different study.
   <ul><li>.jld2 file that contains all model parameters</li></ul></li>
   <li><b>{YEAR-MONTH-DATE-TIME}-Nk.csv</b><ul><li>.csv file that contains estimated
   number of cells in each cluster identified by NCLUSION</li></ul></li>
-  <li><b>*_Summary.csv</b></li>
-  <ul><li><b>NOTE: </b>These files are ONLY generated if alternative cell-type annotations are provided in the
-    <code>AnnData.obs['cell_type']</code> layer and the
-    <code>save_metrics</code> input variable is set to <code>true</code>.</li>
-    <li>There should be .csv files following this labeling format, corresponding to
-  the quantitative metrics calculated to evaluate NCLUSION performance on this
-  dataset. </li>
-  <li>The files are named according to: {METRIC}_Summary.csv where
-  {METRIC} corresponds to the name of the metric that was calculated. The
-  following metrics are calculated automatically by NCLUSION: Adjusted Rand Index (ARI), Jaccard Index, Normalized
-  Mutual Information (NMI), V-Measure, and Variation of Information (VarInfo).
-  All metric calculations dependent on the <code>AnnData.obs['cell_type']</code> annotations.</li>
-</ul></ol></p>
+</ol></p>
       </div>
 
 
