@@ -180,7 +180,7 @@ logger = FormatLogger() do io, args
 end;
 
 
-datafilename1 = "simulated_data/simulated_data.h5ad" # 
+datafilename1 = "simulated_data/simulated_data.h5ad" 
 alpha1 = 1 * 10^(-7.0)
 gamma1 = 1 * 10^(-7.0)
 KMax = 25
@@ -189,7 +189,7 @@ elbo_ep = 10^(-0.0)
 dataset = "simulated_data"
 outdir = curr_dir
 num_iter = 150
-calc_metrics = "true"
+calc_metrics = true
 
 outputs_dict = run_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outdir; logger = logger, num_iter=num_iter,save_metrics=calc_metrics)
 filepath = outputs_dict[:filepath]
