@@ -167,15 +167,19 @@ BiocManager::install(c("SingleCellExperiment", "ComplexHeatmap",
   pandas </a> </li> 
   <li> <a href="https://matplotlib.org/stable/users/installing/index.html"
   class="external-link"> matplotlib </a> </li>
-  <li> <a href="https://numpy.org/install/" class="external-link"> numpy </a>
+  <li> <a href="https://cluster-validity-indices.readthedocs.io/en/latest/guide.html#installation"
+    class="external-link"> cvi </a> </li>
+    <li> <a href="https://scikit-learn.org/stable/install.html"
+      class="external-link"> scikit-learn </a> </li>
+  <li> <a href="https://numpy.org/install/" class="external-link"> numpy</a>
   </li>
   <li> <a href="https://anndata.readthedocs.io/en/latest/" class="external-link"> anndata </a> </li>
   <li> <a href="https://gseapy.readthedocs.io/en/latest/" class="external-link"> gseapy </a> </li>
   </ul>
   <p>To install these packages, activate a new Anaconda environment and enter the
   following commands into a bash terminal:</p>
- <pre><code>conda install -c anaconda pip</code></pre>
-<pre><code>pip install scanpy pandas matplotlib numpy anndata gseapy</code></pre>
+<pre><code>conda install scikit-learn pandas matplotlib numpy</pre></code>
+  <pre><code>python -m pip install scanpy anndata gseapy cvi</code></pre>
   </div>
   <h3 id="preprocess-data">Tutorial Scripts<a class="anchor" aria-label="anchor" href="#preprocess-data"></a>
   </h3> 
@@ -301,15 +305,7 @@ results were generated. The time stamp is added automatically by NCLUSION. </b><
   <ul><li>.jld2 file that contains all model parameters</li></ul></li>
   <li><b>YEAR-MONTH-DATE-TIME-Nk.csv</b><ul><li>.csv file that contains estimated
   number of cells in each cluster identified by NCLUSION</li></ul></li>
-  <li><b>*_Summary.csv (if manual cell-type annotations are provided)</b></li>
-  <ul><li>There should be .csv files following this labeling format, corresponding to
-  the quantitative metrics calculated to evaluate NCLUSION performance on this
-  dataset. </li>
-  <li><b>NOTE: </b>These files are only generated if "true" cell-type labels
-  (manual/experimental cell-type annotations) are
-  provided in the "cell_type" observations layer of the AnnData input. All
-  tutorial datasets have "true" cell-type labels in this layer, and therefore
-  produce these metric calculation files (more information on these metrics below).</li></ul></ol>
+  </ol>
   </p>
 <div class="section level3"><h2 id="eval-metrics">Analysis of NCLUSION
 Clustering and Variable Selection<a class="anchor" aria-label="anchor" href="#eval-metrics"></a>
@@ -320,16 +316,25 @@ Clustering and Variable Selection<a class="anchor" aria-label="anchor" href="#ev
   purposes. This mapping retains NCLUSION cluster memberships. </b></p> 
 <h3 id="eval-metrics">A. Quantitative Evaluation Metrics<a class="anchor" aria-label="anchor" href="#eval-metrics"></a>
 </h3>
-<p> To evaluate the clustering results, NCLUSION automatically calculates
-various extrinsic evaluation metrics: Adjusted Rand Index (ARI), Jaccard Index, Normalized
-Mutual Information (NMI), V-Measure, and Variation of Information (VarInfo).
+<p> To evaluate the NCLUSION clustering results, the following command calculates
+various evaluation metrics: Jaccard Indexs, Adjusted Rand Index (ARI) (extrinsic), McIntosh Evenness, and Gini-Simpson Index (intrinsic).
 Extrinsic metric calculations are dependent on
-experimental annotations of the data, that act as the "true" labels. Therefore, extrinsic metrics are
+experimental annotations of the data, that act as the "true" labels, while intrinsic metrics do not. Therefore, extrinsic metrics are
 only calculated when "true" labels are provided in the "cell_type" observation
 layer of the input AnnData object. The metric calculations are
 automatically saved to <code>.csv</code> files in the specified output
-directory. Each file is labeled with the
-name of the metric, appended to <code>'_Summary.csv'</code>. 
+directory. Each file is labeled according to the following format: '{name_of_metric}_NCLUSION_pbmc_5000hvgs.csv' </p>
+<p>To calculate evaluation metrics, enter the following command into your bash terminal. </p> 
+<p><b>NOTE: be sure to replace "/PATH/TO/NCLUSION/CLUSTERING/FILE" inputs with the
+  relative path to your NCLUSION clustering results and "/PATH/TO/JULIA/ENV" with the path to your Julia environment where NCLUSION is installed. </b> </p>
+<pre><code>python tutorial_scripts/utility_scripts/make_intermediates.py --input_path "/PATH/TO/NCLUSION/CLUSTERING/FILE" --title "NCLUSION Zheng et al 2017" --output_path_file "zheng2017_outputs/" --output_path_figure "zheng2017_outputs/" --output_suffix '' --dataset_ordering_mode "pbmc" --col_sum_threshold '0.15'
+
+julia --project='PATH/TO/JULIA/ENV' tutorial_scripts/utility_scripts/get_Julia_jaccard_metrics.jl "zheng2017_outputs/pbmc_NCLUSION_mapped_clusters.csv" '4' '6' '1' 'NCLUSION' '5000' "pbmc" "" 'jaccardtrans' "zheng2017_outputs/"
+
+python tutorial_scripts/utility_scripts/make_evalmetrics.py --labels_path "zheng2017_outputs/pbmc_NCLUSION_mapped_clusters.csv" --data_path 'tutorial_data/zheng2017/5000hvgs_zheng2017_preprocessed.h5ad' --eval_metric "ginisimpsonindex" --condition_idx '1' --data_partition '' --dataset "pbmc" --method 'NCLUSION' --hvgs '5000' --output_path_file "zheng2017_outputs/" --output_suffix ''
+
+python tutorial_scripts/utility_scripts/make_evalmetrics.py --labels_path "zheng2017_outputs/pbmc_NCLUSION_mapped_clusters.csv" --data_path 'tutorial_data/zheng2017/5000hvgs_zheng2017_preprocessed.h5ad' --eval_metric "mcintosheveness" --condition_idx '1' --data_partition '' --dataset "pbmc" --method 'NCLUSION' --hvgs '5000' --output_path_file "zheng2017_outputs/" --output_suffix ''
+</code></pre>
 <h3 id="eval-metrics">B. Generate Cell Distribution Heatmap</h3><a class="anchor" aria-label="anchor" href="#eval-metrics"></a>
 </h3>
 <p>Next, generate a heatmap that displays how cells from each cell-type

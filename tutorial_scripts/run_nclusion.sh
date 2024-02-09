@@ -51,4 +51,5 @@ else
 fi
 k=25
 elbo_ep="1.0"
-julia --project=${julia_env} --thread=${NUM_THREADS} tutorial_scripts/utility_scripts/run_nclusion.jl  "${input_file}" "${k}" "${a}" "${b}"  "12345" "${elbo_ep}" "${dataset_name}" "${output_dir}" 
+julia --project=${julia_env} --thread=${NUM_THREADS} tutorial_scripts/utility_scripts/run_nclusion.jl  "${input_file}" "${k}" "${a}" "${b}" "12345" "${elbo_ep}" "150" "${dataset_name}" "true" "${output_dir}" 
+# julia --project=${julia_env} --thread=${NUM_THREADS} tutorial_scripts/utility_scripts/run_script.jl  "${input_file}" "${k}" "${a}" "${b}" "12345" "${elbo_ep}" "150" "${dataset_name}" "true" "${output_dir}" 

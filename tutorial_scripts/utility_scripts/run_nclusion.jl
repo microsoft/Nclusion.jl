@@ -40,9 +40,8 @@ else
     to_display=true
 end
 
-
 function main(ARGS)
-    datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outdir = ARGS
+    datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,num_iter,dataset,save_metrics,outdir = ARGS
 
 
     if !isempty(alpha1)
@@ -72,14 +71,25 @@ function main(ARGS)
     else
         elbo_ep = 10^(-0)
     end
+    if isempty(num_iter)
+        num_iter = parse(Float64, num_iter)
+    else
+        num_iter = 500
+    end
     if isempty(dataset)
         dataset = ""
     end
     if isempty(outdir)
         outdir = ""
     end
+    if !isempty(save_metrics)
+        save_metrics = parse(Bool, save_metrics)
+    else
+        save_metrics = false
+    end
 
-    outputs_dict = run_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outdir; logger = logger)
+
+    outputs_dict = run_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outdir; logger = logger,num_iter=num_iter,save_metrics=save_metrics)
     filepath = outputs_dict[:filepath]
     filename = "$filepath/output.jld2"
     flushed_logger("Saving Outputs...";logger)
