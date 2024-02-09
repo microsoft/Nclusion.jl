@@ -39,7 +39,7 @@ nclusion_demo</code>).</li> <li>Install NCLUSION in the project environment, by 
   the Julia REPL by entering <code>exit()</code>.</li></ol></p>
 <p><b>Alternatively, you can install NCLUSION directly using git by following these steps: </b></p>
 <p><ol><li>Enter the following command into a bash terminal: 
-  <pre><code>git clone https://github.com/microsoft/nclusion.git
+  <pre><code>git clone git@github.com:microsoft/nclusion.git
 cd nclusion/</code></pre></li>
 <li>Now start a Julia session by entering the command: <pre><code>julia</code></pre></li><li>In the Julia REPL, type <code> ] </code>. This command starts the Pkg REPL. In this Pkg REPL, type the following Julia command: <pre><code>activate .</code></pre> This activates the nclusion environment. You can verify that the environment is active if the new Pkg REPL prompt  is <code>(nclusion) pkg></code>.
 </li><li>Now type the following commands in the in the Pkg REPL: <pre><code>instantiate
