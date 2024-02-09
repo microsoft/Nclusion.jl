@@ -1,7 +1,5 @@
 # Nonparametric CLUstering of SIngle cell PopulatiONs (NCLUSION)
 
-NCLUSION package documentation, examples, and tutorials can be found here: <a href="https://microsoft.github.io/nclusion"> NCLUSION Documentation and Tutorials </a>
-
 ## Introduction
 
 Clustering is commonly used in single-cell RNA-sequencing (scRNA-seq) pipelines to characterize cellular heterogeneity. However, current methods face two main limitations. First, they require user-specified heuristics which add time and complexity to bioinformatic workflows; and, second, they rely on post-selective differential expression analyses to identify marker genes driving cluster differences which has been shown to be subject to inflated false discovery rates. In this repository, we present a solution to those challenges by introducing "nonparametric clustering of single-cell populations" (NCLUSION): an infinite mixture model that leverages Bayesian sparse priors to simultaneously identify marker genes while performing clustering on single-cell expression data. NCLUSION uses a scalable variational inference algorithm to perform these analyses on datasets with up to millions of cells. In this package and corresponding [documentation](https://microsoft.github.io/nclusion) we demonstrate that NCLUSION (i) matches the performance of other state-of-the-art clustering techniques with significantly reduced runtime and (ii) provides statistically robust and biologically-relevant transcriptomic signatures for each of the clusters it identifies. Overall, NCLUSION represents a reliable hypothesis generating tool for understanding patterns of expression variation present in single-cell populations.
@@ -36,6 +34,10 @@ Alternatively, to install NCLUSION into an existing Julia project environment, f
   following command in the Julia REPL: <pre><code>using Pkg;Pkg.add("nclusion")</code></pre></li></ol>
 
 You can exit the Julia Pkg REPL by typing <code>Ctrl + C</code>, and the Julia REPL by entering <code>exit()</code>.
+
+## Software Package Documentation, Examples, and Tutorials
+
+Documentation for the NCLUSION software package, examples, and tutorials can be found [here](https://microsoft.github.io/nclusion).
 
 ## Relevant Citations
 
