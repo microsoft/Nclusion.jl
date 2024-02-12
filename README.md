@@ -51,7 +51,7 @@ Documentation for the NCLUSION software package, examples, and tutorials can be 
 
 ## Relevant Citations
 
-C. Nwizu, M. Hughes, M. Ramseier, A. Navia, A. Shalek, N. Fusi, S. Raghavan, P. Winter, A. Amini, and L. Crawford. Scalable nonparametric clustering with unified marker gene selection for single-cell RNA-seq data. _bioRxiv_.
+C. Nwizu, M. Hughes, M. Ramseier, A. Navia, A. Shalek, N. Fusi, S. Raghavan, P. Winter, A. Amini, and L. Crawford. Scalable nonparametric clustering with unified marker gene selection for single-cell RNA-seq data. _bioRxiv_. https://doi.org/10.1101/2024.02.11.579839
 
 ## Questions and Feedback
 
