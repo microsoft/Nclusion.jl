@@ -1,7 +1,7 @@
 name = "nclusion"
 uuid = "cef8bb50-3052-47ee-9080-7fa14a4c9a42"
 authors = ["Chibuikem709 <16184620+Chibuikem709@users.noreply.github.com> and contributors"]
-version = "1.0.0"
+version = "1.0.1"
 
 [deps]
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
