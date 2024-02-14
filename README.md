@@ -27,21 +27,21 @@ directory, specify the packages that are downloaded in the environment.</li>
 <li>Activate the project environment in the Julia Pkg REPL by typing <code>activate</code>
 followed by the name of the Julia environment (i.e. <code>activate
 nclusion_demo</code>).</li> <li>Install NCLUSION in the project environment, by running the following command in the
-  Julia Pkg REPL:<pre><code>add nclusion</code></pre> You can exit the Julia Pkg REPL by typing <code>Ctrl + C</code>, and
+  Julia Pkg REPL:<pre><code>add Nclusion</code></pre> You can exit the Julia Pkg REPL by typing <code>Ctrl + C</code>, and
   the Julia REPL by entering <code>exit()</code>.</li></ol>
  </p>
  <p><b>To install NCLUSION into an existing Julia project environment, follow these steps:</b></p>
 
   <p><ol><li>Activate the project environment and start a Julia REPL by entering <code>julia --project=/path/to/julia/env --thread=auto</code> into a bash terminal, where <code>--project</code> is set equal to the path to your existing Julia project environment.</li>
   <li>Install NCLUSION in the activated project environment by entering the
-  following command in the Julia REPL: <pre><code>using Pkg;Pkg.add("nclusion")</code></pre>
+  following command in the Julia REPL: <pre><code>using Pkg;Pkg.add("Nclusion")</code></pre>
   You can exit the Julia Pkg REPL by typing <code>Ctrl + C</code>, and
   the Julia REPL by entering <code>exit()</code>.</li></ol></p>
 <p><b>Alternatively, you can install NCLUSION directly using git by following these steps: </b></p>
 <p><ol><li>Enter the following command into a bash terminal: 
-  <pre><code>git clone git@github.com:microsoft/nclusion.git
+  <pre><code>git clone git@github.com:microsoft/Nclusion.jl.git
 cd nclusion/</code></pre></li>
-<li>Now start a Julia session by entering the command: <pre><code>julia</code></pre></li><li>In the Julia REPL, type <code> ] </code>. This command starts the Pkg REPL. In this Pkg REPL, type the following Julia command: <pre><code>activate .</code></pre> This activates the nclusion environment. You can verify that the environment is active if the new Pkg REPL prompt  is <code>(nclusion) pkg></code>.
+<li>Now start a Julia session by entering the command: <pre><code>julia</code></pre></li><li>In the Julia REPL, type <code> ] </code>. This command starts the Pkg REPL. In this Pkg REPL, type the following Julia command: <pre><code>activate .</code></pre> This activates the Nclusion environment. You can verify that the environment is active if the new Pkg REPL prompt  is <code>(Nclusion) pkg></code>.
 </li><li>Now type the following commands in the in the Pkg REPL: <pre><code>instantiate
 precompile</code></pre>This completes the installation process. You can exit the Julia Pkg REPL by typing <code>Ctrl + C</code>, and the Julia REPL by entering <code>exit()</code>.</li></ol></p>
 
