@@ -1,6 +1,6 @@
-using nclusion
+using Nclusion
 using Test
 
-@testset "nclusion.jl" begin
+@testset "Nclusion.jl" begin
     # Write your tests here.
 end

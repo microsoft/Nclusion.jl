@@ -41,8 +41,8 @@ src_dir = "/src/"
 
 
 flushed_logger("Loading NCLUSION Modules....";logger)
-include(curr_dir*src_dir*"nclusion.jl")
-using .nclusion
+include(curr_dir*src_dir*"Nclusion.jl")
+using .Nclusion
 
 
 flushed_logger("Setting Plotting Settings....";logger)

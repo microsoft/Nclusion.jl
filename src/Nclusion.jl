@@ -1,4 +1,4 @@
-module nclusion
+module Nclusion
 
     # Write your package code here.
 

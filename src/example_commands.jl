@@ -27,8 +27,8 @@ using Distributed
 curr_dir = ENV["PWD"]
 src_dir = "/src/"
 
-include(curr_dir*src_dir*"nclusion.jl")
-using .nclusion
+include(curr_dir*src_dir*"Nclusion.jl")
+using .Nclusion
 
 
 logger = FormatLogger() do io, args
