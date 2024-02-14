@@ -13,7 +13,7 @@ cells in the data.
 
 ## Installation
 
-<p>This package requires that Julia 1.8+ and its dependencies are installed.
+<p>This package requires that Julia 1.9+ and its dependencies are installed.
 Instructions for installation can be found <a
 href="https://julialang.org/" class="external-link"> here. </a></p>
 <p> <b>To create a new Julia project environment and install the NCLUSION package, follow these steps:</b></p>
