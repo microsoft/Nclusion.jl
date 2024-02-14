@@ -1,12 +1,12 @@
 # push!(LOAD_PATH,"../src/")
-using nclusion
+using Nclusion
 using Documenter
 makedocs(
-         sitename = "nclusion",
-         modules  = [nclusion],
+         sitename = "Nclusion.jl",
+         modules  = [Nclusion],
          pages=[
                 "Home" => "index.md"
                ])
 deploydocs(;
-    repo="github.com/microsoft/nclusion",
+    repo="github.com/microsoft/Nclusion.jl",
 )
