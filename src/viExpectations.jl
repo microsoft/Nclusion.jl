@@ -1,3 +1,174 @@
+
+############################################
+###### SIMPLE EXPECTATION FUNCTIONS ########
+############################################
+function e_ln_sigma_sq(a::AbstractFloat,b::AbstractFloat)
+    return log(b) - digamma(a)
+end
+
+function e_one_over_sigma_sq(a::AbstractFloat,b::AbstractFloat)
+    return a/b
+end
+
+function e_ll_sq_diff_mu(x_sq::AbstractFloat,x::AbstractFloat,m_nu::AbstractFloat,m_mu::AbstractFloat,y::AbstractFloat,s_sq_mu::AbstractFloat,s_sq_nu::AbstractFloat)
+    return x_sq - 2*y*x*m_mu - 2*x*m_nu + 2*y*m_mu*m_nu + y*m_mu^2 + y*s_sq_mu + s_sq_nu + m_nu^2
+    # return x_sq - 2*x*m_mu - 2*x*m_nu + 2*m_mu*m_nu + m_mu^2 + s_sq_mu + s_sq_nu + m_nu^2
+end
+
+function e_ln_pi(d::AbstractFloat,dsum::AbstractFloat)
+    return digamma(d) - digamma(dsum)
+end
+
+function e_ln_omega(w1::AbstractFloat,w2::AbstractFloat)
+    return digamma(w1) - digamma(w1 + w2)
+end
+
+function e_ln_minusomega(w1::AbstractFloat,w2::AbstractFloat)
+    return digamma(w2) - digamma(w1 + w2)
+end
+
+function e_omega(w1::AbstractFloat,w2::AbstractFloat)
+    return w1 /(w1 + w2)
+end
+
+function e_minusomega(w1::AbstractFloat,w2::AbstractFloat)
+    return w2 /(w1 + w2)
+end
+
+function e_chi(g1::AbstractFloat,g2::AbstractFloat)
+    alpha_part = g1*g2
+    beta_part = (1-g1)*g2
+    return alpha_part/(alpha_part + beta_part)
+end
+
+function e_minus_chi(g1::AbstractFloat,g2::AbstractFloat)
+    alpha_part = g1*g2
+    beta_part = (1-g1)*g2
+    return beta_part/(alpha_part + beta_part)
+end
+
+function e_ln_chi(g1::AbstractFloat,g2::AbstractFloat)
+    alpha_part = g1*g2
+    beta_part = (1-g1)*g2
+    return digamma(alpha_part) - digamma(alpha_part + beta_part)
+end
+
+function e_ln_minus_chi(g1::AbstractFloat,g2::AbstractFloat)
+    alpha_part = g1*g2
+    beta_part = (1-g1)*g2
+    return digamma(beta_part) - digamma(alpha_part + beta_part)
+end
+
+function e_ln_lambda(u::AbstractFloat,v::AbstractFloat)
+    return log(v) -  digamma(u)
+end
+
+function e_one_over_lambda(u::AbstractFloat,v::AbstractFloat)
+    return u/v
+end
+
+function e_mu_sq(m_mu::AbstractFloat,s_sq_mu::AbstractFloat)
+    return m_mu^2 + s_sq_mu
+end
+
+function e_mu(m_mu::AbstractFloat)
+    return m_mu
+end
+
+function e_prior_sq_diff_mu(m_mu::AbstractFloat,s_sq_mu::AbstractFloat)
+    return m_mu^2 -2*m_mu*m_mu + s_sq_mu + m_mu^2
+end
+
+function e_nu_sq(m_nu::AbstractFloat,s_sq_nu::AbstractFloat)
+    return m_nu^2 + s_sq_nu
+end
+
+function e_nu_diff_sq(m_nu::AbstractFloat,s_sq_nu::AbstractFloat,nu0::AbstractFloat)
+    return m_nu^2 + s_sq_nu -2*m_nu*nu0 + nu0^2
+end
+
+function e_nu(m_nu::AbstractFloat)
+    return m_nu
+end
+
+function e_prior_sq_diff_nu(m_nu::AbstractFloat,s_sq_nu::AbstractFloat)
+    return m_nu^2 -2*m_nu*m_nu + s_sq_nu + m_nu^2
+end
+
+function e_ln_eta(h1::AbstractFloat,h2::AbstractFloat)
+    return digamma(h1) - digamma(h1 + h2)
+end
+
+function e_ln_minus_eta(h1::AbstractFloat,h2::AbstractFloat)
+    return digamma(h2) - digamma(h1 + h2)
+end
+
+function e_eta(h1::AbstractFloat,h2::AbstractFloat)
+    return h1/(h1 + h2)
+end
+
+function e_minus_eta(h1::AbstractFloat,h2::AbstractFloat)
+    return h2/(h1 + h2)
+end
+
+"""
+"""
+function recursive_minus_e_chi_cumprod(k::Int,cummulative_prod::AbstractFloat,g1::Vector{U},g2::Vector{U}) where {U <: AbstractFloat}# formerly recursive_minus_e_uk_cumprod
+    if iszero(k)
+        return cummulative_prod
+    else
+        cummulative_prod *= e_minus_chi(g1[k],g2[k])
+        k -= 1
+        recursive_minus_e_chi_cumprod(k,cummulative_prod,g1,g2)
+    end
+end
+
+"""
+"""
+function log_of_recursive_minus_e_chi_cumprod(k::Int,cummulative_prod::AbstractFloat,g1::Vector{U},g2::Vector{U})  where {U <: AbstractFloat} #  Logging for stability?
+    if iszero(k)
+        return cummulative_prod
+    else
+        cummulative_prod += log(e_minus_chi(g1[k],g2[k]))
+        k -= 1
+        log_of_recursive_minus_e_chi_cumprod(k,cummulative_prod,g1,g2)
+    end
+end
+
+"""
+"""
+function expectation_sbk(k::Int,K::Int,g1::Vector{U},g2::Vector{U};use_log=false)  where {U <: AbstractFloat}# formerly expectation_βk
+    Kplus = K + 1
+    if k == Kplus
+        e_chi_k = 1.0
+    else
+        e_chi_k = e_chi(g1[k],g2[k])
+    end
+    if isone(k)
+        cumprod_e_minus_chi_k = 1.0
+        if use_log
+            cumprod_e_minus_chi_k = log(cumprod_e_minus_chi_k)          
+        end
+    else
+        if use_log
+            cumprod_e_minus_chi_k = log_of_recursive_minus_e_chi_cumprod(k-1,0.0,g1,g2)
+        else
+            cumprod_e_minus_chi_k = recursive_minus_e_chi_cumprod(k-1,1.0,g1,g2)
+        end
+    end
+    # println("($e_uk,$cumprod_minus_e_uk)")
+    if use_log
+        e_sbk = e_chi_k * exp(cumprod_e_minus_chi_k)
+    else
+        e_sbk = e_chi_k * cumprod_e_minus_chi_k
+    end
+    return e_sbk
+end
+
+############################################
+############################################
+############################################
+
 """
 """
 function βk_expected_value(rho_hat_vec, omega_hat_vec)
