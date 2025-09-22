@@ -98,6 +98,24 @@ function naming_vec(arg_str_list)
     return str_var_vec
 end
 
+function initialize_ordered_dict(;key_type=Any,val_type=Any)
+    od = OrderedDict{key_type,val_type}()
+    return od
+end
+
+macro add_variables_to_ordered_dict!(od, vars...)
+    od_expr = esc(od)
+    exprs = map(var -> :(push!($od_expr, $(string(var)) => $(esc(var)))), vars)
+    return Expr(:block, exprs...)  # Combine the expressions into a single block
+end
+
+macro add_variables_to_ordered_dict_as_string!(od, vars...)
+    od_expr = esc(od)
+    exprs = map(var -> :(push!($od_expr, $(string(var)) => string($(esc(var))))), vars)
+    return Expr(:block, exprs...)  # Combine the expressions into a single block
+end
+
+
 """
     addToDict!(dict,key_array,val_array)
 Adds a set of values to a previously initialized dictionary
@@ -156,38 +174,271 @@ function load_data(datafilename1,seed)
     return anndata_dict1
 end
 
-function preparing_data(anndata_dict1)
+
     gene_names = anndata_dict1["var"]["_index"]
     cell_ids = anndata_dict1["obs"]["_index"]
+    cell_cluster_dict = nothing
+    # time_ids = nothing
+    time_vec = nothing
+    # individuals_ids = nothing
+    individuals_vec = nothing
+    cell_cluster_labels = nothing
+    if time_key != nothing
+        if haskey(anndata_dict1["obs"],time_key)
+            # time_ids = sort(unique(anndata_dict1["obs"][time_key]["codes"]))
+            time_vec  = anndata_dict1["obs"][time_key]["codes"]
+        end
+    end
+    if individuals_key != nothing
+        if haskey(anndata_dict1["obs"],individuals_key)
+            # individuals_ids = sort(unique(anndata_dict1["obs"][individuals_key]["codes"]))
+            individuals_vec  = anndata_dict1["obs"][individuals_key]["codes"]
+        end
+    end
     if haskey(anndata_dict1["obs"],"cell_type")
         cell_cluster_labels = anndata_dict1["obs"]["cell_type"]["codes"]
         cell_cluster_labels = cell_cluster_labels .+ 1
-    else
-        cell_cluster_labels = nothing
+        cell_cluster_dict = Dict(zip(anndata_dict1["obs"]["cell_type"]["categories"],1:length(unique(cell_cluster_labels))))
     end
-
-    return gene_names, cell_ids, cell_cluster_labels
+    if isnothing(time_vec)
+        # time_ids = Int8.([1])
+        time_vec = ones(Int8,length(cell_ids))
+    end
+    if isnothing(individuals_vec)
+        # individuals_ids = Int8.([1])
+        individuals_vec = ones(Int8,length(cell_ids))
+    end  
+    # return gene_names,cell_ids, cell_cluster_labels, time_ids,time_vec,individuals_ids,individuals_vec
+    return gene_names,cell_ids, cell_cluster_labels,time_vec,individuals_vec,cell_cluster_dict
 end
 
 
-function make_nclusion_inputs(anndata_dict1)
+anndata_dict1;time_key=nothing,individuals_key=nothing, layer_name=nothing,layer_index=0,gene_set_file_path=nothing, min_genes_detected=10,standardization_of_used_representation=nothing,is_precomputed_latent_representation=false)
     x_mat = anndata_dict1["X"]
-    gene_names, _, cell_cluster_labels=preparing_data(anndata_dict1)
-    new_order = sortperm(gene_names)
-    x_mat = deepcopy(x_mat[new_order,:])
-    N = size(x_mat)[2]
-    G = size(x_mat)[1]
-    x_input = Vector{Vector{Vector{Float64}}}(undef,1)
-    z = nothing
-    C_t = Vector{Float64}(undef,1)
-    C_t[1] = N
-    x_input[1] = [Float64.(collect(col)) for col in eachcol(x_mat)]
-    if !isnothing(cell_cluster_labels)
-        z = Vector{Vector{Int}}(undef,1)
-        z[1] = Int.(collect(cell_cluster_labels))
+    # gene_names, _, cell_cluster_labels, _ ,time_vec, _ ,individuals_vec,cell_cluster_dict=preparing_data(anndata_dict1;time_key=time_key,individuals_key=individuals_key)
+    # gene_names, _, cell_cluster_labels, time_vec, individuals_vec,cell_cluster_dict=preparing_data(anndata_dict1;time_key=time_key,individuals_key=individuals_key)
+    gene_names, cell_ids, cell_cluster_labels, time_vec, individuals_vec,cell_cluster_dict=preparing_data(anndata_dict1;time_key=time_key,individuals_key=individuals_key)
+    new_order_features = sortperm(gene_names)
+    # testing this approach 
+    # time_vec_ = [ 1, 1 , 5, 2, 1, 2, 2, 4, 1, 1, 1, 4, 1, 3, 3, 1, 3, 2, 3]; individuals_vec_ = [1 ,1,3, 4, 1, 5, 1, 1, 2, 3, 3, 3, 4, 4, 3, 5, 5, 3, 1]; J_ = 5; N_ = length(individuals_vec_); x_mat_ = rand(J_, N_); sorting_keys_ = [(individuals_vec_[i], time_vec_[i]) for i in 1:N_];sorted_indices_ = sortperm(sorting_keys_); sorted_sorting_keys_ = sorting_keys_[sorted_indices_]; x_mat_sorted_ = x_mat_[:, sorted_indices_]
+    sorting_keys = [(individuals_vec[i], time_vec[i], cell_ids[i]) for i in 1:length(cell_ids)]
+    new_order_samples = sortperm(sorting_keys)
+    gene_names = gene_names[new_order_features]
+    gene_names_order_dict = OrderedDict(zip(gene_names,1:length(gene_names)))
+    time_vec = time_vec[new_order_samples]
+    individuals_vec = individuals_vec[new_order_samples]
+    sorted_sorting_keys = [(el[1],el[2],el[3],n) for (n,el) in enumerate(sorting_keys[new_order_samples])]
+    individuals_ids = sort(unique([el[1] for el in sorted_sorting_keys]))
+    I = length(individuals_ids)
+    time_ids = [sort(unique([el[2] for el in sorted_sorting_keys if el[1] == individuals_ids[i]])) for i in 1:I]
+    individual_time_combinations_counts = countmap([(el[1],el[2]) for el in sorted_sorting_keys])
+    total_unique_combinations = sort(collect(keys(individual_time_combinations_counts)))
+    if !is_precomputed_latent_representation
+        representation_key = "layers"
+    else
+        representation_key = "obsm"
     end
-    return x_input,z
+    if haskey(anndata_dict1,representation_key) && isnothing(layer_name)
+        layer_names = collect(keys(anndata_dict1[representation_key]))
+        if layer_index != 0
+            layer_name = layer_names[layer_index]
+        end
+    end
+    used_representation_feature_name= nothing
+    if !isnothing(cell_cluster_labels)
+        cell_cluster_labels = cell_cluster_labels[new_order_samples]
+    end
+    if Base.lowercase(layer_name) == "pca"
+        maxpscs = 50
+        M = fit(PCA, x_mat[new_order_features,new_order_samples]; maxoutdim=maxpscs)
+        selected_representation = predict(M, x_mat[new_order_features,new_order_samples])
+        gene_factor_loadings = DataFrame(permutedims(projection(M)),:auto);
+        rename!(gene_factor_loadings,Symbol.(gene_names))
+        used_representation_feature_name = ["PC$i" for i in 1:maxpscs]
+        insertcols!(gene_factor_loadings,1,:feature_name =>used_representation_feature_name)
+        alternative_representation = (gene_factor_loadings,x_mat[new_order_features,new_order_samples],new_order_features,new_order_samples)
+    elseif Base.lowercase(layer_name) == "factor"
+        if isnothing(gene_set_file_path)
+            error("Please provide a gene set file path")
+        end
+        mask, gene_set_names = load_gmt_and_create_mask(gene_set_file_path, gene_names; min_genes_detected=min_genes_detected)
+        new_order = sortperm(gene_set_names)
+        mask = mask[:,new_order]
+        gene_set_names = gene_set_names[new_order]
+        detected_genes_bool = vec(sum(mask,dims=2) .!=0)
+        X = deepcopy(x_mat[new_order_features,new_order_samples][detected_genes_bool,:]);
+        mask = mask[detected_genes_bool,:]
+        # gene_sets = load_gmt(gene_set_file_path)
+        # mask, gene_set_names = create_binary_mask(gene_names, gene_sets);
+        used_representation_feature_name = gene_set_names
+        mask = mask';
+        n_factors = length(gene_set_names);
+        lam1,lam2,lr,n_iter,print_every =0,0.1,1e-1,150,1
+        selected_representation, W_est = sparse_factor_model(X, mask, n_factors; lam1=lam1, lam2=lam2,lr=lr, n_iter=n_iter,print_every=print_every)
+        selected_representation =  selected_representation';
+        gene_factor_loadings = DataFrame(W_est,:auto);
+        rename!(gene_factor_loadings,Symbol.(gene_names[detected_genes_bool]))
+        insertcols!(gene_factor_loadings,1,:feature_name =>used_representation_feature_name)
+        alternative_representation = (gene_factor_loadings,x_mat[new_order_features,new_order_samples],new_order_features,new_order_samples)
+    elseif (Base.lowercase(layer_name) == Base.lowercase("scaledata")) || (Base.lowercase(layer_name) == Base.lowercase("raw")) || (Base.lowercase(layer_name) == Base.lowercase("logcounts"))
+        selected_representation,selected_representation_feature_names,matching_projection_,anndata_dict1,layer_index,layer_name = select_data_representation(anndata_dict1;replace_x_keyvalue=false,is_precomputed_latent_representation=false,layer_index=layer_index,layer_name=layer_name,return_matching_projection_matrix=true)
+        new_order_features=sortperm([gene_names_order_dict[gene] for gene in selected_representation_feature_names])
+        selected_representation = selected_representation[new_order_features,new_order_samples]
+        used_representation_feature_name = selected_representation_feature_names[sortperm([gene_names_order_dict[gene] for gene in selected_representation_feature_names])]
+        alternative_representation = (nothing,nothing,new_order_features,new_order_samples)
+    elseif  (Base.lowercase(layer_name) ==  Base.lowercase("ScanpyPcaEmbeddings")) || (Base.lowercase(layer_name) ==  Base.lowercase("ScanpyPcaEmbeddingsMeanCentered")) || (Base.lowercase(layer_name) ==  Base.lowercase("ScanpyPcaEmbeddingsMedianCentered")) || (Base.lowercase(layer_name) ==  Base.lowercase("ScanpyPcaEmbeddingsMeanThenMedianCentered")) || (Base.lowercase(layer_name) ==  Base.lowercase("ScanpyPcaEmbeddingsMeanCenteredScaled")) || (Base.lowercase(layer_name) ==  Base.lowercase("ScanpyPcaEmbeddingsMedianCenteredScaled")) || (Base.lowercase(layer_name) ==  Base.lowercase("ScanpyPcaEmbeddingsMedianCenteredScaled")) || (Base.lowercase(layer_name) ==  Base.lowercase("LdvaeLatentEmbeddingsZ10")) || (Base.lowercase(layer_name) ==  Base.lowercase("LdvaeLatentEmbeddingsZ50"))
+        selected_representation,selected_representation_feature_names,matching_projection_,anndata_dict1,layer_index,layer_name = select_data_representation(anndata_dict1;replace_x_keyvalue=false,is_precomputed_latent_representation=is_precomputed_latent_representation,layer_index=layer_index,layer_name=layer_name,return_matching_projection_matrix=true);
+        # print(selected_representation[:,1:5])
+        selected_representation = selected_representation[:,new_order_samples]
+        # selected_representation = selected_representation[:,new_order_samples]
+        alternative_representation = (nothing,nothing,new_order_features,new_order_samples)
+        used_representation_feature_name = selected_representation_feature_names
+        if  typeof(matching_projection_) <: DataFrame 
+            if eltype(matching_projection_[:,1]) <: String
+                matching_projection_=matching_projection_[sortperm([gene_names_order_dict[el] for el in matching_projection_[:,1]]),:]
+                matching_projection_genenames = matching_projection_[:,1]
+                matching_projection_matrix = Matrix(matching_projection_[:,2:end])
+                gene_factor_loadings = DataFrame(permutedims(matching_projection_matrix),:auto);
+                rename!(gene_factor_loadings,Symbol.(matching_projection_genenames))
+                insertcols!(gene_factor_loadings,1,:feature_name =>names(matching_projection_)[2:end])
+                alternative_representation = (gene_factor_loadings,x_mat[new_order_features,new_order_samples],new_order_features,new_order_samples)
+            end
+        else 
+            alternative_representation = (nothing,nothing,new_order_features,new_order_samples)
+        end
+    else
+        selected_representation = deepcopy(x_mat[new_order_features,new_order_samples])
+        alternative_representation = (nothing,nothing,new_order_features,new_order_samples)
+        used_representation_feature_name = gene_names
+        layer_name = "None"
+    end
+    if !isnothing(standardization_of_used_representation)
+        if occursin("center",Base.lowercase(standardization_of_used_representation)) && occursin("scale",Base.lowercase(standardization_of_used_representation)) # && in(Base.lowercase(layer_name),["pca","factor"])
+            selected_representation = center_and_scale_matrix_cols(selected_representation;center_cols = true,scale_cols = true);
+        elseif occursin("center",Base.lowercase(standardization_of_used_representation)) && !occursin("scale",Base.lowercase(standardization_of_used_representation)) # && in(Base.lowercase(layer_name),["pca","factor"])
+            selected_representation = center_and_scale_matrix_cols(selected_representation;center_cols = true,scale_cols = false);
+        elseif !occursin("center",Base.lowercase(standardization_of_used_representation)) && occursin("scale",Base.lowercase(standardization_of_used_representation)) # && in(Base.lowercase(layer_name),["pca","factor"])
+            selected_representation = center_and_scale_matrix_cols(selected_representation;center_cols = false,scale_cols = true);
+        end
+    end
+    N = size(selected_representation)[2]
+    G = size(selected_representation)[1]
+    N_t = [[individual_time_combinations_counts[(individuals_ids[i],el)] for el in time_ids[i]] for i in 1:I]
+    T = [length([individual_time_combinations_counts[(individuals_ids[i],el)] for el in time_ids[i]]) for i in 1:I]
+    linear_sorted_sorting_keys = [(el[1],el[2],el[3],[0],el[4]) for el in sorted_sorting_keys]
+    #[[individual_time_combinations_counts[ind] for ind in total_unique_combinations if ind[1] == individuals_ids[i]] for i in 1:I]
+    z = nothing
+    data_input = Vector{Vector{Vector{Vector{Float64}}}}(undef,I)
+    # for i in 1:I
+    #     data_input[i] = Vector{Vector{Vector{Float64}}}(undef,T[i])
+    #     for t in 1:T[i]
+    #         # N_t[i][t] = sum([(el[1] == i) && (el[2] == t) for el in sorted_sorting_keys])
+    #         data_input[i][t] = [Float64.(collect(col)) for col in eachcol(selected_representation[:, (time_vec .== time_ids[i][t]) .&& (individuals_vec .== individuals_ids[i])])]
+    #     end
+    # end
+    counter=0
+    for i in 1:I
+        data_input[i] = Vector{Vector{Vector{Float64}}}(undef,T[i])
+        for t in 1:T[i]
+            # N_t[i][t] = sum([(el[1] == i) && (el[2] == t) for el in sorted_sorting_keys])
+            data_input[i][t] = Vector{Vector{Float64}}(undef,N_t[i][t])
+            for n in 1:N_t[i][t]
+                counter+=1
+                data_input[i][t][n] = Vector{Float64}(undef,G)
+                linear_sorted_sorting_keys[counter][4][1] = n
+            end
+        end
+    end
+    # curr_i = 1
+    # data_input[curr_i] = Vector{Vector{Vector{Float64}}}(undef,T[curr_i])
+    for (val,el) in enumerate(linear_sorted_sorting_keys)
+        i = el[1]
+        t = el[2]
+        n = el[4][1]
+        @test val == el[5]
+        data_input[i][t][n] = Float64.(collect(selected_representation[:,val]))#[Float64.(collect(col)) for col in eachcol()]
+    end
+    # Check in N_t and data_input are consistent
+    @test all([all([length(data_input[i][t]) for t in 1:T[i]] .== N_t[i]) for i in 1:I])
+    # Check if timepoints are in order
+    @test all(all.([[time_vec[(time_ids[i][t] .== time_vec) .&& (individuals_ids[i] .== individuals_vec) ][n-1]<=time_vec[(time_ids[i][t] .== time_vec) .&& (individuals_ids[i] .== individuals_vec) ][n] for t in 1:T[i] for n in 2:Int(N_t[i][t])] for i in 1:I]))  # Should be true
+    # @test all([time_vec[i-1]<=time_vec[i] for i in 2:N])  # Should be true
+    ####
+    # N_t[1] = N
+    # data_input[1] = [Float64.(collect(col)) for col in eachcol(x_mat)]
+    # if !isnothing(cell_cluster_labels)
+    #     z = Vector{Vector{Int}}(undef,1)
+    #     z[1] = Int.(collect(cell_cluster_labels))
+    # end
+    return data_input,z,alternative_representation,used_representation_feature_name,layer_name
 end
+
+function sort_projection_matrix_key_names(lst)
+    sort(lst, by = s -> (
+        occursin(r"\d", s), 
+        occursin(r"\d", s) ? parse(Int, match(r"\d+", s).match) : -1
+    ))
+end
+function select_data_representation(anndata_dict1;replace_x_keyvalue=false,is_precomputed_latent_representation=false,layer_index=0,layer_name=nothing,return_matching_projection_matrix=true)
+    if !is_precomputed_latent_representation
+        representation_key = "layers"
+    else
+        representation_key = "obsm"
+    end
+    if haskey(anndata_dict1,representation_key)
+        layer_names = collect(keys(anndata_dict1[representation_key]))
+        if layer_index != 0
+            layer_name = layer_names[layer_index]
+            selected_representation = deepcopy(anndata_dict1[representation_key][layer_name])
+        else
+            if isnothing(layer_name)
+                if representation_key == "layers"
+                    layer_name = "None"
+                    selected_representation = deepcopy(anndata_dict1["X"])
+                else
+                    error("Please provide a valid layer name for the representation: $representation_key")
+                end
+            else
+                if !in(layer_name,layer_names)
+                    error("Please provide a valid layer name for the representation: $representation_key")
+                end
+                selected_representation = deepcopy(anndata_dict1[representation_key][layer_name])
+            end
+        end
+    end
+    if representation_key == "obsm" && occursin("pca",lowercase(layer_name))
+        num_features = size(selected_representation)[1]
+        selected_representation_feature_names = ["PC_$(i)" for i in 1:num_features]
+    elseif representation_key == "obsm" && occursin("ldvae",lowercase(layer_name))
+        num_features = size(selected_representation)[1]
+        selected_representation_feature_names = ["Z_$(i)" for i in 1:num_features]
+    elseif representation_key == "layers"
+        selected_representation_feature_names = anndata_dict1["var"]["_index"]
+    else
+        error("Please provide a valid layer name for the representation: $representation_key")
+    end
+    matching_projection_ = nothing
+    if representation_key == "obsm" && haskey(anndata_dict1,"varm") && return_matching_projection_matrix
+        if haskey(anndata_dict1["varm"],layer_name)
+            if typeof(anndata_dict1["varm"][layer_name]) <: Dict
+                cc = anndata_dict1["varm"][layer_name]
+                matching_projection_ = DataFrame(OrderedDict(el => cc[el] for el in sort_projection_matrix_key_names(collect(keys(cc)))))
+            else
+                matching_projection_ = anndata_dict1["varm"][layer_name]
+            end
+        else
+            matching_projection_ = nothing
+        end
+    else
+        matching_projection_ = nothing
+    end
+    if replace_x_keyvalue
+        anndata_dict1["X"] = selected_representation
+        anndata_dict1["var"]["_index"] = selected_representation_feature_names
+    end
+    return selected_representation,selected_representation_feature_names,matching_projection_,anndata_dict1,layer_index,layer_name
+end
+
 
 function select_cells_hvgs(x_mat,num_var_feat,num_cnts,gene_ids,cell_cluster_labels,scale_factor,N;chosen_cells=nothing)
     cell_intersect_bool = nothing 
@@ -221,53 +472,256 @@ function select_cells_hvgs(x_mat,num_var_feat,num_cnts,gene_ids,cell_cluster_lab
     return x,z_true,numi,top_genes,C_t
 end
 
+function verify_initialization_type(var_init,dimensions_tuple)
+    if typeof(var_init) <: Nothing
+        var_init = fill(nothing, dimensions_tuple)#Vector{Nothing}(undef, prod(dimensions_tuple))
+    elseif typeof(var_init) <: AbstractArray
+        if length(var_init) != prod(dimensions_tuple)
+            error("The length of the initialization vector does not match the dimensions of the variable")
+        end
+        var_init = reshape(var_init,dimensions_tuple)
+    else
+        error("The initialization type is not recognized")
+    end
+    return var_init
+end
 
-function initialize_model_parameters(x_input,KMax,alpha1,gamma1;sparsity_lvl=nothing,phi1=1.0,num_iter=500,rand_init = false, uniform_theta_init = true,mk_hat_init=nothing,v_sq_k_hat_init=nothing, λ_sq_init=nothing, σ_sq_k_init=nothing,st_hat_init=nothing,d_hat_init=nothing,c_ttprime_init = nothing,rtik_init=nothing,yjk_init=nothing, gk_hat_init=nothing, hk_hat_init=nothing)
+
+function size_concentration_contractions(N;exp0=1.0)
+    return N^(-exp0)
+end
+
+
+function initialize_model_parameters(data_input,KMax,alpha0,gamma0,phi1,phi2,kappa1,kappa2,xi1,xi2,varphi1,varphi2,nu0,sigma_sq_nu,significance_prop,min_number_cells,min_percent_cells,min_percent_of_genes,max_percent_of_genes,seed;num_iter=500, size_concentration_contractions_exp0=1.0,rand_init = false,change_seeds = false, uniform_theta_init = true,g1_init=nothing,g2_init=nothing, m_mu_init=nothing, s_sq_mu_init=nothing,m_nu_init=nothing, s_sq_nu_init=nothing,y_init=nothing,u_init=nothing,v_init = nothing,a_init=nothing,b_init=nothing, h1_init=nothing, h2_init=nothing, w1_init=nothing, w2_init=nothing, d_init=nothing, c_init=nothing,r_init=nothing,condition_update_neighbors=nothing,condition_network_neighbors=nothing,update_clusterwise::Bool = false,samplebased_alpha0::Bool = false,eta_update_mode="Local",sigma_update_mode="Local", lambda_update_mode="Local",train_h::Bool = false,train_w::Bool = false,train_ab::Bool = false,train_uv::Bool = false)
+    # num_iter=500; size_concentration_contractions_exp0=1.0;rand_init = false;change_seeds = false; uniform_theta_init = true;g1_init=nothing;g2_init=nothing; m_mu_init=nothing; s_sq_mu_init=nothing;y_init=nothing;u_init=nothing;v_init = nothing;a_init=nothing;b_init=nothing; h1_init=nothing; h2_init=nothing; w1_init=nothing; w2_init=nothing; d_init=nothing; c_init=nothing;r_init=nothing; update_clusterwise=false; condition_update_neighbors=nothing;condition_network_neighbors=nothing; m_nu_init=nothing; s_sq_nu_init=nothing;
+    
     if typeof(KMax) <: AbstractFloat
         KMax = Int(round(KMax))
     end
-    T = 1
-    G = length(x_input[1][1])
-    C_t = [length(el) for el in x_input]
-    N = sum(C_t)
-    if !isnothing(sparsity_lvl)
-        ηk = sparsity_lvl
-    else
-        ηk = 1/G
+    Random.seed!(seed)
+    K = KMax
+    I = length(data_input)
+    T = [length(data_input[i]) for i in 1:I]
+    T_all = sum(T)
+    J = length(data_input[1][1][1])
+    float_type = eltype(data_input[1][1][1])
+    N_t = [[length(data_input[i][t]) for t in  1:T[i]] for  i in 1:I]
+    N = convert(typeof(I),sum([sum(el) for el in N_t]))
+    linear_sample_index_as_ragged_array, linear_time_index_as_ragged_array = get_linear_index_as_ragged_array(N_t)
+    if isnothing(condition_update_neighbors)
+        condition_update_neighbors=get_linear_time_condition_update_neighbors(linear_time_index_as_ragged_array;get_ragged_array=false)
     end
-
-    α0,γ0,ϕ0 = alpha1,gamma1,phi1
-    mk_hat_init = init_mk_hat!(mk_hat_init,x_input,KMax,G;rand_init = rand_init);
-    v_sq_k_hat_init = init_v_sq_k_hat_vec!(v_sq_k_hat_init,KMax,G;rand_init = rand_init, lo=0,hi=1);
-    λ_sq_init = init_λ_sq_vec!(λ_sq_init,G;rand_init = rand_init, lo=0,hi=1) ;
-    σ_sq_k_init = init_σ_sq_k_vec!(σ_sq_k_init,KMax,G;rand_init = rand_init, lo=0,hi=1);
-    gk_hat_init,hk_hat_init = init_ghk_hat_vec!(gk_hat_init,hk_hat_init,KMax;rand_init = rand_init, g_lo=0,g_hi=1, h_lo= 0,h_hi = 2);
-    st_hat_init = init_st_hat_vec!(st_hat_init,T,ϕ0;rand_init = false, lo=0,hi=1)
-    c_ttprime_init = init_c_ttprime_hat_vec!(c_ttprime_init,T;rand_init = rand_init);
-    d_hat_init = init_d_hat_vec!(d_hat_init,KMax,T;rand_init = rand_init,uniform_theta_init=uniform_theta_init, gk_hat_init = gk_hat_init, hk_hat_init= hk_hat_init)
-    rtik_init = init_rtik_vec!(rtik_init,KMax,T,C_t;rand_init = rand_init)
-    yjk_init = init_yjk_vec!(yjk_init,G,KMax;rand_init = rand_init)
-    float_type=eltype(x_input[1][1])
-    Tk = Vector{Float64}(undef,KMax+1);
-    
-    cellpop = [CellFeatures(t,i,KMax,x_input[t][i]) for t in 1:T for i in 1:C_t[t]];
-    clusters = [ClusterFeatures(k,G;float_type=float_type) for k in 1:KMax];
-    dataparams = DataFeatures(x_input);
-    conditionparams = [ConditionFeatures(t,KMax,T;float_type=float_type) for t in 1:T];
-    geneparams = [GeneFeatures(j) for j in 1:G];
-    modelparams = ModelParameterFeatures(x_input,KMax,ηk,α0,γ0,ϕ0,num_iter,uniform_theta_init,rand_init);
-    initialize_VariationalInference_types!(cellpop,clusters,conditionparams,dataparams,modelparams,geneparams,mk_hat_init,v_sq_k_hat_init,λ_sq_init,σ_sq_k_init,gk_hat_init,hk_hat_init,d_hat_init,rtik_init,yjk_init,c_ttprime_init,st_hat_init);
-
-    input_str_list = @name cellpop,clusters,conditionparams,dataparams,modelparams,geneparams,Tk;
+    if isnothing(condition_network_neighbors)
+        condition_network_neighbors=get_linear_time_condition_network_neighbors(linear_time_index_as_ragged_array;get_ragged_array=false)
+    end
+    #alpha0 = 1.0
+    if !samplebased_alpha0 && typeof(alpha0) <: Number
+        alpha = Vector{Vector{Float64}}(undef,I)
+        for i in 1:I
+            alpha[i] = Vector{Float64}(undef,T[i])
+            for t in 1:T[i]
+                alpha[i][t] = alpha0
+            end
+        end
+        alpha0 = alpha
+    elseif samplebased_alpha0
+        alpha0 = [[size_concentration_contractions(N_t[i][t];exp0=size_concentration_contractions_exp0) for t in 1:T[i]] for i in 1:I]
+    end
+    m_mu_init = verify_initialization_type(m_mu_init,(J,K))
+    s_sq_mu_init = verify_initialization_type(s_sq_mu_init,(J,K))
+    m_nu_init = verify_initialization_type(m_nu_init,(J))
+    s_sq_nu_init = verify_initialization_type(s_sq_nu_init,(J))
+    y_init = verify_initialization_type(y_init,(J,K))
+    g1_init = verify_initialization_type(g1_init,(K))
+    g2_init = verify_initialization_type(g2_init,(K))
+    # h1_init = verify_initialization_type(h1_init,(K))
+    # h2_init = verify_initialization_type(h2_init,(K))
+    w1_init = verify_initialization_type(w1_init,(T_all))
+    w2_init = verify_initialization_type(w2_init,(T_all))
+    d_init = verify_initialization_type(d_init,(K+1,T_all))
+    c_init = verify_initialization_type(c_init,(T_all,N))
+    r_init = verify_initialization_type(r_init,(K+1,N))
+    if sigma_update_mode == "Clusterwise" && train_ab
+        error("The sigma update for 'Clusterwise' is not implemented")
+        # a_init = verify_initialization_type(a_init,(K))
+        # b_init = verify_initialization_type(b_init,(K))
+        # a_init = permutedims(hcat([a_init for j in 1:J]...))
+        # b_init = permutedims(hcat([b_init for j in 1:J]...))
+    elseif sigma_update_mode == "Genewise" && train_ab
+        a_init = verify_initialization_type(a_init,(J))
+        b_init = verify_initialization_type(b_init,(J))
+        a_init = hcat([a_init for k in 1:K]...)
+        b_init = hcat([b_init for k in 1:K]...)
+    elseif sigma_update_mode == "Global" && train_ab
+        error("The sigma update for 'Global' is not implemented")
+        # a_init = verify_initialization_type(a_init,(1))
+        # b_init = verify_initialization_type(b_init,(1))
+        # if isnothing(a_init[1]) && rand_init
+        #     a_init = [rand()]
+        #     a_init =  a_init[1] .* hcat([ones(J) for k in 1:K]...)
+        # elseif isnothing(a_init[1]) && !rand_init
+        #     a_init = hcat([[a_init[1] for j in 1:J] for k in 1:K]...)
+        # else
+        #     a_init = a_init[1] .* hcat([ones(J) for k in 1:K]...)
+        # end
+        # if isnothing(b_init[1]) && rand_init
+        #     b_init = [rand()]
+        #     b_init = b_init[1] .* hcat([ones(J) for k in 1:K]...)
+        # elseif isnothing(b_init[1]) && !rand_init
+        #     b_init = hcat([[b_init[1] for j in 1:J] for k in 1:K]...)
+        # else
+        #     b_init = b_init[1] .* hcat([ones(J) for k in 1:K]...)
+        # end
+    elseif sigma_update_mode == "Local" && train_ab
+        a_init = verify_initialization_type(a_init,(J,K))
+        b_init = verify_initialization_type(b_init,(J,K))
+    elseif !train_ab
+        a_init = verify_initialization_type(a_init,(J,K))
+        b_init = verify_initialization_type(b_init,(J,K))
+    else
+        error("The sigma update mode is not recognized")
+    end
+    # a_init = verify_initialization_type(a_init,(J))
+    # b_init = verify_initialization_type(b_init,(J))
+    if lambda_update_mode == "Clusterwise" && train_uv
+        u_init = verify_initialization_type(u_init,(K))
+        v_init = verify_initialization_type(v_init,(K))
+        u_init = permutedims(hcat([u_init for j in 1:J]...))
+        v_init = permutedims(hcat([v_init for j in 1:J]...))
+    elseif lambda_update_mode == "Genewise" && train_uv
+        u_init = verify_initialization_type(u_init,(J))
+        v_init = verify_initialization_type(v_init,(J))
+        u_init = hcat([u_init for k in 1:K]...)
+        v_init = hcat([v_init for k in 1:K]...)
+    elseif lambda_update_mode == "Global" && train_uv
+        u_init = verify_initialization_type(u_init,(1))
+        v_init = verify_initialization_type(v_init,(1))
+        if isnothing(u_init[1]) && rand_init
+            u_init = [rand()]
+            u_init =  u_init[1] .* hcat([ones(J) for k in 1:K]...)
+        elseif isnothing(u_init[1]) && !rand_init
+            u_init = hcat([[u_init[1] for j in 1:J] for k in 1:K]...)
+        else
+            u_init = u_init[1] .* hcat([ones(J) for k in 1:K]...)
+        end
+        if isnothing(v_init[1]) && rand_init
+            v_init = [rand()]
+            v_init = v_init[1] .* hcat([ones(J) for k in 1:K]...)
+        elseif isnothing(v_init[1]) && !rand_init
+            v_init = hcat([[v_init[1] for j in 1:J] for k in 1:K]...)
+        else
+            v_init = v_init[1] .* hcat([ones(J) for k in 1:K]...)
+        end
+    elseif lambda_update_mode == "Local" && train_uv
+        u_init = verify_initialization_type(u_init,(J,K))
+        v_init = verify_initialization_type(v_init,(J,K))
+    elseif !train_uv
+        u_init = verify_initialization_type(u_init,(J,K))
+        v_init = verify_initialization_type(v_init,(J,K))
+    else
+        error("The lambda update mode is not recognized")
+    end
+    if eta_update_mode == "Clusterwise" && train_h
+        h1_init = verify_initialization_type(h1_init,(K))
+        h2_init = verify_initialization_type(h2_init,(K))
+        h1_init = permutedims(hcat([h1_init for j in 1:J]...))
+        h2_init = permutedims(hcat([h2_init for j in 1:J]...))
+    elseif eta_update_mode == "Genewise" && train_h
+        h1_init = verify_initialization_type(h1_init,(J))
+        h2_init = verify_initialization_type(h2_init,(J))
+        h1_init = hcat([h1_init for k in 1:K]...)
+        h2_init = hcat([h2_init for k in 1:K]...)
+    elseif eta_update_mode == "Global" && train_h
+        h1_init = verify_initialization_type(h1_init,(1))
+        h2_init = verify_initialization_type(h2_init,(1))
+        if isnothing(h1_init[1]) && rand_init
+            h1_init = [rand()]
+            h1_init =  h1_init[1] .* hcat([ones(J) for k in 1:K]...)
+        elseif isnothing(h1_init[1]) && !rand_init
+            h1_init = hcat([[h1_init[1] for j in 1:J] for k in 1:K]...)
+        else
+            h1_init = h1_init[1] .* hcat([ones(J) for k in 1:K]...)
+        end
+        if isnothing(h2_init[1]) && rand_init
+            h2_init = [rand()]
+            h2_init = h2_init[1] .* hcat([ones(J) for k in 1:K]...)
+        elseif isnothing(h2_init[1]) && !rand_init
+            h2_init = hcat([[h2_init[1] for j in 1:J] for k in 1:K]...)
+        else
+            h2_init = h2_init[1] .* hcat([ones(J) for k in 1:K]...)
+        end
+    elseif eta_update_mode == "Local" && train_h
+        h1_init = verify_initialization_type(h1_init,(J,K))
+        h2_init = verify_initialization_type(h2_init,(J,K))
+    elseif !train_h
+        h1_init = verify_initialization_type(h1_init,(J,K))
+        h2_init = verify_initialization_type(h2_init,(J,K))
+    else
+        error("The eta update mode is not recognized")
+    end
+    cells = [CellFeature(i,t,n,KMax,T,data_input[i][t][n],rand_init =rand_init,c_init = c_init[:,linear_sample_index_as_ragged_array[i][t][n]],r_init = r_init[:,linear_sample_index_as_ragged_array[i][t][n]]) for i in 1:I for t in 1:T[i] for n in 1:N_t[i][t]];
+    clusters = [ClusterFeature(k,J;float_type=float_type, m_mu_init = m_mu_init[:,k],s_sq_mu_init = s_sq_mu_init[:,k],m_nu_init = m_nu_init, s_sq_nu_init = s_sq_nu_init,y_init = y_init[:,k],g1_init = g1_init[k],g2_init = g2_init[k],h1_init = h1_init[:,k],h2_init = h2_init[:,k],a_init = a_init[:,k],b_init = b_init[:,k],u_init = u_init[:,k],v_init = v_init[:,k],rand_init =rand_init,update_clusterwise = update_clusterwise) for k in 1:KMax];
+    dataparams = DataFeature(data_input);
+    conditions = [ConditionFeature(i,t,KMax,T[i],condition_update_neighbors[i][t],condition_network_neighbors[i][t];float_type=float_type,d_init = d_init[:,linear_time_index_as_ragged_array[i][t]],w1_init = w1_init[linear_time_index_as_ragged_array[i][t]],w2_init = w2_init[linear_time_index_as_ragged_array[i][t]] ,rand_init =rand_init) for i in 1:I for t in 1:T[i]];
+    matrixconditions = [MatrixConditionFeature(i,t,KMax,T[i],condition_update_neighbors[i][t],condition_network_neighbors[i][t];float_type=float_type) for i in 1:I for t in 1:T[i]];
+    modelparams = ModelParameterFeature(data_input,K,alpha0,gamma0,phi1,phi2,kappa1,kappa2,xi1,xi2,varphi1,varphi2,nu0,sigma_sq_nu,significance_prop,min_number_cells,min_percent_cells,min_percent_of_genes,max_percent_of_genes,num_iter,uniform_theta_init,rand_init,change_seeds,seed);
+    training_logger = TrainFeature(1,T_all,K,J,Int64(num_iter+1));
+    input_str_list = @name cells,clusters,conditions,matrixconditions,dataparams,modelparams,training_logger;
     input_key_list = Symbol.(naming_vec(input_str_list));
-    input_var_list = [cellpop,clusters,conditionparams,dataparams,modelparams,geneparams,Tk];
+    input_var_list = [cells,clusters,conditions,matrixconditions,dataparams,modelparams,training_logger];
     inputs = OrderedDict()
     addToDict!(inputs,input_key_list,input_var_list);
-
-    
     return inputs
 end
 
+
+function get_m_init_from_initialization_approach(m_initialization_approach,used_representation,cell_cluster_labels,K,seed;iseeds=nothing,m_mu_init=nothing)
+    J = size(used_representation)[1]
+    N = size(used_representation)[2]
+    Random.seed!(seed)
+    if m_initialization_approach == "rand"
+        m_mu_init = nothing
+    elseif m_initialization_approach == "fcmeans"
+        R = fuzzy_cmeans(used_representation, 100, 2, maxiter=200, display=:iter)
+        m_mu_init = R.centers
+    elseif m_initialization_approach == "kmeans"
+        R = Clustering.kmeans(used_representation,K)
+        m_mu_init = R.centers
+    elseif m_initialization_approach == "kpp"
+        iseeds = initseeds(:kmpp,used_representation,K)
+        m_mu_init = used_representation[:,iseeds]
+    elseif m_initialization_approach == "kmcen"
+        iseeds = initseeds(:kmcen,used_representation,K)
+        m_mu_init = used_representation[:,iseeds]
+    elseif m_initialization_approach == "kpp+rand"
+        iseeds = initseeds(:kmpp,used_representation,K)
+        m_mu_init = used_representation[:,iseeds] .+ std(used_representation,dims=2)/sqrt(N) .* randn(size(used_representation[:,iseeds]))
+    elseif m_initialization_approach == "cell_label"
+        if !isnothing(cell_cluster_labels)
+            m_mu_init = randn(J,K)
+            unique_labels = unique(cell_cluster_labels)
+            for k in 1:length(unique_labels)
+                m_mu_init[:,k] .= mean(used_representation[:,cell_cluster_labels .== unique_labels[k]],dims=2)
+            end
+        else
+            error("Cell Labels are not provided")
+        end
+    elseif m_initialization_approach == "cell_label+rand"
+        if !isnothing(cell_cluster_labels)
+            m_mu_init = randn(J,K)
+            unique_labels = unique(cell_cluster_labels)
+            for k in 1:length(unique_labels)
+                nk = sum(cell_cluster_labels .== unique_labels[k])
+                m_mu_init[:,k] .= mean(used_representation[:,cell_cluster_labels .== unique_labels[k]],dims=2)
+                m_mu_init[:,k] .+= reshape(std(used_representation[:,cell_cluster_labels .== unique_labels[k]],dims=2),J)/sqrt(nk) .* randn(J)
+            end
+            # m_mu_init += std(anndata_dict1["X"])*randn(size(m_mu_init))
+        else
+            error("Cell Labels are not provided")
+        end
+    end
+    return m_mu_init,iseeds
+end
 
 function run_cavi(inputs;elbo_ep = 10^(-0),logger=nothing)
     num_iter = inputs[:modelparams].num_iter
@@ -374,32 +828,31 @@ function _flushed_logger(msg;logger=nothing)
     end
 end
 
-function make_ids(dataset,G,N)
+function make_ids(dataset_name,G,N)
     unique_time_id = get_unique_time_id()
-    dataset_used_id = "$(dataset)_$(G)HVGs-$(N)N"
-    experiment_filename = "nclusion_$(dataset)"
+    dataset_used_id = "$(dataset_name)_$(G)HVGs-$(N)N"
+    experiment_filename = "nclusion_plus_$(dataset_name)"
     experiment_id = setup_experiment_tag(experiment_filename)
 
     return unique_time_id,dataset_used_id,experiment_id
 end
 
 function mk_outputs_filepath(outdir,experiment_id,dataset_used,unique_time_id)
-    filepath ="$outdir/outputs/$experiment_id/DATASET_$dataset_used/$unique_time_id/"
+    filepath ="$outdir/outputs/$experiment_id/current/$(unique_time_id)_$(dataset_used)/"
     return filepath
 end
 function mk_outputs_pathname(filepath)
     mkpath(filepath)
 end
 
-function saving_summary_file(filepath;unique_time_id="",datafilename1="",alpha1="",gamma1="",KMax="", seed="",num_var_feat="",N="",elbo_ep="",notes_="")
-    
+
+function saving_summary_file(filepath;slurm_job_id="",script_name="",change_seeds = false,unique_time_id="",datafilename1="",KMax="", seed="",num_var_feat="",N="",elbo_ep="",notes_="",alpha0 = "",gamma0 = "" ,phi1 = "",phi2 = "",kappa1 = "",kappa2 = "",xi1 = "",xi2 = "",varphi1 = "",varphi2 = "",significance_prop="",min_number_cells="",min_percent_cells="",min_percent_of_genes="",max_percent_of_genes="", num_iter = "",dataset_name = "",outdir = "",time_key = "",individuals_key = "",m_initialization_approach="",update_clusterwise="", use_alt_representation="", check_cluster_interpretability_bool="", gene_set_file_path="", samplebased_alpha0="")
     summary_file = filepath*"_QuickSummary_"*unique_time_id*".txt"
-    vars = [datafilename1,alpha1,gamma1,KMax, seed, "mpu (Output from maddy;s pipeline)", num_var_feat,N,true,false,false,false,elbo_ep,notes_]
-    varnames = ["Filename","alpha","gamma","KMax","Seed","Which Method did I use to select HVGs", "How many Genes were in this anaysis", "How many Cells were in this anaysis","(True/False) I used all cells in this anaysis",  "(True/False) I manually had to standardize the data and did not use the steps in the QC pipeline","(True/False) I started with raw counts","(True/False) I used all genes","Elbo intolerance threshold","Notes"]
+    vars = [datafilename1,dataset_name,slurm_job_id,script_name,alpha0,gamma0,phi1,phi2,kappa1,kappa2,xi1,xi2,varphi1,varphi2,significance_prop,min_percent_cells,min_number_cells,min_percent_of_genes,max_percent_of_genes,KMax,change_seeds, seed, m_initialization_approach, "Scanpy-Default", time_key,individuals_key,num_iter,num_var_feat,N,true,false,false,false,elbo_ep,outdir,update_clusterwise, use_alt_representation, check_cluster_interpretability_bool, gene_set_file_path, samplebased_alpha0,notes_]
+    varnames = ["Filename","Dataset ID","Slurm Job ID","Script used to generate these results","alpha0","gamma0","phi1","phi2","kappa1","kappa2","xi1","xi2","varphi1","varphi2","significance_prop","min_percent_cells","min_number_cells","min_percent_of_genes","max_percent_of_genes","KMax","Seeds Changed During Training","Initial Seed used","Approach used to initalialize cluster means","Which Method did I use to select HVGs","Condition key in data","Individuals key in data","max number of iterations", "How many Genes were in this anaysis", "How many Cells were in this anaysis","(True/False) I used all cells in this anaysis",  "(True/False) I manually had to standardize the data and did not use the steps in the QC pipeline","(True/False) I started with raw counts","(True/False) I used all genes","Elbo intolerance threshold","Output directorry","Cluster-wise update of lambda","Alternative Representation used","Cluster interpretability checked","Gene set path","Sample - based alpha0 was used","Notes"]
 
-
-
-    # results = h5open(results_filename, "w")
+     
+   # results = h5open(results_filename, "w")
 
     # datafilename1 = "/mnt/e/cnwizu/Playground/SCoOP-sc/data/pbmc/labelled_cells/pure_pbmc/pure_pbmc_preprocessed.h5ad"
 
@@ -412,33 +865,43 @@ function saving_summary_file(filepath;unique_time_id="",datafilename1="",alpha1=
     end
     return summary_file
 end
-function save_embeddings(anndata_dict1,filepath;logger = nothing,unique_time_id="")
+
+function save_embeddings(anndata_dict1,filepath;outputs_dict = nothing,logger = nothing,unique_time_id="",new_order_samples=nothing)
     G = size(anndata_dict1["X"])[1]
     N = size(anndata_dict1["X"])[2]
     tsne_data = nothing
     pca_data = nothing
     umap_data = nothing
+    if isnothing(new_order_samples)
+        new_order_samples = Int.(collect(1:N))
+    end
     # @info "Getting TSNE Transform..."
     _flushed_logger("Getting TSNE Transform...";logger)
     
     if haskey(anndata_dict1["obsm"],"X_tsne")
         tsne_data =  permutedims(anndata_dict1["obsm"]["X_tsne"])
-        tsne_data = tsne_data
+        tsne_data = tsne_data[new_order_samples,:];
         tsne_data_df  = DataFrame(tsne_data, :auto);
         ncols = size(tsne_data)[2]
         rename!(tsne_data_df,Symbol.(["TSNE_$i" for i in 1:ncols]));
         CSV.write(filepath*"$(G)G-"*unique_time_id*"-tsne_coordinates.csv",  tsne_data_df)
+        if !isnothing(outputs_dict)
+            outputs_dict[:X_tsne] = tsne_data
+        end
     end
 
     
     _flushed_logger("Getting PCA Transform...";logger)
     if haskey(anndata_dict1["obsm"],"X_pca")
         pca_data =  permutedims(anndata_dict1["obsm"]["X_pca"])
-        pca_data = pca_data
+        pca_data = pca_data[new_order_samples,:];
         pca_data_df  = DataFrame(pca_data, :auto);
         ncols = size(pca_data)[2]
         rename!(pca_data_df,Symbol.(["PC_$i" for i in 1:ncols]));
         CSV.write(filepath*"$(G)G-"*unique_time_id*"-pca_coordinates.csv",  pca_data_df)
+        if !isnothing(outputs_dict)
+            outputs_dict[:X_pca] = pca_data
+        end
     end
 
 
@@ -446,13 +909,16 @@ function save_embeddings(anndata_dict1,filepath;logger = nothing,unique_time_id=
     
     if haskey(anndata_dict1["obsm"],"X_umap")
         umap_data =  permutedims(anndata_dict1["obsm"]["X_umap"])
-        umap_data = umap_data
+        umap_data = umap_data[new_order_samples,:];
         umap_data_df  = DataFrame(umap_data, :auto);
         ncols = size(umap_data)[2]
         rename!(umap_data_df,Symbol.(["UMAP_$i" for i in 1:ncols]));
         CSV.write(filepath*"$(G)G-"*unique_time_id*"-umap_coordinates.csv",  umap_data_df)
+        if !isnothing(outputs_dict)
+            outputs_dict[:X_umap] = umap_data
+        end
     end
-
+    return outputs_dict
 end
 
 function make_labels(x_input,anndata_dict1,z_argmax)
@@ -624,4 +1090,761 @@ function benchmark_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,datase
     results_dict[:N] =[N]
 
     return results_dict
+end
+
+function get_highly_variable_genes_bool(anndata_dict1;n_hvgs=nothing, use_std=false)
+    highly_variable_genes_bool = trues(size(anndata_dict1["X"])[1])
+    if use_std
+        gene_stds=vec(std(anndata_dict1["X"],dims=2))
+        gene_names = anndata_dict1["var"]["_index"]
+        sorted_gene_stds = sortperm(gene_stds,rev=true)
+        if isnothing(n_hvgs)
+            n_hvgs = min(2000,length(gene_stds)) 
+        end
+        highly_variable_genes_bool = [ in(name, gene_names[sorted_gene_stds[1:n_hvgs]]) ? true : false for name in gene_names ]
+    else
+        if isnothing(n_hvgs)
+            if haskey(anndata_dict1["uns"],"hvg_meta_df")
+                highly_variable_genes_col = "highly_variable-$(n_hvgs)"
+                if haskey(anndata_dict1["uns"]["hvg_meta_df"],highly_variable_genes_col)
+                    highly_variable_genes_bool .= anndata_dict1["uns"]["hvg_meta_df"][highly_variable_genes_col] .== 1
+                end
+            end
+        end
+    end
+    return highly_variable_genes_bool
+end
+function subset_on_highly_variable_genes_bool(anndata_dict1,highly_variable_genes_bool,layer_index)
+    anndata_dict1["X"] = anndata_dict1["X"][highly_variable_genes_bool,:]
+    if haskey(anndata_dict1,"layers") && !isempty(anndata_dict1["layers"]) && layer_index != 0
+        for layer in keys(anndata_dict1["layers"])
+            anndata_dict1["layers"][layer] = anndata_dict1["layers"][layer][highly_variable_genes_bool,:]
+        end
+    end
+    for key in keys(anndata_dict1["var"])
+        anndata_dict1["var"][key] = anndata_dict1["var"][key][highly_variable_genes_bool]
+    end
+    return anndata_dict1
+end
+function center_and_scale_data_cols(anndata_dict1;center_cols = true,scale_cols = true)
+    xmat = anndata_dict1["X"]
+    if center_cols
+        xmat .= xmat .- mean(xmat,dims=2)
+    end
+    if scale_cols
+        xmat .= xmat ./ std(xmat,dims=2)
+    end
+    anndata_dict1["X"] = xmat
+    return anndata_dict1
+end
+function center_and_scale_matrix_cols(xmat;center_cols = true,scale_cols = true)
+    novariation = collect(1:size(xmat)[1])[[all(el .== el[1])  for el in eachrow(xmat)]]
+    if length(novariation) > 0
+       for i in novariation
+        xmat[i,:] .+= 1e-32 .* randn(size(xmat)[2])
+       end
+    end
+    if center_cols && !scale_cols
+        xmat .= xmat .- nanmean(xmat,dims=2)
+    elseif !center_cols && scale_cols
+        xmat .= xmat ./ nanstd(xmat .+ 1e-8,dims=2)
+    elseif center_cols && scale_cols
+        xmat .= nanstandardize(xmat,dims=2)
+    end
+    if length(novariation) > 0
+       for i in novariation
+            xmat[i,:] .= 0.0
+       end
+    end
+    return xmat
+end
+
+
+
+function size_reorder_clusters(outputs_dict::OrderedDict{Symbol, Any})
+    #print(outputs_dict.keys)
+    r = outputs_dict[:r_]
+    I = length(r)
+    T = [length(r[i]) for i in 1:I]
+    N_t = [[length(r[i][t]) for t in 1:T[i]] for i in 1:I]
+    Nkplus1 = sum([r[i][t][n] for i in 1:I for t in 1:T[i] for n in 1:N_t[i][t]])
+    reindexing_Kplus1 = sortperm(Nkplus1,rev=true)
+    reindexing_K = reindexing_Kplus1[reindexing_Kplus1 .!= maximum(reindexing_Kplus1)]
+    for i in 1:I
+        for t in 1:T[i]
+            for n in 1:N_t[i][t]
+                outputs_dict[:r_][i][t][n] = outputs_dict[:r_][i][t][n][reindexing_Kplus1]
+            end
+        end
+    end
+    for it in 1:sum(T)
+        outputs_dict[:d_][it] = outputs_dict[:d_][it][reindexing_Kplus1]
+    end
+    # outputs_dict[:Nkplus1_] = outputs_dict[:Nkplus1_][reindexing_Kplus1]
+    outputs_dict[:y_] = outputs_dict[:y_][reindexing_K]
+    outputs_dict[:m_mu_] = outputs_dict[:m_mu_][reindexing_K]
+    outputs_dict[:s_sq_mu_] = outputs_dict[:s_sq_mu_][reindexing_K]
+    outputs_dict[:x_hat_] = outputs_dict[:x_hat_][reindexing_K]
+    outputs_dict[:x_hat_sq_] = outputs_dict[:x_hat_sq_][reindexing_K]
+    outputs_dict[:g1_] = outputs_dict[:g1_][reindexing_K]
+    outputs_dict[:g2_] = outputs_dict[:g2_][reindexing_K]
+    outputs_dict[:h1_] = outputs_dict[:h1_][reindexing_K]
+    outputs_dict[:h2_] = outputs_dict[:h2_][reindexing_K]
+    outputs_dict[:Nk_] = outputs_dict[:Nk_][reindexing_K]
+    outputs_dict[:u_] = outputs_dict[:u_][reindexing_K]
+    outputs_dict[:v_] = outputs_dict[:v_][reindexing_K]
+    outputs_dict[:a_] = outputs_dict[:a_][reindexing_K]
+    outputs_dict[:b_] = outputs_dict[:b_][reindexing_K]
+    outputs_dict[:z_argmax] = [[argmax(outputs_dict[:r_][i][t][n]) for i in 1:I for t in 1:T[i] for n in 1:N_t[i][t]]]
+    return outputs_dict
+end
+
+function calculate_s_values(sig_values;thresh=0.05)
+    hoff_s_value = mean(sig_values[sig_values .<= thresh])
+    if isnan(hoff_s_value)
+        hoff_s_value = 1.0
+    end
+    return hoff_s_value
+end
+
+function return_occupied_clusters(r)
+    KMaxplus1 = length(r[1][1][1])
+    I = length(r)
+    T = [length(r[i]) for i in 1:I]
+    N_t = [[length(r[i][t]) for t in 1:T[i]] for i in 1:I]
+    z_argmax = [argmax(r[i][t][n]) for i in 1:I for t in 1:T[i] for n in 1:N_t[i][t]]
+    cluster_occupancy_counts_dict = countmap(z_argmax)
+    Nk = zeros(KMaxplus1)
+    for k in 1:KMaxplus1
+        if haskey(cluster_occupancy_counts_dict,k)
+            Nk[k] = cluster_occupancy_counts_dict[k]
+        end
+    end
+    N = Int(sum(Nk))
+    occupied_cluster_indx = collect(1:KMaxplus1)[Nk .>=1]
+    K_post = length(occupied_cluster_indx)
+    remap_dict = Dict(occupied_cluster_indx[i] => i for i in 1:K_post)
+    new_unique_cluster_indx = [i for i in 1:K_post]
+    return KMaxplus1,K_post, N, Nk, occupied_cluster_indx,remap_dict,new_unique_cluster_indx
+end
+
+
+function subset_on_occupied_clusters(outputs_dict::OrderedDict{Symbol, Any})
+    r = outputs_dict[:r_];
+    KMaxplus1,K_post, N, Nk, occupied_cluster_indx,remap_dict,new_unique_cluster_indx = return_occupied_clusters(r);
+    outputs_dict[:Nk_] = Nk
+    println("Reindexing clusters (Old Index => New Index)")
+    for key in sort(collect(keys(remap_dict)))
+        println("$(key) => $(remap_dict[key])")
+    end
+    println("___________________________________________________________")
+    occupied_cluster_indx_kplus1 = [occupied_cluster_indx;KMaxplus1]
+    I = length(r)
+    T = [length(r[i]) for i in 1:I]
+    N_t = [[length(r[i][t]) for t in 1:T[i]] for i in 1:I]
+    for i in 1:I
+        for t in 1:T[i]
+            for n in 1:N_t[i][t]
+                outputs_dict[:r_][i][t][n] = outputs_dict[:r_][i][t][n][occupied_cluster_indx_kplus1]
+            end
+        end
+    end
+    for it in 1:sum(T)
+        outputs_dict[:d_][it] = outputs_dict[:d_][it][occupied_cluster_indx_kplus1]
+    end
+    outputs_dict[:y_] = outputs_dict[:y_][occupied_cluster_indx]
+    outputs_dict[:m_mu_] = outputs_dict[:m_mu_][occupied_cluster_indx]
+    outputs_dict[:s_sq_mu_] = outputs_dict[:s_sq_mu_][occupied_cluster_indx]
+    outputs_dict[:x_hat_] = outputs_dict[:x_hat_][occupied_cluster_indx]
+    outputs_dict[:x_hat_sq_] = outputs_dict[:x_hat_sq_][occupied_cluster_indx]
+    outputs_dict[:g1_] = outputs_dict[:g1_][occupied_cluster_indx]
+    outputs_dict[:g2_] = outputs_dict[:g2_][occupied_cluster_indx]
+    outputs_dict[:h1_] = outputs_dict[:h1_][occupied_cluster_indx]
+    outputs_dict[:h2_] = outputs_dict[:h2_][occupied_cluster_indx]
+    outputs_dict[:Nk_] = outputs_dict[:Nk_][occupied_cluster_indx]
+    outputs_dict[:u_] = outputs_dict[:u_][occupied_cluster_indx]
+    outputs_dict[:v_] = outputs_dict[:v_][occupied_cluster_indx]
+    outputs_dict[:a_] = outputs_dict[:a_][occupied_cluster_indx]
+    outputs_dict[:b_] = outputs_dict[:b_][occupied_cluster_indx]
+    outputs_dict[:z_argmax] = [remap_dict[outputs_dict[:z_argmax][1][i]] for i in 1:N]
+    return outputs_dict
+end
+
+
+
+function posterior_summaries(outputs_dict::OrderedDict{Symbol, Any}, used_representation::AbstractArray,used_representation_feature_name::AbstractArray,seed::Int;num_samples = 1000,s_value_thresh=0.05,return_data_frames = false,save_data_frames = true)
+    Random.seed!(seed)
+    N = size(used_representation)[2]
+    G = size(used_representation)[1]
+    num_var_feat = G
+    KMax_original = length(outputs_dict[:m_nu_])
+    K_post = length(outputs_dict[:m_mu_])
+    # used_representation_feature_name = anndata_dict1["var"]["_index"]
+    # feature_median = median(used_representation,dims=2)
+    feature_mean = mean(used_representation,dims=2)
+    new_order = 1:length(used_representation_feature_name)#sortperm(used_representation_feature_name)
+    used_representation_feature_name = used_representation_feature_name[new_order]
+    x_mat = used_representation[new_order,:]
+    # _prior_eta = 1/G
+    # _prior_minus_eta = 1 - _prior_eta
+    # prior_log_odds = log(_prior_eta / _prior_minus_eta)
+    # _sigmasq = 1 ./ (outputs_dict[:b_] ./(outputs_dict[:a_]))
+    # _slab_variance = 1 ./ hcat([((outputs_dict[:b_] .* outputs_dict[:v_][k]) ./ (outputs_dict[:a_] .*  outputs_dict[:u_][k] )  ) for k in 1:K]...)
+    # var_dist_feature_included = _slab_variance .+  _slab_variance
+    # _q_not_K_means = hcat([vec(mean(hcat([outputs_dict[:m_][k_prime] for k_prime in setdiff(eachindex(collect(1:K)), [k])]...), dims =2)) for k in 1:K]...)
+    # _sq_feature_diff_q_mean = hcat([(outputs_dict[:m_][k] .-  _q_not_K_means[:,k] ).^2 for k in 1:K]...)
+    # _sq_feature_nodiff_mean = hcat([(outputs_dict[:m_][k]).^2 for k in 1:K]...)
+    # _sq_feature_diff_mean = hcat([(outputs_dict[:m_][k] .- feature_mean).^2 for k in 1:K]...)
+    # # _sq_feature_diff_median = hcat([(outputs_dict[:m_][k] .- feature_median).^2 for k in 1:K]...)
+    # # sigmoid((_slab_variance ./ (_sigmasq  .* var_dist_feature_included)) .* _sq_feature_diff_median + log.(_sigmasq ./var_dist_feature_included) .+ prior_log_odds)
+    # hoff_pip = [ collect(col) for col in  eachcol(sigmoid((_slab_variance ./ (_sigmasq  .* var_dist_feature_included)) .* _sq_feature_diff_mean + log.(_sigmasq ./var_dist_feature_included) .+ prior_log_odds))]
+    # sigmoid((_slab_variance ./ (_sigmasq  .* var_dist_feature_included)) .* _sq_feature_diff_q_mean + log.(_sigmasq ./var_dist_feature_included) .+ prior_log_odds)
+    # sigmoid((_slab_variance ./ (_sigmasq  .* var_dist_feature_included)) .* _sq_feature_nodiff_mean + log.(_sigmasq ./var_dist_feature_included) .+ prior_log_odds)
+    # hoff_pip = [vec(sigmoid((outputs_dict[:m_][k] .- feature_median).^2 .* _sigmasq  ./ (_sigmasq .* (outputs_dict[:v_][k] ./ outputs_dict[:u_][k] ))  .- log.( _sigmasq  ./ (_sigmasq .* (outputs_dict[:v_][k] ./ outputs_dict[:u_][k] ))) .+ log((1/G) / (1-1/G))) ) for k in 1:K]#outputs_dict[:y]#
+    cluster_z_counts_dict = countmap(outputs_dict[:z_argmax][1])
+    nk = zeros(length(outputs_dict[:m_mu_]))
+    for k in 1:length(nk)
+        if haskey(cluster_z_counts_dict,k)
+            nk[k] = cluster_z_counts_dict[k]
+        end
+    end
+    occupied_subset_bool = all(nk .>= 1)
+    size_reordered_bool1 = all([outputs_dict[:Nk_][k-1] >= outputs_dict[:Nk_][k]  for k in collect(2:length(outputs_dict[:Nk_]))])
+    size_reordered_bool2 = all([cluster_z_counts_dict[k-1] >= cluster_z_counts_dict[k]  for k in collect(2:length(outputs_dict[:Nk_]))])
+    modified_outputs_dict_bool = false
+    if !occupied_subset_bool
+        println("Empty Clusters Detected! Subsetting on occupied clusters")
+        println("___________________________________________________________")
+        outputs_dict = subset_on_occupied_clusters(outputs_dict)
+        modified_outputs_dict_bool = true
+    end
+    if (!size_reordered_bool1 ) || (!size_reordered_bool1 && !size_reordered_bool2)
+        println("Clusters Not Ordered by Size! Reordering Clusters by Size")
+        println("___________________________________________________________")
+        outputs_dict = size_reorder_clusters(outputs_dict)
+        modified_outputs_dict_bool = true
+    end
+    # m_ = outputs_dict[:m_]
+    # s_sq_ = outputs_dict[:s_sq_]
+    # y_pip_  = outputs_dict[:y_]
+    r = outputs_dict[:r_]
+    c = outputs_dict[:c]
+    I_ = length(r)
+    T = [length(r[i]) for i in 1:I_]
+    N_t = [[length(r[i][t]) for t in 1:T[i]] for i in 1:I_]
+    # cell_summaries_df = outputs_dict[:cell_summaries_df]
+    filepath = outputs_dict[:filepath]
+    unique_time_id = outputs_dict[:unique_time_id]
+    # z_argmax_raw = outputs_dict[:z_argmax][1]
+    G_post = length(used_representation_feature_name)
+    # KMax = length(r[1][1])
+    # N = length(r[1])
+    # T = 1
+    # Nk = sum(sum.(r))
+    # occupied_cluster_indx = collect(1:KMax)[Nk .>=1]
+    # K_post = length(occupied_cluster_indx)
+    # remap_dict = Dict(occupied_cluster_indx[i] => i for i in 1:K_post)
+    # 
+    # KMax,K_post, _, Nk, occupied_cluster_indx,remap_dict,new_unique_cluster_indx = return_occupied_clusters(r)
+    # z_argmax = [remap_dict[outputs_dict[:z_argmax][1][i]] for i in 1:N]
+    z_argmax_post = outputs_dict[:z_argmax][1]
+    a_post = hcat(outputs_dict[:a_]...)
+    b_post = hcat(outputs_dict[:b_]...)
+    ab_sigma_sq_post = b_post ./ (a_post .- 1)
+    m_mu_post = hcat(outputs_dict[:m_mu_]...)
+    s_sq_mu_post = hcat(outputs_dict[:s_sq_mu_]...)
+    m_nu_post = hcat(outputs_dict[:m_nu_]...)[:,1]
+    s_sq_nu_post = hcat(outputs_dict[:s_sq_nu_]...)[:,1]
+    u_post = hcat(outputs_dict[:u_]...)
+    v_post = hcat(outputs_dict[:v_]...)
+    # hoff_pip_post = hcat(hoff_pip[occupied_cluster_indx]...)
+    y_pip_post = hcat(outputs_dict[:y_]...)
+    h1_post = hcat(outputs_dict[:h1_]...)
+    h2_post = hcat(outputs_dict[:h2_]...)
+    g1_post = outputs_dict[:g1_]
+    g2_post = outputs_dict[:g2_]
+    ragged_r = [r[i][t][n] for i in 1:I_ for t in 1:T[i] for n in 1:N_t[i][t]];
+    ragged_c = [c[i][t][n] for i in 1:I_ for t in 1:T[i] for n in 1:N_t[i][t]];
+    max_length_r = maximum(length.(ragged_r))
+    max_length_c = maximum(length.(ragged_c))
+    padded_r = [vcat(vec, fill(missing, max_length_r - length(vec))) for vec in ragged_r]
+    padded_c = [vcat(vec, fill(missing, max_length_c - length(vec))) for vec in ragged_c]
+    # y_post = hcat(y_[occupied_cluster_indx]...)
+    d_post = [el for el in outputs_dict[:d_]]
+    w1_post = outputs_dict[:w1_]
+    w2_post = outputs_dict[:w2_]
+    Nk_post = outputs_dict[:Nk_]
+    K_post = length(Nk_post)
+    new_unique_cluster_indx = [i for i in 1:K_post]
+    mu_in = Matrix{Float64}(undef,G_post, K_post)
+    mu_not_in = Matrix{Float64}(undef,G_post, K_post)
+    sigma_sq_in = Matrix{Float64}(undef,G_post, K_post)
+    sigma_sq_not_in = Matrix{Float64}(undef,G_post, K_post)
+    posterior_es = Matrix{Float64}(undef,G_post, K_post)
+    y_m_post = y_pip_post .* m_mu_post
+    for k in new_unique_cluster_indx
+        mu_in[:,k] = nanmean(x_mat[:,z_argmax_post .==k],dims=2)
+        mu_not_in[:,k] = nanmean(x_mat[:,z_argmax_post .!=k],dims=2)
+        if sum(z_argmax_post .==k) == 1
+            sigma_sq_in[:,k] .= 0.0
+        else
+            sigma_sq_in[:,k] = nanvar(x_mat[:,z_argmax_post .==k], dims=2)
+        end
+        if sum(z_argmax_post .!=k) == 1
+            sigma_sq_not_in[:,k] .= 0.0
+        else
+            sigma_sq_not_in[:,k] = nanvar(x_mat[:,z_argmax_post .!=k], dims=2)
+        end
+        # sigma_sq_in[:,k] = nanvar(x_mat[:,z_argmax_post .==k], dims=2)
+        # sigma_sq_not_in[:,k] = nanvar(x_mat[:,z_argmax_post .!=k], dims=2)
+        posterior_es[:,k] .= (y_m_post[:,k] .- nanmean(y_m_post[:,setdiff(eachindex(new_unique_cluster_indx), [k])],dims=2)) ./sqrt.(0.5 .* (ab_sigma_sq_post[:,k]  .+ nanmean(ab_sigma_sq_post[:,setdiff(eachindex(new_unique_cluster_indx), [k])],dims=2)))
+    end
+    # hoff_adj_weight = (1 .-sum(hoff_pip_post .>= 0.5,dims=2) ./K_post) ./(1 .- minimum(sum(hoff_pip_post .>= 0.5,dims=2)) ./K_post)
+    y_adj_weight = (1 .-sum(y_pip_post .>= 0.5,dims=2) ./K_post) ./(1 .-  1.0 ./K_post) #minimum(sum(y_pip_post .>= 0.5,dims=2))
+    # hoff_adj_pip_post = hoff_pip_post .*hoff_adj_weight
+    y_adj_pip_post = y_pip_post .*y_adj_weight
+    empirical_es = (mu_in .- mu_not_in) ./sqrt.(0.5 .* (sigma_sq_in .+ sigma_sq_not_in))
+    empirical_ess = hcat([["0" for j in 1:G_post] for k in 1:K_post]...)
+    posterior_ess = hcat([["0" for j in 1:G_post] for k in 1:K_post]...)
+    empirical_ess[empirical_es .> 0] .= "+"
+    empirical_ess[empirical_es .< 0] .= "-"
+    posterior_ess[posterior_es .> 0] .= "+"
+    posterior_ess[posterior_es .< 0] .= "-"
+    # p_mu_lt_0 =  hoff_pip_post .* cdf.(Normal(0,1),- m_post ./sqrt.(s_sq_post)) 
+    post_mu_dist = Normal.(m_mu_post,sqrt.(s_sq_mu_post))
+    post_ab_sigma_sq_dist = InverseGamma.(a_post,b_post)
+    # post_hoff_rho_dist = Bernoulli.(hoff_pip_post)
+    # post_hoff_adj_rho_dist = Bernoulli.(hoff_adj_pip_post)
+    post_y_rho_dist = Bernoulli.(clamp.(y_pip_post, 0.0, 1.0))
+    post_y_adj_rho_dist = Bernoulli.(clamp.(y_adj_pip_post, 0.0, 1.0))
+    post_mu_samples = [rand.(post_mu_dist) for s in 1:num_samples]
+    post_ab_sigma_sq_samples = [rand.(post_ab_sigma_sq_dist) for s in 1:num_samples]
+    # post_hoff_rho_samples = [rand.(post_hoff_rho_dist) for s in 1:num_samples]
+    # post_hoff_adj_rho_samples = [rand.(post_hoff_adj_rho_dist) for s in 1:num_samples]
+    post_y_rho_samples = [rand.(post_y_rho_dist) for s in 1:num_samples]
+    post_y_adj_rho_samples = [rand.(post_y_adj_rho_dist) for s in 1:num_samples]
+    # lsfr_mc_hoff_es_samples  = Vector{Matrix{Float64}}(undef,num_samples)
+    # lsfr_mc_hoff_adj_es_samples  = Vector{Matrix{Float64}}(undef,num_samples)
+    lsfr_mc_y_es_samples  = Vector{Matrix{Float64}}(undef,num_samples)
+    lsfr_mc_y_adj_es_samples  = Vector{Matrix{Float64}}(undef,num_samples)
+    for s in 1:num_samples
+        # sampled_hoff_rho = post_hoff_rho_samples[s]
+        # sampled_hoff_adj_rho = post_hoff_adj_rho_samples[s]
+        sampled_y_rho = post_y_rho_samples[s]
+        sampled_y_adj_rho = post_y_adj_rho_samples[s]
+        sampled_mu = post_mu_samples[s]
+        sampled_ab_sigma_sq = post_ab_sigma_sq_samples[s]
+        # sampled_hoff_rho_mu = sampled_hoff_rho .* sampled_mu
+        # sampled_hoff_adj_rho_mu = sampled_hoff_adj_rho .* sampled_mu
+        sampled_y_rho_mu = sampled_y_rho .* sampled_mu
+        sampled_y_adj_rho_mu = sampled_y_adj_rho .* sampled_mu
+        # mc_hoff_es_sample =  Matrix{Float64}(undef,G_post, K_post)
+        # mc_hoff_adj_es_sample =  Matrix{Float64}(undef,G_post, K_post)
+        mc_es_y_sample =  Matrix{Float64}(undef,G_post, K_post)
+        mc_y_adj_es_sample =  Matrix{Float64}(undef,G_post, K_post)
+        for k in 1:K_post
+            # mc_hoff_es_sample[:,k] .= sampled_hoff_rho_mu[:,k] .- mean(sampled_hoff_rho_mu[:,setdiff(eachindex(new_unique_cluster_indx), [k])],dims=2)
+            # mc_hoff_adj_es_sample[:,k] .= sampled_hoff_adj_rho_mu[:,k] .- mean(sampled_hoff_adj_rho_mu[:,setdiff(eachindex(new_unique_cluster_indx), [k])],dims=2)
+            mc_es_y_sample[:,k] .= sampled_y_rho_mu[:,k] .- mean(sampled_y_rho_mu[:,setdiff(eachindex(new_unique_cluster_indx), [k])],dims=2) ./ sqrt.(0.5 .* (sampled_ab_sigma_sq[:,k] .+ nanmean(sampled_ab_sigma_sq[:,setdiff(eachindex(new_unique_cluster_indx), [k])],dims=2)))
+            mc_y_adj_es_sample[:,k] .= sampled_y_adj_rho_mu[:,k] .- mean(sampled_y_adj_rho_mu[:,setdiff(eachindex(new_unique_cluster_indx), [k])],dims=2) ./ sqrt.(0.5 .* (sampled_ab_sigma_sq[:,k] .+ nanmean(sampled_ab_sigma_sq[:,setdiff(eachindex(new_unique_cluster_indx), [k])],dims=2)))
+        end
+        # lsfr_mc_hoff_es_samples[s] = mc_hoff_es_sample
+        # lsfr_mc_hoff_adj_es_samples[s] = mc_hoff_adj_es_sample
+        lsfr_mc_y_es_samples[s] = mc_es_y_sample
+        lsfr_mc_y_adj_es_samples[s] = mc_y_adj_es_sample
+    end
+    # lsfr_mc_hoff_es_samples = cat(lsfr_mc_hoff_es_samples...,dims=3)
+    # lsfr_mc_hoff_adj_es_samples = cat(lsfr_mc_hoff_adj_es_samples...,dims=3)
+    lsfr_mc_y_es_samples = cat(lsfr_mc_y_es_samples...,dims=3)
+    lsfr_mc_y_adj_es_samples = cat(lsfr_mc_y_adj_es_samples...,dims=3)
+    # adj_p_mu_lt_0 = hoff_adj_pip_post .* cdf.(Normal(0,1),- m_post ./sqrt.(lambda_sq_))
+    # adj_p_mu_lt_0 = hoff_adj_pip_post .* cdf.(Normal(0,1),- m_post ./sqrt.(s_sq_post))
+    # hoff_p_es_eq_0 = dropdims(mean(lsfr_mc_hoff_es_samples .== 0,dims=3),dims=3)
+    # hoff_adj_p_es_eq_0 = dropdims(mean(lsfr_mc_hoff_adj_es_samples .== 0,dims=3),dims=3)
+    y_p_es_eq_0 = dropdims(mean(lsfr_mc_y_es_samples .== 0,dims=3),dims=3)
+    y_adj_p_es_eq_0 = dropdims(mean(lsfr_mc_y_adj_es_samples .== 0,dims=3),dims=3)
+
+    # hoff_p_es_lt_0 = dropdims(mean(lsfr_mc_hoff_es_samples .< 0,dims=3),dims=3)
+    # hoff_adj_p_es_lt_0 = dropdims(mean(lsfr_mc_hoff_adj_es_samples .< 0,dims=3),dims=3)
+    y_p_es_lt_0 = dropdims(mean(lsfr_mc_y_es_samples .< 0,dims=3),dims=3)
+    y_adj_p_es_lt_0 = dropdims(mean(lsfr_mc_y_adj_es_samples .< 0,dims=3),dims=3)
+
+
+    # hoff_p_es_gt_0 = dropdims(mean(lsfr_mc_hoff_es_samples .> 0,dims=3),dims=3)
+    # hoff_adj_p_es_gt_0 = dropdims(mean(lsfr_mc_hoff_adj_es_samples .> 0,dims=3),dims=3)
+    y_p_es_gt_0 = dropdims(mean(lsfr_mc_y_es_samples .> 0,dims=3),dims=3)
+    y_adj_p_es_gt_0 = dropdims(mean(lsfr_mc_y_adj_es_samples .> 0,dims=3),dims=3)
+    # Make sure that the sum of the probabilities is 1
+    # hoff_check_unity = vcat([hcat([isprobvec([hoff_p_es_eq_0[j,k],hoff_p_es_lt_0[j,k],hoff_p_es_gt_0[j,k] ]) for j in 1:G_post]...) for k in 1:K_post]...)
+    # hoff_adj_check_unity = vcat([hcat([isprobvec([hoff_adj_p_es_eq_0[j,k],hoff_adj_p_es_lt_0[j,k],hoff_adj_p_es_gt_0[j,k] ]) for j in 1:G_post]...) for k in 1:K_post]...)
+    y_check_unity = vcat([hcat([isprobvec([y_p_es_eq_0[j,k],y_p_es_lt_0[j,k],y_p_es_gt_0[j,k] ]) for j in 1:G_post]...) for k in 1:K_post]...)
+    y_adj_check_unity = vcat([hcat([isprobvec([y_adj_p_es_eq_0[j,k],y_adj_p_es_lt_0[j,k],y_adj_p_es_gt_0[j,k] ]) for j in 1:G_post]...) for k in 1:K_post]...)
+    # @test sum(hoff_check_unity .!= 1) == 0
+    # @test sum(hoff_adj_check_unity .!= 1) == 0
+    # @test sum(y_check_unity .!= 1) == 0
+    # @test sum(y_adj_check_unity .!= 1) == 0
+
+    # hoff_p_es_gteq_0 = hoff_p_es_gt_0 .+ hoff_p_es_eq_0
+    # hoff_adj_p_es_gteq_0 = hoff_adj_p_es_gt_0 .+ hoff_adj_p_es_eq_0
+    y_p_es_gteq_0 = y_p_es_gt_0 .+ y_p_es_eq_0
+    y_adj_p_es_gteq_0 = y_adj_p_es_gt_0 .+ y_adj_p_es_eq_0
+    # hoff_p_es_lteq_0 = hoff_p_es_lt_0 .+ hoff_p_es_eq_0
+    # hoff_adj_p_es_lteq_0 = hoff_adj_p_es_lt_0 .+ hoff_adj_p_es_eq_0
+    y_p_es_lteq_0 = y_p_es_lt_0 .+ y_p_es_eq_0
+    y_adj_p_es_lteq_0 = y_adj_p_es_lt_0 .+ y_adj_p_es_eq_0
+    # p_es_sum = hoff_p_es_eq_0 .+ hoff_p_es_lt_0 .+ hoff_p_es_gt_0
+    # adj_p_es_sum = hoff_adj_p_es_eq_0 .+ hoff_adj_p_es_lt_0 .+ hoff_adj_p_es_gt_0
+    # hoff_p_es_eq_0 = hoff_p_es_eq_0 ./p_es_sum
+    # hoff_p_es_lt_0 = hoff_p_es_lt_0 ./p_es_sum
+    # hoff_p_es_gt_0 = hoff_p_es_gt_0 ./p_es_sum
+    # hoff_adj_p_es_eq_0 = hoff_adj_p_es_eq_0 ./adj_p_es_sum
+    # hoff_adj_p_es_lt_0 = hoff_adj_p_es_lt_0 ./adj_p_es_sum
+    # hoff_adj_p_es_gt_0 = hoff_adj_p_es_gt_0 ./adj_p_es_sum
+    # # adj_p_mu_eq_0 = (1 .- hoff_adj_pip_post)
+    # p_mu_gt_0 =  1 .- p_mu_lt_0 .- p_mu_eq_0
+    # # adj_p_mu_gt_0 = 1 .- adj_p_mu_lt_0 .- adj_p_mu_eq_0
+    # p_mu_lteq_0 = p_mu_lt_0 .+ p_mu_eq_0
+    # # adj_p_mu_lteq_0 = adj_p_mu_lt_0 .+ adj_p_mu_eq_0
+    # p_mu_gteq_0 = p_mu_gt_0 .+ p_mu_eq_0
+    # # adj_p_mu_gteq_0 = adj_p_mu_gt_0 .+ adj_p_mu_eq_0
+    # hoff_lfsr_kj = hcat([[minimum([p_mu_lteq_0[j,k],p_mu_gteq_0[j,k]]) for j in 1:G_post] for k in 1:K_post]...)
+    # lfsr_j = minimum(hoff_lfsr_kj,dims=2)
+    # hoff_lfsr_kj = hcat([[minimum([hoff_p_es_lteq_0[j,k],hoff_p_es_gteq_0[j,k]]) for j in 1:G_post] for k in 1:K_post]...)
+    # hoff_adj_lfsr_kj = hcat([[minimum([hoff_adj_p_es_lteq_0[j,k],hoff_adj_p_es_gteq_0[j,k]]) for j in 1:G_post] for k in 1:K_post]...)
+    y_lfsr_kj = hcat([[minimum([y_p_es_lteq_0[j,k],y_p_es_gteq_0[j,k]]) for j in 1:G_post] for k in 1:K_post]...)
+    y_adj_lfsr_kj = hcat([[minimum([y_adj_p_es_lteq_0[j,k],y_adj_p_es_gteq_0[j,k]]) for j in 1:G_post] for k in 1:K_post]...)
+
+    # hoff_min_lfsr_j = minimum(hoff_lfsr_kj,dims=2)
+    # hoff_min_adj_lfsr_j = minimum(hoff_adj_lfsr_kj,dims=2)
+    y_min_lfsr_j = minimum(y_lfsr_kj,dims=2)
+    y_min_adj_lfsr_j = minimum(y_adj_lfsr_kj,dims=2)
+
+    # hoff_avg_lfsr_j = mean(hoff_lfsr_kj,dims=2)
+    # hoff_avg_adj_lfsr_j = mean(hoff_adj_lfsr_kj,dims=2)
+    y_avg_lfsr_j = mean(y_lfsr_kj,dims=2)
+    y_avg_adj_lfsr_j = mean(y_adj_lfsr_kj,dims=2)
+
+    # hoff_adj_s_value = [calculate_s_values(hoff_adj_lfsr_kj[j,:];thresh=s_value_thresh) for j in 1:G_post]
+    # hoff_s_value = [calculate_s_values(hoff_lfsr_kj[j,:];thresh=s_value_thresh) for j in 1:G_post]
+    y_adj_s_value = [calculate_s_values(y_adj_lfsr_kj[j,:];thresh=s_value_thresh) for j in 1:G_post]
+    y_s_value = [calculate_s_values(y_lfsr_kj[j,:];thresh=s_value_thresh) for j in 1:G_post]
+    cell_summaries_df = DataFrame(cell_id = outputs_dict[:cell_ids], individuals_id = outputs_dict[:individuals_vec], time_id = outputs_dict[:time_vec], inferred_label = z_argmax_post)
+    if haskey(outputs_dict,:true_labels)
+        cell_summaries_df[:true_label] = outputs_dict[:true_labels]
+    end
+    if haskey(outputs_dict,:X_tsne)
+        cell_summaries_df[!,:X_TSNE_1] = outputs_dict[:X_tsne][:,1]
+        cell_summaries_df[!,:X_TSNE_2] = outputs_dict[:X_tsne][:,2]
+    end
+    if haskey(outputs_dict,:X_umap)
+        cell_summaries_df[!,:X_UMAP_1] = outputs_dict[:X_umap][:,1]
+        cell_summaries_df[!,:X_UMAP_2] = outputs_dict[:X_umap][:,2]
+    end
+    if haskey(outputs_dict,:X_pca)
+        cell_summaries_df[!,:X_PCA_1] = outputs_dict[:X_pca][:,1]
+        cell_summaries_df[!,:X_PCA_2] = outputs_dict[:X_pca][:,2]
+    end
+    if haskey(outputs_dict,:used_representation_tsne)
+        cell_summaries_df[!,:Used_Representation_TSNE_1] = outputs_dict[:used_representation_tsne][:,1]
+        cell_summaries_df[!,:Used_Representation_TSNE_2] = outputs_dict[:used_representation_tsne][:,2]
+    end
+    if haskey(outputs_dict,:used_representation_umap)
+        cell_summaries_df[!,:Used_Representation_UMAP_1] = outputs_dict[:used_representation_umap][:,1]
+        cell_summaries_df[!,:Used_Representation_UMAP_2] = outputs_dict[:used_representation_umap][:,2]
+    end
+    if haskey(outputs_dict,:used_representation_pca)
+        cell_summaries_df[!,:Used_Representation_PCA_1] = outputs_dict[:used_representation_pca][:,1]
+        cell_summaries_df[!,:Used_Representation_PCA_2] = outputs_dict[:used_representation_pca][:,2]
+    end
+    posterior_featurecluster_summaries_df = DataFrame(Gene = used_representation_feature_name)
+    for k in 1:K_post
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_m_mu")] = m_mu_post[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_s_sq_mu")] = s_sq_mu_post[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_empirical_mu_in")] = mu_in[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_empirical_mu_not_in")] = mu_not_in[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_empirical_sigma_sq_in")] = sigma_sq_in[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_empirical_sigma_sq_not_in")] = sigma_sq_not_in[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_m_nu")] = m_nu_post
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_s_sq_nu")] = s_sq_nu_post
+        # posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_hoff_pip")] = hoff_pip_post[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_y_pip")] = y_pip_post[:,k]
+        # posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_hoff_adj_pip")] = hoff_adj_pip_post[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_y_adj_pip")] = y_adj_pip_post[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_empirical_es")] = empirical_es[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_empirical_ess")] = empirical_ess[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_posterior_es")] = posterior_es[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_posterior_ess")] = posterior_ess[:,k]
+        # posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_hoff_p_es_lt_0")] = hoff_p_es_lt_0[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_y_p_es_lt_0")] = y_p_es_lt_0[:,k]
+        # posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_hoff_p_es_eq_0")] = hoff_p_es_eq_0[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_y_p_es_eq_0")] = y_p_es_eq_0[:,k]
+        # posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_hoff_p_es_gt_0")] = hoff_p_es_gt_0[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_y_p_es_gt_0")] = y_p_es_gt_0[:,k]
+        # posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_hoff_p_es_lteq_0")] = hoff_p_es_lteq_0[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_y_p_es_lteq_0")] = y_p_es_lteq_0[:,k]
+        # posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_hoff_p_es_gteq_0")] = hoff_p_es_gteq_0[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_y_p_es_gteq_0")] = y_p_es_gteq_0[:,k]
+        # posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_hoff_adj_p_es_lt_0")] = hoff_adj_p_es_lt_0[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_y_adj_p_es_lt_0")] = y_adj_p_es_lt_0[:,k]
+        # posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_hoff_adj_p_es_eq_0")] = hoff_adj_p_es_eq_0[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_y_adj_p_es_eq_0")] = y_adj_p_es_eq_0[:,k]
+        # posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_hoff_adj_p_es_gt_0")] = hoff_adj_p_es_gt_0[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_y_adj_p_es_gt_0")] = y_adj_p_es_gt_0[:,k]
+        # posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_hoff_adj_p_es_lteq_0")] = hoff_adj_p_es_lteq_0[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_y_adj_p_es_lteq_0")] = y_adj_p_es_lteq_0[:,k]
+        # posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_hoff_adj_p_es_gteq_0")] = hoff_adj_p_es_gteq_0[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_y_adj_p_es_gteq_0")] = y_adj_p_es_gteq_0[:,k]
+        # posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_hoff_lfsr_kj")] = hoff_lfsr_kj[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_y_lfsr_kj")] = y_lfsr_kj[:,k]
+        # posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_hoff_adj_lfsr_kj")] = hoff_adj_lfsr_kj[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_y_adj_lfsr_kj")] = y_adj_lfsr_kj[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_h1")] = h1_post[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_h2")] = h2_post[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_a")] = a_post[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_b")] = b_post[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_u")] = u_post[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_v")] = v_post[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_g1")] = g1_post[k] .* ones(G_post)
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_g2")] = g2_post[k] .* ones(G_post)
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_Nk")] =Nk_post[k] .* ones(G_post)
+    end
+    # cluster_summaries_df = DataFrame(cluster_id = ["Cluster-$k" for k in 1:K_post],Nk = Nk_post, h1 = h1_post, h2 = h2_post, g1 = g1_post, g2 = g2_post, u = u_post, v = v_post)
+    conditions_summaries_df =DataFrame(individuals_id = [i for i in 1:I_ for t in 1:T[i]], time_id = [t for i in 1:I_ for t in 1:T[i]], w1 = w1_post, w2 = w2_post)
+    d_post_df = DataFrame(permutedims(hcat(d_post...))[:,1:size(permutedims(hcat(d_post...)))[2]-1],:auto)
+    # rename!(d_post_df, [ k < K_post+1 ? Symbol("Cluster-"*string(k)*"_d") : Symbol("Cluster-Kplus1_d") for k in 1:(K_post+1)])
+    rename!(d_post_df, [Symbol("Cluster-"*string(k)*"_d") for k in 1:(K_post)])
+    r_df = DataFrame(permutedims(hcat(padded_r...))[:,1:size(permutedims(hcat(padded_r...)))[2]-1],:auto)
+    c_df = DataFrame(permutedims(hcat(padded_c...)),:auto)
+    rename!(r_df, [Symbol("Cluster-"*string(k)*"_r") for k in 1:K_post])
+    rename!(c_df, [Symbol("Condition-"*string(k)*"_c") for k in 1:max_length_c])
+    cell_summaries_df = hcat(cell_summaries_df,r_df,c_df)
+    conditions_summaries_df = hcat(conditions_summaries_df,d_post_df)
+    # posterior_featurecluster_summaries_df[!,Symbol("hoff_min_lfsr_j")] = vec(hoff_min_lfsr_j)
+    posterior_featurecluster_summaries_df[!,Symbol("y_min_lfsr_j")] = vec(y_min_lfsr_j)
+    # posterior_featurecluster_summaries_df[!,Symbol("hoff_min_adj_lfsr_j")] = vec(hoff_min_adj_lfsr_j)
+    posterior_featurecluster_summaries_df[!,Symbol("y_min_adj_lfsr_j")] = vec(y_min_adj_lfsr_j)
+    # posterior_featurecluster_summaries_df[!,Symbol("hoff_avg_lfsr_j")] = vec(hoff_avg_lfsr_j)
+    posterior_featurecluster_summaries_df[!,Symbol("y_avg_lfsr_j")] = vec(y_avg_lfsr_j)
+    # posterior_featurecluster_summaries_df[!,Symbol("hoff_avg_adj_lfsr_j")] = vec(hoff_avg_adj_lfsr_j)
+    posterior_featurecluster_summaries_df[!,Symbol("y_avg_adj_lfsr_j")] = vec(y_avg_adj_lfsr_j)
+    # posterior_featurecluster_summaries_df[!,Symbol("hoff_s_$(join(split("$(s_value_thresh)","."),""))_value")] = hoff_s_value
+    posterior_featurecluster_summaries_df[!,Symbol("y_s_$(join(split("$(s_value_thresh)","."),""))_value")] = y_s_value
+    # posterior_featurecluster_summaries_df[!,Symbol("hoff_adj_s_$(join(split("$(s_value_thresh)","."),""))_value")] = hoff_adj_s_value
+    posterior_featurecluster_summaries_df[!,Symbol("y_adj_s_$(join(split("$(s_value_thresh)","."),""))_value")] =y_adj_s_value
+    filepath = outputs_dict[:filepath];
+    unique_time_id = outputs_dict[:unique_time_id];
+    if haskey(outputs_dict,:run_name)
+        run_name = outputs_dict[:run_name]
+    else
+        run_name = ""
+    end
+    feature_summaries_filename = "$filepath/$(run_name)_FeaturesClusters_summaries-$(unique_time_id).csv";
+    cell_summaries_filename = "$filepath/$(run_name)_Cells_summaries-$(unique_time_id).csv";
+    # cluster_summaries_filename = "$filepath/$(run_name)_cluster_summaries-$(unique_time_id).csv";
+    condition_summaries_filename = "$filepath/$(run_name)_Conditions_summaries-$(unique_time_id).csv";
+    posterior_genecluster_summaries_df = nothing
+    if save_data_frames
+        CSV.write(feature_summaries_filename,posterior_featurecluster_summaries_df)
+        CSV.write(cell_summaries_filename,cell_summaries_df)
+        CSV.write(condition_summaries_filename,conditions_summaries_df)
+        # CSV.write(cluster_summaries_filename,cluster_summaries_df)
+    end
+    if haskey(outputs_dict,:gene_factor_loadings)
+        if !isnothing(outputs_dict[:gene_factor_loadings])
+            projection_filename = "$filepath/$(run_name)_FactorLoading-$(unique_time_id).csv";
+            GeneFactorSummaries_filename = "$filepath/$(run_name)_GeneFactorSummaries-$(unique_time_id).csv";
+            if typeof(outputs_dict[:gene_factor_loadings]) <: DataFrame
+                if eltype(outputs_dict[:gene_factor_loadings][:,1]) <: String
+                    projection_matrix = Float64.(Matrix(outputs_dict[:gene_factor_loadings][:,2:end]))
+                    posterior_genecluster_summaries_df = posterior_summaries_on_projection(y_pip_post, m_mu_post,s_sq_mu_post,a_post,b_post,projection_matrix,outputs_dict[:gene_factor_loadings][:,1],names(outputs_dict[:gene_factor_loadings][:,2:end]),seed,filepath;num_samples = num_samples,s_value_thresh=s_value_thresh,return_data_frames = true,save_data_frames = true,run_name = run_name,unique_time_id=unique_time_id)
+                end 
+            end
+            if save_data_frames
+                CSV.write(projection_filename,outputs_dict[:gene_factor_loadings])
+                CSV.write(GeneFactorSummaries_filename,posterior_genecluster_summaries_df)
+            end
+        end
+    end
+    if return_data_frames && modified_outputs_dict_bool
+        return outputs_dict,z_argmax_post,posterior_featurecluster_summaries_df, cell_summaries_df, conditions_summaries_df,posterior_genecluster_summaries_df
+    elseif return_data_frames && !modified_outputs_dict_bool
+        return nothing,nothing,posterior_featurecluster_summaries_df,cell_summaries_df,conditions_summaries_df,posterior_genecluster_summaries_df
+    elseif !return_data_frames && modified_outputs_dict_bool
+        return outputs_dict,z_argmax_post,nothing,nothing,nothing,nothing
+    else
+        return nothing,nothing,nothing,nothing,nothing,nothing  
+    end
+end
+
+function posterior_summaries_on_projection(y_pip_post::Matrix{Float64}, m_mu_post::Matrix{Float64},s_sq_mu_post::Matrix{Float64},a_post::Matrix{Float64},b_post::Matrix{Float64},projection_matrix::Matrix{Float64},used_representation_feature_name::AbstractArray,gene_names::AbstractArray,seed::Int,filepath;num_samples = 1000,s_value_thresh=0.05,return_data_frames = false,save_data_frames = true,run_name = "",unique_time_id="")
+    Random.seed!(seed)
+    G = size(projection_matrix)[1]
+    J= size(projection_matrix)[2]
+    num_latent_feat = G
+    num_genes = J
+    K_post = size(y_pip_post)[2]
+    K_post = length(Nk_post)
+    new_unique_cluster_indx = [i for i in 1:K_post]
+    posterior_es = Matrix{Float64}(undef,J, K_post)
+    ab_sigma_sq_post = b_post ./ (a_post .- 1)
+    y_m_post = y_pip_post .* m_mu_post
+    gene_mean_post = permutedims(permutedims(y_m_post) * projection_matrix)
+    for k in new_unique_cluster_indx
+        # sigma_sq_in[:,k] = nanvar(x_mat[:,z_argmax_post .==k], dims=2)
+        # sigma_sq_not_in[:,k] = nanvar(x_mat[:,z_argmax_post .!=k], dims=2)
+        posterior_es[:,k] .= (gene_mean_post[:,k] .- nanmean(gene_mean_post[:,setdiff(eachindex(new_unique_cluster_indx), [k])],dims=2)) ./ sqrt.(0.5 .* (diag(permutedims(projection_matrix) * diagm(ab_sigma_sq_post[:,k]) * projection_matrix) .+ diag(permutedims(projection_matrix) * diagm(vec(nanmean(ab_sigma_sq_post[:,setdiff(eachindex(new_unique_cluster_indx), [k])],dims=2))) * projection_matrix)))
+    end
+    # hoff_adj_weight = (1 .-sum(hoff_pip_post .>= 0.5,dims=2) ./K_post) ./(1 .- minimum(sum(hoff_pip_post .>= 0.5,dims=2)) ./K_post)
+    # hoff_adj_pip_post = hoff_pip_post .*hoff_adj_weight
+    posterior_ess = hcat([["0" for j in 1:J] for k in 1:K_post]...)
+    posterior_ess[posterior_es .> 0] .= "+"
+    posterior_ess[posterior_es .< 0] .= "-"
+    # p_mu_lt_0 =  hoff_pip_post .* cdf.(Normal(0,1),- m_post ./sqrt.(s_sq_post)) 
+    post_mu_dist = Normal.(m_mu_post,sqrt.(s_sq_mu_post))
+    # post_hoff_rho_dist = Bernoulli.(hoff_pip_post)
+    # post_hoff_adj_rho_dist = Bernoulli.(hoff_adj_pip_post)
+    post_y_rho_dist = Bernoulli.(y_pip_post)
+    post_mu_samples = [rand.(post_mu_dist) for s in 1:num_samples]
+    post_ab_sigma_sq_dist = InverseGamma.(a_post,b_post)
+    post_ab_sigma_sq_samples = [rand.(post_ab_sigma_sq_dist) for s in 1:num_samples]
+    # post_hoff_rho_samples = [rand.(post_hoff_rho_dist) for s in 1:num_samples]
+    # post_hoff_adj_rho_samples = [rand.(post_hoff_adj_rho_dist) for s in 1:num_samples]
+    post_y_rho_samples = [rand.(post_y_rho_dist) for s in 1:num_samples]
+    lsfr_mc_y_es_samples  = Vector{Matrix{Float64}}(undef,num_samples)
+    for s in 1:num_samples
+        sampled_y_rho = post_y_rho_samples[s]
+        sampled_mu = post_mu_samples[s]
+        sampled_ab_sigma_sq = post_ab_sigma_sq_samples[s]
+        sampled_y_rho_mu = sampled_y_rho .* sampled_mu
+        sampled_gene_mean = permutedims(permutedims(sampled_y_rho_mu) * projection_matrix)
+        mc_es_y_sample =  Matrix{Float64}(undef,J, K_post)
+        for k in 1:K_post
+            mc_es_y_sample[:,k] .= sampled_gene_mean[:,k] .- mean(sampled_gene_mean[:,setdiff(eachindex(new_unique_cluster_indx), [k])],dims=2) ./ sqrt.(0.5 .* (diag(permutedims(projection_matrix) * diagm(sampled_ab_sigma_sq[:,k]) * projection_matrix) .+ diag(permutedims(projection_matrix) * diagm(vec(nanmean(sampled_ab_sigma_sq[:,setdiff(eachindex(new_unique_cluster_indx), [k])],dims=2))) * projection_matrix)))
+        end
+        lsfr_mc_y_es_samples[s] = mc_es_y_sample
+    end
+    lsfr_mc_y_es_samples = cat(lsfr_mc_y_es_samples...,dims=3)
+    y_p_es_eq_0 = dropdims(mean(lsfr_mc_y_es_samples .== 0,dims=3),dims=3)
+
+    y_p_es_lt_0 = dropdims(mean(lsfr_mc_y_es_samples .< 0,dims=3),dims=3)
+
+
+    y_p_es_gt_0 = dropdims(mean(lsfr_mc_y_es_samples .> 0,dims=3),dims=3)
+    y_check_unity = vcat([hcat([isprobvec([y_p_es_eq_0[j,k],y_p_es_lt_0[j,k],y_p_es_gt_0[j,k] ]) for j in 1:J]...) for k in 1:K_post]...)
+
+    y_p_es_gteq_0 = y_p_es_gt_0 .+ y_p_es_eq_0
+    y_p_es_lteq_0 = y_p_es_lt_0 .+ y_p_es_eq_0
+
+    y_lfsr_kj = hcat([[minimum([y_p_es_lteq_0[j,k],y_p_es_gteq_0[j,k]]) for j in 1:J] for k in 1:K_post]...)
+
+    y_min_lfsr_j = minimum(y_lfsr_kj,dims=2)
+
+    y_avg_lfsr_j = mean(y_lfsr_kj,dims=2)
+
+
+    y_s_value = [calculate_s_values(y_lfsr_kj[j,:];thresh=s_value_thresh) for j in 1:J]
+    posterior_featurecluster_summaries_df = DataFrame(Gene = gene_names)
+    for k in 1:K_post
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_gene_mean_in")] = gene_mean_post[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_ab_sigma_sq_in")] = diag(permutedims(projection_matrix) * diagm(ab_sigma_sq_post[:,k]) * projection_matrix) 
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_gene_mean_out")] = vec(nanmean(gene_mean_post[:,setdiff(eachindex(new_unique_cluster_indx), [k])],dims=2))
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_ab_sigma_sq_out")] = diag(permutedims(projection_matrix) * diagm(vec(nanmean(ab_sigma_sq_post[:,setdiff(eachindex(new_unique_cluster_indx), [k])],dims=2))) * projection_matrix)
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_posterior_es")] = posterior_es[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_posterior_ess")] = posterior_ess[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_y_p_es_lt_0")] = y_p_es_lt_0[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_y_p_es_eq_0")] = y_p_es_eq_0[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_y_p_es_gt_0")] = y_p_es_gt_0[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_y_p_es_lteq_0")] = y_p_es_lteq_0[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_y_p_es_gteq_0")] = y_p_es_gteq_0[:,k]
+        posterior_featurecluster_summaries_df[!,Symbol("Cluster-"*string(k)*"_y_lfsr_kj")] = y_lfsr_kj[:,k]
+    end
+    posterior_featurecluster_summaries_df[!,Symbol("y_min_lfsr_j")] = vec(y_min_lfsr_j)
+    posterior_featurecluster_summaries_df[!,Symbol("y_avg_lfsr_j")] = vec(y_avg_lfsr_j)
+    posterior_featurecluster_summaries_df[!,Symbol("y_s_$(join(split("$(s_value_thresh)","."),""))_value")] = y_s_value
+    feature_summaries_filename = "$filepath/$(run_name)_GeneProjectionsClusters_summaries-$(unique_time_id).csv";
+    if save_data_frames
+        CSV.write(feature_summaries_filename,posterior_featurecluster_summaries_df)
+    end
+    if return_data_frames
+        return posterior_featurecluster_summaries_df
+    end
+end
+
+
+
+function make_new_embeddings(outputs_dict,used_representation,used_representation_feature_name,seed; samples_as_rows=false)
+    Random.seed!(seed)
+    new_order = sortperm(used_representation_feature_name)
+    used_representation_feature_name = used_representation_feature_name[new_order]
+    if !samples_as_rows
+        x_mat = deepcopy(used_representation[new_order,:])
+        x_mat = permutedims(x_mat)
+    else
+        x_mat = deepcopy(used_representation[:,new_order])
+    end
+    N = size(x_mat)[2]
+    G = size(x_mat)[1]
+    pca_model = fit(PCA, x_mat; maxoutdim=2)  # Reduce to 2 dimensions
+    pca_transformed = MultivariateStats.transform(pca_model, x_mat)
+    tsne_result = tsne(x_mat, 2, 0 ,1000, 30.0)
+    umap_model = UMAP_(x_mat, 2;n_neighbors=15, min_dist=0.1)
+    umap_result = UMAP.transform(umap_model, x_mat)
+    outputs_dict[:used_representation_pca] = pca_transformed
+    outputs_dict[:used_representation_tsne] = tsne_result
+    outputs_dict[:used_representation_umap] = umap_result
+    return outputs_dict
+end
+
+
+function generate_report(script_path::String, arg1::String, arg2::String, arg3::String)::String
+    # Construct the shell command with the script path as an argument
+    cmd = `python -u $script_path --resultsfiledir $arg1 --datadir $arg2 --make_abridged $arg3`
+    
+    try
+        # Run the command and wait for it to complete
+        run(cmd)
+        # If it finishes successfully, return a success message
+        return "Successfully created a report using '$script_path'."
+    catch err
+        # Capture the error message
+        error_msg = String(err)
+        return "Could not create a report. \nThe script's error is the following:\n\n$error_msg"
+    end
+end
+
+function submit_slurm_job_to_generate_report(script_path::String, arg1::String, arg2::String, arg3::String)::String
+    # Construct the shell command with the script path as an argument
+    cmd = `sbatch -J report_generation -N 1 -c 1 -t 72:00:00 --mem=64GB -o /users/cnwizu/scratch/%x-log-%j.out -e /users/cnwizu/scratch/%x-log-%j.err --mail-type=END,FAIL --mail-user=chibuikem_nwizu@brown.edu --wrap="module load julia; module load llvm/16.0.2; module load r/4.4.0-yycctsj ; module load pcre2/10.42 cuda/12.1.1 texlive/20220321; module load cmake/3.26.3; module load libgit2/1.6.4; module load geos/3.11.2; module load libpng/1.6.39; module load gdal/3.7.0 proj/9.2.0; module load nlopt/2.7.1; source /users/cnwizu/data/cnwizu/cdHDPlmm/.venv/bin/activate ; export LD_PRELOAD=/gpfs/runtime/opt/intel/2020.2/mkl/lib/intel64/libmkl_def.so:/gpfs/runtime/opt/intel/2020.2/mkl/lib/intel64/libmkl_avx2.so:/gpfs/runtime/opt/intel/2020.2/mkl/lib/intel64/libmkl_core.so:/gpfs/runtime/opt/intel/2020.2/mkl/lib/intel64/libmkl_intel_lp64.so:/gpfs/runtime/opt/intel/2020.2/mkl/lib/intel64/libmkl_intel_thread.so:/gpfs/runtime/opt/intel/2020.2/lib/intel64_lin/libiomp5.so; python -u $script_path --resultsfiledir $arg1 --datadir $arg2 --make_abridged $arg3 "`
+    # `python -u $script_path --resultsfiledir $arg1 --datadir $arg2 --make_abridged $arg3`
+    
+    try
+        # Run the command and wait for it to complete
+        run(cmd)
+        # If it finishes successfully, return a success message
+        return "Successfully submitted job created a report using '$script_path'."
+    catch err
+        # Capture the error message
+        error_msg = String(err)
+        return "Could not create a report. \nThe script's error is the following:\n\n$error_msg"
+    end
+end
+
+# Function to compute a cost matrix (e.g., based on overlap)
+function compute_cost_matrix(labels1, labels2, K)
+    cost_matrix = zeros(K, K)
+    for i in 1:K
+        for j in 1:K
+            cost_matrix[i, j] = -sum((labels1 .== i) .& (labels2 .== j))  # Negative overlap (maximize match)
+        end
+    end
+    return cost_matrix
+end
+
+# Function to relabel clusters using Hungarian algorithm
+function relabel_clusters(labels, reference_labels, K)
+    cost_matrix = compute_cost_matrix(reference_labels, labels, K)
+    assignment, _ = hungarian(cost_matrix)  # Get optimal assignment
+
+    label_map = Dict(j => i for (i, j) in enumerate(assignment))  # Map old labels to new
+    return [label_map[l] for l in labels]  # Reassign labels
 end
