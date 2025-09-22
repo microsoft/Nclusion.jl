@@ -482,7 +482,7 @@ end
 function save_labels(cluster_results_df;dataset_used="",G="",unique_time_id="",filepath="")
     CSV.write(filepath*"$(dataset_used)_nclusion-"*unique_time_id*".csv",  cluster_results_df)
 end
-function run_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outdir; logger = nothing,num_iter=500,save_metrics=false)
+function run_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outdir; logger = nothing,num_iter=500,save_metrics=false,rand_init=false)
     Random.seed!(seed)
     _flushed_logger("Loading data and metadata...";logger)
     anndata_dict1= load_data(datafilename1,seed)
@@ -513,7 +513,7 @@ function run_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outd
     
 
     _flushed_logger("Initializing Model parameters...";logger)
-    inputs = initialize_model_parameters(x_input,KMax,alpha1,gamma1;num_iter=num_iter);
+    inputs = initialize_model_parameters(x_input,KMax,alpha1,gamma1;num_iter=num_iter,rand_init=rand_init);
 
     _flushed_logger("Starting Variational Inference";logger)
     outputs_dict = run_cavi(inputs;elbo_ep=elbo_ep,logger=logger)
