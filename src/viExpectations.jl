@@ -169,6 +169,168 @@ end
 ############################################
 ############################################
 
+TATION FUNCTIONS ########
+#################################################
+
+function E_ln_sigma_sq(j,clusterfeature::ClusterFeature)
+    return e_ln_sigma_sq(clusterfeature.a[j],clusterfeature.b[j])
+end
+
+function E_one_over_sigma_sq(j,clusterfeature::ClusterFeature)
+    return e_one_over_sigma_sq(clusterfeature.a[j],clusterfeature.b[j])
+end
+
+
+function E_ll_sq_diff_mu(j,cellfeature::CellFeature,clusterfeature::ClusterFeature)
+    return e_ll_sq_diff_mu(cellfeature.xsq[j],cellfeature.x[j],clusterfeature.m_mu[j],clusterfeature.y[j],clusterfeature.s_sq_mu[j],clusterfeature.m_nu[j],clusterfeature.s_sq_nu[j])
+end
+
+function E_ln_pi(k,conditionfeature::ConditionFeature)
+    return e_ln_pi(conditionfeature.d[k],conditionfeature.d_sum[1])
+end
+
+function E_ln_omega(conditionfeature::ConditionFeature)
+    return e_ln_omega(conditionfeature.w1[1],conditionfeature.w2[1])
+end
+
+function E_ln_minusomega(conditionfeature::ConditionFeature)
+    return e_ln_minusomega(conditionfeature.w1[1],conditionfeature.w2[1])
+end
+
+function E_omega(conditionfeature::ConditionFeature)
+    return e_omega(conditionfeature.w1[1],conditionfeature.w2[1])
+end
+
+function E_minusomega(conditionfeature::ConditionFeature)
+    return e_minusomega(conditionfeature.w1[1],conditionfeature.w2[1])
+end
+
+function E_chi(clusterfeature::ClusterFeature)
+    return e_chi(clusterfeature.g1[1],clusterfeature.g2[1])
+end
+
+function E_minus_chi(clusterfeature::ClusterFeature)
+    return e_minus_chi(clusterfeature.g1[1],clusterfeature.g2[1])
+end
+
+function E_ln_chi(clusterfeature::ClusterFeature)
+    return e_ln_chi(clusterfeature.g1[1],clusterfeature.g2[1])
+end
+
+function E_ln_minus_chi(clusterfeature::ClusterFeature)
+    return e_ln_minus_chi(clusterfeature.g1[1],clusterfeature.g2[1])
+end
+
+function E_ln_lambda(j,clusterfeature::ClusterFeature)
+    return e_ln_lambda(clusterfeature.u[j],clusterfeature.v[j])
+end
+
+function E_one_over_lambda(j,clusterfeature::ClusterFeature)
+    return e_one_over_lambda(clusterfeature.u[j],clusterfeature.v[j])
+end
+
+function E_mu_sq(j,clusterfeature::ClusterFeature)
+    return e_mu_sq(clusterfeature.m_mu[j],clusterfeature.s_sq_mu[j])
+end
+
+function E_mu(j,clusterfeature::ClusterFeature)
+    return e_mu(clusterfeature.m_mu[j])
+end
+
+function E_prior_sq_diff_mu(j,clusterfeature::ClusterFeature)
+    return e_prior_sq_diff_mu(clusterfeature.m_mu[j],clusterfeature.s_sq_mu[j])
+end
+
+function E_nu_sq(j,clusterfeature::ClusterFeature)
+    return e_nu_sq(clusterfeature.m_nu[j],clusterfeature.s_sq_nu[j])
+end
+
+function E_nu(j,clusterfeature::ClusterFeature)
+    return e_nu(clusterfeature.m_nu[j])
+end
+
+function E_prior_sq_diff_nu(j,clusterfeature::ClusterFeature)
+    return e_prior_sq_diff_nu(clusterfeature.m_nu[j],clusterfeature.s_sq_nu[j])
+end
+
+function E_nu_diff_sq(j,clusterfeature::ClusterFeature,modelparams::ModelParameterFeature)
+    return e_nu_diff_sq(clusterfeature.m_nu[j],clusterfeature.s_sq_nu[j],modelparams.nu0[j])
+end
+
+function E_ln_eta(j,clusterfeature::ClusterFeature)
+    return e_ln_eta(clusterfeature.h1[j],clusterfeature.h2[j])
+end
+
+function E_ln_minus_eta(j,clusterfeature::ClusterFeature)
+    return e_ln_minus_eta(clusterfeature.h1[j],clusterfeature.h2[j])
+end
+
+function E_eta(j,clusterfeature::ClusterFeature)
+    return e_eta(clusterfeature.h1[j],clusterfeature.h2[j])
+end
+
+function E_minus_eta(j,clusterfeature::ClusterFeature)
+    return e_minus_eta(clusterfeature.h1[j],clusterfeature.h2[j])
+end
+
+#copy_cells = deepcopy(cells); copy_precomputed_genefeatures_cells = deepcopy(cells); for n in 1:dataparams.N copy_cells[n].cache .= 0.0; copy_precomputed_genefeatures_cells[n].cache .= 0.0; adjust_E_ln_pi!(copy_cells[n],conditions,dataparams);adjust_E_ln_pi!(copy_precomputed_genefeatures_cells[n],conditions,dataparams); for k in 1:modelparams.K E_log_normal_l_j!(copy_cells[n],clusters[k], dataparams); E_log_normal_l_j!(preupdated_genefeatures,copy_precomputed_genefeatures_cells[n],clusters[k], dataparams); end; end; copy_cells_z_argmax = [argmax(copy_cells[n].cache) for n in 1:dataparams.N]; copy_precomputed_genefeatures_cells_z_argmax = [argmax(copy_precomputed_genefeatures_cells[n].cache) for n in 1:dataparams.N];println(Clustering.randindex(cell_cluster_labels,cell_cluster_labels)[1]); println(countmap(copy_cells_z_argmax)); println(Clustering.randindex(cell_cluster_labels,copy_cells_z_argmax)[1]); println(countmap(copy_precomputed_genefeatures_cells_z_argmax)); println(Clustering.randindex(cell_cluster_labels,copy_precomputed_genefeatures_cells_z_argmax)[1]); println(all([el in collect(1:dataparams.N)[cell_cluster_labels .!= copy_cells_z_argmax]  for el in collect(1:dataparams.N)[cell_cluster_labels .!= copy_precomputed_genefeatures_cells_z_argmax]]));
+
+"""
+"""
+function recursive_minus_E_chi_cumprod(k::Int,cummulative_prod::AbstractFloat,clusters::Vector{ClusterFeature{U,W}}) where {U <: AbstractFloat, W <: Int64} # formerly recursive_minus_e_uk_cumprod
+    if iszero(k)
+        return cummulative_prod
+    else
+        cummulative_prod *= E_minus_chi(clusters[k])
+        k -= 1
+        recursive_minus_E_chi_cumprod(k,cummulative_prod,clusters)
+    end
+end
+
+"""
+"""
+function log_of_recursive_minus_E_chi_cumprod(k::Int,cummulative_prod::AbstractFloat,clusters::Vector{ClusterFeature{U,W}}) where {U <: AbstractFloat, W <: Int64} #  Logging for stability?
+    if iszero(k)
+        return cummulative_prod
+    else
+        cummulative_prod += log(E_minus_chi(clusters[k]))
+        k -= 1
+        log_of_recursive_minus_E_chi_cumprod(k,cummulative_prod,clusters)
+    end
+end
+
+"""
+"""
+function expectation_SBk(k::Int,clusters::Vector{ClusterFeature{U,W}},modelparams::ModelParameterFeature;use_log=false) where {U <: AbstractFloat, W <: Int64} # formerly expectation_βk
+    K = modelparams.K
+    Kplus = K + 1
+    if k == Kplus
+        e_chi_k = 1.0
+    else
+        e_chi_k = E_chi(clusters[k])
+    end
+    if isone(k)
+        cumprod_e_minus_chi_k = 1.0
+        if use_log
+            cumprod_e_minus_chi_k = log(cumprod_e_minus_chi_k)          
+        end
+    else
+        if use_log
+            cumprod_e_minus_chi_k = log_of_recursive_minus_E_chi_cumprod(k-1,0.0,clusters)
+        else
+            cumprod_e_minus_chi_k = recursive_minus_E_chi_cumprod(k-1,1.0,clusters)
+        end
+    end
+    # println("($e_uk,$cumprod_minus_e_uk)")
+    if use_log
+        e_SBk = e_chi_k * exp(cumprod_e_minus_chi_k)
+    else
+        e_SBk = e_chi_k * cumprod_e_minus_chi_k
+    end
+    return e_SBk
+end
+
+
 """
 """
 function βk_expected_value(rho_hat_vec, omega_hat_vec)
