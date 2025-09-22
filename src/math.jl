@@ -178,3 +178,21 @@ function normToProb3!(K::Int,p::Vector{U};float_type=nothing)  where {U <: Abstr
 end
 
 
+##########################################################
+######## SIMPLE DISTRIBUTION NORMALIZER FUNCTIONS ########
+##########################################################
+function ln_Gamma_distribution_normalizer(a::AbstractFloat,b::AbstractFloat)
+    return a*log(b) - loggamma(a)
+end
+
+function ln_Beta_distribution_normalizer(a::AbstractFloat,b::AbstractFloat)
+    return logbeta(a,b)
+end
+
+function ln_Dirichlet_distribution_nomralizer(a::Vector{U}) where {U <: AbstractFloat}
+    return sum(loggamma.(a)) - loggamma(sum(a))
+end
+
+############################################
+############################################
+############################################
