@@ -1,3 +1,313 @@
+function init_c!(c_init,T,N_t;rand_init = false)
+    if isnothing(c_init) && rand_init
+        c_init = [[[rand(Dirichlet(ones(t) ./t));zeros(T-t)] for n in 1:N_t[t] ] for t in 1:T]
+    elseif isnothing(c_init) && !rand_init
+        c_init = [[[ones(t) ./t;zeros(T-t)] for n in 1:N_t[t]]  for t in 1:T]
+    end
+    return c_init
+end
+function init_r!(r_init,K,T,N_t;rand_init = false)
+    if isnothing(r_init) && rand_init
+        r_init = [[[rand(Dirichlet(ones(K) ./K));zeros(1) ] for i in 1:N_t[t]] for t in 1:T]
+    elseif  isnothing(r_init) && !rand_init
+        r_init = [[[ones(K) ./K ;zeros(1)  ] for i in 1:N_t[t]] for t in 1:T]
+    end
+    return r_init
+end
+function init_w1!(w1_init,T;rand_init = false)
+    if isnothing(w1_init) && rand_init
+        w1_init = exp.(randn(T))
+    elseif isnothing(w1_init) && !rand_init
+        w1_init = ones(T)
+    end
+    w1_init[1] = 1.0
+    return w1_init
+end
+function init_w2!(w2_init,T;rand_init = false)
+    if isnothing(w2_init) && rand_init
+        w2_init = exp.(randn(T))
+    elseif isnothing(w2_init) && !rand_init
+        w2_init = ones(T)
+    end
+    w2_init[1] = 1.0
+    return w2_init
+end
+function init_d!(d_init,K,T;rand_init = false,uniform_theta_init=true, g1_init = nothing, g2_init= nothing)
+    if isnothing(d_init)
+        if uniform_theta_init
+            d_init = [ones(K+1) ./(K+1)  for t in 1:T]
+        else
+            if rand_init
+                d_init = [rand(K+1) for t in 1:T]
+            else
+                d_init = init_d_k(T,g1_init, g2_init);
+            end
+        end
+    end
+    return d_init
+end
+function init_d_k(T,g1_init, g2_init)
+    d_vec = [[expectation_sbk(k,K+1,g1_init,g2_init; use_log = true) for i in 1:K+1] for t in 1:T]
+    return d_vec
+end
+function init_g1!(g1_init,K;rand_init = false)
+    if isnothing(g1_init) && rand_init
+        g1_init = logistic.(randn(K))
+    elseif isnothing(g1_init) && !rand_init
+        g1_init = ones(K)
+    end
+    return  g1_init
+end
+function init_g2!(g2_init,K;rand_init = false)
+    if isnothing(g2_init) && rand_init
+        g2_init = exp.(randn(K))
+    elseif isnothing(g2_init) && !rand_init
+        g2_init = ones(K)
+    end
+    return  g2_init
+end
+function init_m_mu!(m_mu_init,K,J;rand_init = false)
+    mu0_vec = zeros(J)
+    if isnothing(m_mu_init) && rand_init
+        m_mu_init = [randn(J) for k in 1:K]
+    elseif isnothing(m_mu_init) && !rand_init
+        m_mu_init = [mu0_vec for k in 1:K]
+    end
+    return m_mu_init
+end
+function init_s_sq_mu!(s_sq_mu_init,K,J;rand_init = false)
+    s_sq0_vec = ones(J)
+    if isnothing(s_sq_mu_init) && rand_init
+        s_sq_mu_init = [exp.(randn(J)) for k in 1:K]
+    elseif isnothing(s_sq_mu_init) && !rand_init
+        s_sq_mu_init = [s_sq0_vec for k in 1:K]
+    end
+    return s_sq_mu_init
+end
+function init_y!(y_init,K,J;rand_init = false)
+    y0_vec = 0.5*ones(J)
+    if isnothing(y_init) && rand_init
+        y_init = [logistic.(randn(J)) for k in 1:K]
+    elseif isnothing(y_init) && !rand_init
+        y_init = [y0_vec for k in 1:K]
+    end
+    return y_init
+end
+function init_h1!(h1_init,K,J;rand_init = false)
+    a, b = 0.0, 1.0
+    if isnothing(h1_init) && rand_init
+        h1_init = rand(K) #exp.(randn(K))
+    elseif isnothing(h1_init) && !rand_init
+        h1_init = ones(K)
+    end
+    return h1_init
+end
+function init_h2!(h2_init,K,J;rand_init = false)
+    if isnothing(h2_init) && rand_init
+        h2_init = rand(K) #exp.(randn(K))
+    elseif isnothing(h2_init) && !rand_init
+        h2_init = ones(K)
+    end
+    return h2_init
+end
+function init_a!(a_init,K,J;rand_init = false)
+    if isnothing(a_init) && rand_init
+        a_init = exp.(randn(J))
+    elseif isnothing(a_init) && !rand_init
+        a_init = ones(J)
+    end
+    return a_init
+end
+function init_b!(b_init,K,J;rand_init = false)
+    if isnothing(b_init) && rand_init
+        b_init = exp.(randn(J))
+    elseif isnothing(b_init) && !rand_init
+        b_init = ones(J)
+    end
+    return b_init
+end
+function init_m_nu!(m_nu_init,K,J;rand_init = false)
+    nu0_vec = zeros(J)
+    if isnothing(m_nu_init) && rand_init
+        m_nu_init = randn(J)
+    elseif isnothing(m_nu_init) && !rand_init
+        m_nu_init = nu0_vec
+    end
+    return m_nu_init
+end
+function init_s_sq_nu!(s_sq_nu_init,K,J;rand_init = false)
+    s_sq0_nu_vec = ones(J)
+    if isnothing(s_sq_nu_init) && rand_init
+        s_sq_nu_init = exp.(randn(J))
+    elseif isnothing(s_sq_nu_init) && !rand_init
+        s_sq_nu_init = s_sq0_nu_vec
+    end
+    return s_sq_nu_init
+end
+function init_u!(u_init,K,J;rand_init = false)
+    if isnothing(u_init) && rand_init
+        u_init = exp.(randn(float_type,1))
+    elseif isnothing(u_init) && !rand_init
+        u_init = 1.0
+    end
+    return u_init
+end
+function init_v!(v_init,K,J;rand_init = false)
+    if isnothing(v_init) && rand_init
+        v_init = exp(randn())
+    elseif isnothing(v_init) && !rand_init
+        v_init = 1.0
+    end
+    return v_init
+end
+function generate_fake_cells(data_input,dataparams,modelparams,SEED=2020)
+    Random.seed!(SEED)
+    I = dataparams.I
+    T = dataparams.T
+    N_t = dataparams.N_t
+    K = modelparams.K
+    N = dataparams.N
+    cells = [CellFeature(i,t,n,K,T,data_input[i][t][n]) for i in 1:I for t in 1:T[i] for n in 1:N_t[i][t]]
+    a, b = 0.0, 10.0
+    for n in 1:N
+        i = first(cells[n].i) # Alternatively, i = dataparams.LinearAddress[n][1]
+        t = first(cells[n].t) # Alternatively, t = dataparams.LinearAddress[n][2]
+        unnormalized_r = rand(K) .* (b - a) .+ a  # Generates a 1D array of K random numbers between a and b
+        normalized_r = normToProb(unnormalized_r)  # Normalizes the array to sum to 1
+        unnormalized_c = rand(t) .* (b - a) .+ a  # Generates a 1D array of T random numbers between a and b
+        normalized_c = normToProb(unnormalized_c)  # Normalizes the array to sum to 1
+        cells[n].r .= [normalized_r;zeros(1)]  # Generates a 1D array of K+1 random integers between 1 and 10
+        cells[n].c .= [normalized_c;zeros(T[i]-t)]  # Generates a 1D array of T random integers between 1 and 10
+        cells[n].cache .= 0.0  # Generates a 1D array of J random integers between 1 and 10
+    end
+    return cells
+end
+
+function generate_fake_time_conditions(T,K,N_t,SEED=2020,float_type=Float64,condition_update_neighbors=nothing,condition_network_neighbors=nothing)
+    Random.seed!(SEED)
+    Kplus = K+1;
+    I = length(T)
+    T_all = sum(T)
+    if isnothing(condition_update_neighbors)
+        condition_update_neighbors=get_linear_time_condition_update_neighbors(N_t;get_ragged_array=true)
+    end
+    if isnothing(condition_network_neighbors)
+        condition_network_neighbors=get_linear_time_condition_network_neighbors(N_t;get_ragged_array=true)
+    end
+    conditions = [ConditionFeature(i,t,K,T[i],condition_update_neighbors[i][t],condition_network_neighbors[i][t];float_type=float_type) for i in 1:I for t in 1:T[i]];
+    matrixconditions = [MatrixConditionFeature(i,t,K,T,condition_update_neighbors[i][t],condition_network_neighbors[i][t];float_type=float_type) for i in 1:I for t in 1:T[i]];
+    it=1
+    for i in 1:I
+        for t in 1:T[i]
+            conditions[it].d .= rand(1:10, Kplus)  # Generates a 1D array of K+1 random integers between 1 and 10
+            conditions[it].d_sum[1] = sum(conditions[t].d)
+            matrixconditions[it].cache .= 0.0
+            conditions[it].Ctt .= rand(1:10, T[i])  # Generates a 1D array of T random integers between 1 and 10
+            # conditions[t].time_cache .= 0.0
+            matrixconditions[it].CNtk .= rand(1:10,T[i],Kplus)
+            matrixconditions[it].suffstats_cache .= zeros(T[i],Kplus)
+            conditions[it].w1[1] = 1.0
+            conditions[it].w2[1] = 1.0
+            it += 1
+        end
+    end
+    return conditions,matrixconditions
+end
+function generate_fake_clusters(K,modelparams,SEED=2020,float_type=Float64)
+    Random.seed!(SEED)
+    Kplus = K+1;
+    clusters = [ClusterFeature(k,J;float_type=float_type) for k in 1:Kplus];
+    a, b = 0.0, 10.0
+    for k in 1:K
+        clusters[k].m_mu .= randn(J)  # Generates a 1D array of J random N(0,1) distributed numbers
+        clusters[k].s_sq_mu .= rand(J) .* (b - a) .+ a  # Generates a random number between a and b
+        clusters[k].y .= logistic.(randn(J))  # Generates a 1D array of J random probabilities between 0 and 1
+        clusters[k].h1 .= rand(J) .* (b - a) .+ a # Generates a random number between a and b
+        clusters[k].h2 .= rand(J) .* (b - a) .+ a # Generates a random number between a and b
+        clusters[k].Nk[1] = rand() * (b - a) + a 
+        clusters[k].x_hat .= randn(J)  # Generates a 1D array of J random N(0,1) distributed numbers
+        clusters[k].x_hat_sq .=  rand(J) .* (b - a) .+ a  # Generates a random number between a and b
+        clusters[k].g1[1] = rand() # Generates a random probability between 0 and 1
+        clusters[k].g2[1] = rand() * (b - a) + a # Generates a random number between a and b
+        clusters[k].u .= rand(J) .* (b - a) .+ a  # Generates a random number between a and b
+        clusters[k].v .= rand(J) .* (b - a) .+ a  # Generates a random number between a and b
+        clusters[k].a .= rand(J) .* (b - a) .+ a  # Generates a random number between a and b
+        clusters[k].b .= rand(J) .* (b - a) .+ a  # Generates a random number between a and b
+        clusters[k].alpha_Tk[1] = rand() * (b - a) + a # Generates a random number between a and b
+        clusters[k].cache .= 0.0  # Generates a 1D array of J random integers between 1 and 10
+    end
+    clusters[Kplus].m_mu .= 0.0  # Generates a 1D array of J zeros
+    clusters[Kplus].s_sq_mu .= 1.0  # Generates a 1D array of J ones
+    clusters[Kplus].y .= e_eta(modelparams.varphi1[1],modelparams.varphi2[1])
+    clusters[Kplus].h1 .= modelparams.varphi1[1] .* ones(J)
+    clusters[Kplus].h2 .= modelparams.varphi2[1] .* ones(J)
+    clusters[Kplus].u .= modelparams.kappa1 .* ones(J)
+    clusters[Kplus].v .= modelparams.kappa2 .* ones(J)
+    clusters[Kplus].a .= modelparams.xi1 .* ones(J)
+    clusters[Kplus].b .= modelparams.xi2 .* ones(J)
+    clusters[Kplus].Nk[1] = 0.0 # Generates a 1D array of J zeros
+    clusters[Kplus].x_hat .= 0.0  # Generates a 1D array of J zeros
+    clusters[Kplus].x_hat_sq .= 1.0  # Generates a 1D array of J ones
+    clusters[Kplus].g1[1] = 1.0
+    clusters[Kplus].g2[1] = modelparams.gamma0[1]
+    clusters[Kplus].alpha_Tk[1] = 1.0
+    clusters[Kplus].cache .= 0.0  # Generates a 1D array of J zeros
+    return clusters
+end
+
+function generate_fake_model_params(data_input,K,SEED=2020)
+    Random.seed!(SEED)
+    a, b = 0.0, 10.0
+    V = eltype(data_input[1][1][1])
+    I = length(data_input)
+    T = [length(data_input[i]) for i in 1:I]
+    J = length(data_input[1][1][1])
+    alpha0 = [[rand() * (b - a) + a for t in 1:T[i]] for i in 1:I]
+    gamma0 = rand() * (b - a) + a 
+    phi1 = rand() * (b - a) + a 
+    phi2 = rand() * (b - a) + a 
+    kappa1 = rand() * (b - a) + a 
+    kappa2 = rand() * (b - a) + a 
+    xi1 = rand() * (b - a) + a 
+    xi2 = rand() * (b - a) + a 
+    varphi1 = rand() * (b - a) + a 
+    varphi2 = rand() * (b - a) + a 
+    nu0 = [randn() for j in 1:J]
+    sigma_sq_nu = [rand() * (b - a) + a for j in 1:J]
+    num_iter = rand(1:10) 
+    uniform_theta_init = false
+    rand_init = false
+    change_seeds = false
+    significance_prop = 0.5
+    min_number_cells=100
+    min_percent_cells=.100
+    min_percent_of_genes=0.05
+    max_percent_of_genes=0.75
+    init_seed = 2020
+    return ModelParameterFeature(data_input,K,alpha0,gamma0,phi1,phi2,kappa1,kappa2,xi1,xi2,varphi1,varphi2,nu0,sigma_sq_nu,significance_prop,min_number_cells,min_percent_cells,min_percent_of_genes,max_percent_of_genes,num_iter,uniform_theta_init,rand_init,change_seeds,init_seed)
+end
+
+function generate_fake_data_params(data_input,SEED=2020)
+    Random.seed!(SEED)
+    return DataFeature(data_input)
+end
+
+
+function generate_fake_inputs(I,TMax,J,K;SEED=2020,float_type=Float64,NMax=10,guarantee_an_idividual_with_singleton_timepoint=true)
+    T = generate_fake_T(I,TMax,SEED,guarantee_an_idividual_with_singleton_timepoint);
+    data_input = generate_fake_dataset(I,T,J,SEED;NMax=NMax);
+    dataparams = generate_fake_data_params(data_input,SEED);
+    N = dataparams.N
+    N_t = dataparams.N_t
+    LinearAddress = dataparams.LinearAddress
+    TimeRanges = dataparams.TimeRanges
+    modelparams = generate_fake_model_params(data_input,K,SEED);
+    conditions,matrixconditions = generate_fake_time_conditions(T,K,N_t,SEED);
+    cells = generate_fake_cells(data_input,dataparams,modelparams,SEED);
+    clusters = generate_fake_clusters(K,modelparams,SEED,float_type);
+    return I,T,J,K,N,N_t,LinearAddress,TimeRanges,data_input,dataparams,modelparams,conditions,matrixconditions,cells,clusters# = generate_fake_inputs(I,TMax,J,K,;SEED=SEED,float_type=Float64,NMax=NMax);
+end
+
 """
 """
 function init_params_states(K)
