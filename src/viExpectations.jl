@@ -169,7 +169,8 @@ end
 ############################################
 ############################################
 
-TATION FUNCTIONS ########
+#################################################
+###### CUSTOM TYPE EXPECTATION FUNCTIONS ########
 #################################################
 
 function E_ln_sigma_sq(j,clusterfeature::ClusterFeature)
@@ -330,6 +331,23 @@ function expectation_SBk(k::Int,clusters::Vector{ClusterFeature{U,W}},modelparam
     return e_SBk
 end
 
+
+# sum(T[1:i-1])+tt
+function recursive_cumsum_E_ln_minusomega(i::Int,t::Int,tt::Int,T::Vector{Int},conditions::Vector{ConditionFeature{U,W}}) where {U <: AbstractFloat, W <: Int64}
+    if t < tt
+        return 0.0
+    else
+        if tt == 1 && t == 1
+            return 0.0
+        else
+            return E_ln_minusomega(conditions[sum(T[1:i-1])+tt]) + recursive_cumsum_E_ln_minusomega(i,t,tt+1,T,conditions)
+        end
+    end
+end
+
+############################################
+############################################
+############################################
 
 """
 """
