@@ -1,6 +1,6 @@
 """
     t_test(x; conf_level=0.95)
-This function calculates the upper and lower confidence interval of a population of parameters using a t-test
+    This function calculates the upper and lower confidence interval of a population of parameters using a t-test
 """
 function t_test(x; conf_level=0.95)
     alpha = (1 - conf_level)
@@ -14,13 +14,13 @@ end
 
 """
     norm_weights(p)
-This function normalizes a vector of values on the log scale.
-```math
-π_i=exp(x_i− logsumexp(x)) where logsumexp(x)=b+log∑_{j=1}^n exp(x_j−b)
-π_i in [0,1]
-```
+    This function normalizes a vector of values on the log scale.
+    ```math
+    π_i=exp(x_i− logsumexp(x)) where logsumexp(x)=b+log∑_{j=1}^n exp(x_j−b)
+    π_i in [0,1]
+    ```
 """
-function norm_weights(p)
+function norm_weights(p::Vector{U})  where {U <: AbstractFloat}
     psum = StatsFuns.logsumexp(p)
     w = exp.(p .- psum)
     return w
@@ -28,12 +28,12 @@ end
 
 """
     normToProb(p)
-This function normalizes a vector of values
-```math
-w_i = frac{x_i}{∑_{j=1}^n x_j}
-```
+    This function normalizes a vector of values
+    ```math
+    w_i = frac{x_i}{∑_{j=1}^n x_j}
+    ```
 """
-function normToProb(p)
+function normToProb(p::Vector{U}) where {U <: AbstractFloat}
     psum = sum(p)
     w = p ./ psum
     return w
@@ -42,13 +42,13 @@ end
 
 """
     norm_weights3(p;float_type=nothing)
-This function normalizes a vector of values on the log scale by precallocating an its output.
-```math
-π_i=exp(x_i− logsumexp(x)) where logsumexp(x)=b+log∑_{j=1}^n exp(x_j−b)
-π_i in [0,1]
-```
+    This function normalizes a vector of values on the log scale by precallocating an its output.
+    ```math
+    π_i=exp(x_i− logsumexp(x)) where logsumexp(x)=b+log∑_{j=1}^n exp(x_j−b)
+    π_i in [0,1]
+    ```
 """
-function norm_weights3(p;float_type=nothing)
+function norm_weights3(p::Vector{U};float_type=nothing)  where {U <: AbstractFloat}
     K = length(p)
     if isnothing(float_type)
         float_type =eltype(p)
@@ -64,13 +64,13 @@ end
 
 """
     norm_weights3!(p;float_type=nothing)
-This function normalizes a vector of values on the log scale by precallocating an its output and performs operations in place.
-```math
-π_i=exp(x_i− logsumexp(x)) where logsumexp(x)=b+log∑_{j=1}^n exp(x_j−b)
-π_i in [0,1]
-```
+    This function normalizes a vector of values on the log scale by precallocating an its output and performs operations in place.
+    ```math
+    π_i=exp(x_i− logsumexp(x)) where logsumexp(x)=b+log∑_{j=1}^n exp(x_j−b)
+    π_i in [0,1]
+    ```
 """
-function norm_weights3!(p;float_type=nothing)
+function norm_weights3!(p::Vector{U};float_type=nothing)  where {U <: AbstractFloat}
     K = length(p)
     if isnothing(float_type)
         float_type =eltype(p)
@@ -84,15 +84,15 @@ function norm_weights3!(p;float_type=nothing)
     return p
 end
 
-"""
+""""
     norm_weights3!(K,p;float_type=nothing)
-This function normalizes a vector of values on the log scale by precallocating an its output and performs operations in place. Normalization only occurs up until the Kth element in the vector
-```math
-π_i=exp(x_i− logsumexp(x)) text{ where } logsumexp(x)=b+log∑_{j=1}^K exp(x_j−b)
-text{ for } π_i in [0,1] text{and} i in {1,..,K}
-```
+    This function normalizes a vector of values on the log scale by precallocating an its output and performs operations in place. Normalization only occurs up until the Kth element in the vector
+    ```math
+    π_i=exp(x_i− logsumexp(x)) text{ where } logsumexp(x)=b+log∑_{j=1}^K exp(x_j−b)
+    text{ for } π_i in [0,1] text{and} i in {1,..,K}
+    ```
 """
-function norm_weights3!(K,p;float_type=nothing)
+function norm_weights3!(K::Int,p::Vector{U};float_type=nothing) where {U <: AbstractFloat}
     if isnothing(float_type)
         float_type =eltype(p)
     end
@@ -106,12 +106,12 @@ end
 
 """
     normToProb3!(p;float_type=nothing)
-This function normalizes a vector of values by precallocating an its output and performs operations in place.
-```math
-w_i = frac{x_i}{∑_{j=1}^n x_j}
-```
+    This function normalizes a vector of values by precallocating an its output and performs operations in place.
+    ```math
+    w_i = frac{x_i}{∑_{j=1}^n x_j}
+    ```
 """
-function normToProb3!(p;float_type=nothing)
+function normToProb3!(p::Vector{U};float_type=nothing) where {U <: AbstractFloat}
     K = length(p)
     if isnothing(float_type)
         float_type =eltype(p)
@@ -125,12 +125,12 @@ end
 
 """
     sigmoidNorm!(p;float_type=nothing)
-This function normalizes a vector of values using a logistic function by precallocating an its output and performs operations in place.
-```math
-f(x_i) = frac{1}{1 + e^{-x_i}}
-```
+    This function normalizes a vector of values using a logistic function by precallocating an its output and performs operations in place.
+    ```math
+    f(x_i) = frac{1}{1 + e^{-x_i}}
+    ```
 """
-function sigmoidNorm!(p;float_type=nothing)
+function sigmoidNorm!(p::Vector{U};float_type=nothing)  where {U <: AbstractFloat}
     K = length(p)
     if isnothing(float_type)
         float_type =eltype(p)
@@ -143,12 +143,12 @@ end
 
 """
     sigmoidNorm!(K,p;float_type=nothing)
-This function normalizes a vector of values using a logistic function by precallocating an its output and performs operations in place. Normalization only occurs up until the Kth element in the vector
-```math
-f(x_i) = frac{1}{1 + e^{-x_i}} text{ for } i in {1,..,K}
-```
+    This function normalizes a vector of values using a logistic function by precallocating an its output and performs operations in place. Normalization only occurs up until the Kth element in the vector
+    ```math
+    f(x_i) = frac{1}{1 + e^{-x_i}} text{ for } i in {1,..,K}
+    ```
 """
-function sigmoidNorm!(K,p;float_type=nothing)
+function sigmoidNorm!(K::Int,p::Vector{U};float_type=nothing)  where {U <: AbstractFloat}
     if isnothing(float_type)
         float_type =eltype(p)
     end
@@ -160,12 +160,12 @@ end
 
 """
     normToProb3!(K,p;float_type=nothing)
-This function normalizes a vector of values by precallocating an its output and performs operations in place. Normalization only occurs up until the Kth element in the vector
-```math
-w_i = frac{x_i}{∑_{j=1}^K x_j} text{ for } i in {1,..,K} 
-```
+    This function normalizes a vector of values by precallocating an its output and performs operations in place. Normalization only occurs up until the Kth element in the vector
+    ```math
+    w_i = frac{x_i}{∑_{j=1}^K x_j} text{ for } i in {1,..,K} 
+    ```
 """
-function normToProb3!(K,p;float_type=nothing)
+function normToProb3!(K::Int,p::Vector{U};float_type=nothing)  where {U <: AbstractFloat}
     # K = length(p)
     if isnothing(float_type)
         float_type =eltype(p)
