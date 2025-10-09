@@ -174,7 +174,7 @@ function load_data(datafilename1,seed)
     return anndata_dict1
 end
 
-
+function preparing_data(anndata_dict1;time_key=nothing,individuals_key=nothing)
     gene_names = anndata_dict1["var"]["_index"]
     cell_ids = anndata_dict1["obs"]["_index"]
     cell_cluster_dict = nothing
@@ -213,7 +213,7 @@ end
 end
 
 
-anndata_dict1;time_key=nothing,individuals_key=nothing, layer_name=nothing,layer_index=0,gene_set_file_path=nothing, min_genes_detected=10,standardization_of_used_representation=nothing,is_precomputed_latent_representation=false)
+function make_nclusion_inputs(anndata_dict1;time_key=nothing,individuals_key=nothing, layer_name=nothing,layer_index=0,gene_set_file_path=nothing, min_genes_detected=10,standardization_of_used_representation=nothing,is_precomputed_latent_representation=false)
     x_mat = anndata_dict1["X"]
     # gene_names, _, cell_cluster_labels, _ ,time_vec, _ ,individuals_vec,cell_cluster_dict=preparing_data(anndata_dict1;time_key=time_key,individuals_key=individuals_key)
     # gene_names, _, cell_cluster_labels, time_vec, individuals_vec,cell_cluster_dict=preparing_data(anndata_dict1;time_key=time_key,individuals_key=individuals_key)

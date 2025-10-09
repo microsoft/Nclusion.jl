@@ -22,9 +22,9 @@ using Test
 using CSV,DataFrames
 using JSON, JSON3
 using Dates
-using TSne, MultivariateStats, Clustering
+using MultivariateStats, Clustering
 using LaTeXStrings, TypedTables, PrettyTables
-using Gnuplot, Colors, ColorSchemes
+using Colors, ColorSchemes
 using SpecialFunctions
 using Optim
 using BenchmarkTools
@@ -44,29 +44,6 @@ flushed_logger("Loading NCLUSION Modules....";logger)
 include(curr_dir*src_dir*"Nclusion.jl")
 using .Nclusion
 
-
-flushed_logger("Setting Plotting Settings....";logger)
-if "GKSwstype" in collect(keys(ENV)) 
-    if ENV["GKSwstype"] == "100"
-        flushed_logger("\t Enabling Headless Plotting....";logger)
-        
-        Gnuplot.options.gpviewer = false
-    else
-        Gnuplot.options.gpviewer = true
-    end
-else
-    Gnuplot.options.gpviewer = true
-end
-if "GKSwstype" in collect(keys(ENV)) 
-    if ENV["GKSwstype"] == "100"
-        flushed_logger("\t Setting Plotting enviroment variables....";logger)
-        to_display=false
-    else
-        to_display=true
-    end
-else
-    to_display=true
-end
 
 
 function main(ARGS)

@@ -9,9 +9,9 @@ using Test
 using CSV,DataFrames
 using JSON, JSON3
 using Dates
-using TSne, MultivariateStats, Clustering
+using MultivariateStats, Clustering
 using LaTeXStrings, TypedTables, PrettyTables
-using Gnuplot, Colors, ColorSchemes
+using Colors, ColorSchemes
 using SpecialFunctions
 using Optim
 using BenchmarkTools

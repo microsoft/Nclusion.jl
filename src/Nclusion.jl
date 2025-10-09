@@ -9,14 +9,14 @@ module Nclusion
     using DataFrames
     using JSON, JSON3
     using Dates
-    using TSne, MultivariateStats, Clustering
+    using MultivariateStats, Clustering
     using OrderedCollections
     using CSV
     using LaTeXStrings, TypedTables, PrettyTables
     using JLD2,FileIO
     using Random
     using Test
-    using Gnuplot, Colors, ColorSchemes
+    using Colors, ColorSchemes
     using BenchmarkTools
     using Profile
     using HDF5
@@ -233,6 +233,11 @@ module Nclusion
            GeneFeatures,
            ConditionFeatures,
            DataFeatures,
+           TrainFeature,
+           ClusterFeature,
+           ConditionFeature,
+           DataFeature,
+           ModelParameterFeature,
            ModelParameterFeatures,
            ElboFeatures,
            get_timeranges,
@@ -243,8 +248,8 @@ module Nclusion
     include("processing.jl")
     include("math.jl")
     include("modelMetrics.jl")
-    include("viCoordinateAscent.jl")
     include("viCustomType.jl")
+    include("viCoordinateAscent.jl")
     include("viElboCalculations.jl")
     include("viExpectations.jl")
     include("viInitializations.jl")

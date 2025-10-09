@@ -1033,33 +1033,33 @@ function extract_and_add_parameters_to_outputs_dict!(outputs_dict,cellpop,cluste
     # end
 end
 
-"""
-        extract_gene_paramter(paramname,geneparams,dataparams)
-    This function extracts the gene specific parameters from the GeneFeatures object used in inference
-"""
-function extract_gene_paramter(paramname,geneparams,dataparams)
-    if typeof(paramname) <: String
-        paramname = Symbol(paramname)
-    end
-    G = dataparams.G
+# """
+#         extract_gene_paramter(paramname,geneparams,dataparams)
+#     This function extracts the gene specific parameters from the GeneFeatures object used in inference
+# """
+# function extract_gene_paramter(paramname,geneparams,dataparams)
+#     if typeof(paramname) <: String
+#         paramname = Symbol(paramname)
+#     end
+#     G = dataparams.G
 
-    param = [ isone(length(getfield(geneparams[j],paramname))) ? getfield(geneparams[j],paramname)[1] : getfield(geneparams[j],paramname) for j in 1:G]
-    return param
-end
+#     param = [ isone(length(getfield(geneparams[j],paramname))) ? getfield(geneparams[j],paramname)[1] : getfield(geneparams[j],paramname) for j in 1:G]
+#     return param
+# end
 
-"""
-        extract_elbo_vals_perK(paramname,elbolog)
-    This function extracts the cluster specific elbo values from the ElboFeatures object used in inference
-"""
-function extract_elbo_vals_perK(paramname,elbolog)
-    if typeof(paramname) <: String
-        paramname = Symbol(paramname)
-    end
-    # G = dataparams.G
+# """
+#         extract_elbo_vals_perK(paramname,elbolog)
+#     This function extracts the cluster specific elbo values from the ElboFeatures object used in inference
+# """
+# function extract_elbo_vals_perK(paramname,elbolog)
+#     if typeof(paramname) <: String
+#         paramname = Symbol(paramname)
+#     end
+#     # G = dataparams.G
 
-    vals = getfield(elbolog,paramname)
-    return vals
-end
+#     vals = getfield(elbolog,paramname)
+#     return vals
+# end
 
 """
         extract_rtik_paramter(cellpop,dataparams)
@@ -1083,60 +1083,60 @@ function extract_rtik_paramter(cellpop,dataparams)
     return rtik
 end
 
-"""
-        extract_and_add_parameters_to_outputs_dict!(outputs_dict,cellpop,clusters,geneparams,conditionparams,dataparams,modelparams)
-    This function extracts all parameters from custom objects and adds them to the previously instantiated output dictionary.
-"""
-function extract_and_add_parameters_to_outputs_dict!(outputs_dict,cellpop,clusters,geneparams,conditionparams,dataparams,modelparams)
-    cluster_params_of_interest = [:yjk_hat, :mk_hat, :v_sq_k_hat, :σ_sq_k_hat, :var_muk,:κk_hat, :Nk, :gk_hat, :hk_hat, :ak_hat, :bk_hat, :x_hat,:x_hat_sq]
-    condition_params_of_interest = [:d_hat_t, :c_tt_prime, :st_hat]
-    gene_params_of_interest = [:λ_sq]
+# """
+#         extract_and_add_parameters_to_outputs_dict!(outputs_dict,cellpop,clusters,geneparams,conditionparams,dataparams,modelparams)
+#     This function extracts all parameters from custom objects and adds them to the previously instantiated output dictionary.
+# """
+# function extract_and_add_parameters_to_outputs_dict!(outputs_dict,cellpop,clusters,geneparams,conditionparams,dataparams,modelparams)
+#     cluster_params_of_interest = [:yjk_hat, :mk_hat, :v_sq_k_hat, :σ_sq_k_hat, :var_muk,:κk_hat, :Nk, :gk_hat, :hk_hat, :ak_hat, :bk_hat, :x_hat,:x_hat_sq]
+#     condition_params_of_interest = [:d_hat_t, :c_tt_prime, :st_hat]
+#     gene_params_of_interest = [:λ_sq]
 
-    outputs_dict[:rtik_] = extract_rtik_paramter(cellpop, dataparams)
-    for fn in cluster_params_of_interest
-        key = Symbol(String(fn) * "_")
-        outputs_dict[key] = extract_cluster_paramter(fn, clusters, modelparams)
-    end
-    for fn in condition_params_of_interest
-        key = Symbol(String(fn) * "_")
-        outputs_dict[key] = extract_condition_paramter(fn, conditionparams, dataparams)
-    end
-    for fn in gene_params_of_interest
-        key = Symbol(String(fn) * "_")
-        outputs_dict[key] = extract_gene_paramter(fn, geneparams, dataparams)
-    end
-end
+#     outputs_dict[:rtik_] = extract_rtik_paramter(cellpop, dataparams)
+#     for fn in cluster_params_of_interest
+#         key = Symbol(String(fn) * "_")
+#         outputs_dict[key] = extract_cluster_paramter(fn, clusters, modelparams)
+#     end
+#     for fn in condition_params_of_interest
+#         key = Symbol(String(fn) * "_")
+#         outputs_dict[key] = extract_condition_paramter(fn, conditionparams, dataparams)
+#     end
+#     for fn in gene_params_of_interest
+#         key = Symbol(String(fn) * "_")
+#         outputs_dict[key] = extract_gene_paramter(fn, geneparams, dataparams)
+#     end
+# end
 
-"""
-        extract_and_add_parameters_to_outputs_dict!(outputs_dict,cellpop,clusters,geneparams,conditionparams,dataparams,modelparams,elbolog)
-    This function extracts all parameters from custom objects and adds them to the previously instantiated output dictionary.
-"""
-function extract_and_add_parameters_to_outputs_dict!(outputs_dict,cellpop,clusters,geneparams,conditionparams,dataparams,modelparams,elbolog)
-    cluster_params_of_interest = [:yjk_hat, :mk_hat, :v_sq_k_hat, :σ_sq_k_hat, :var_muk,:κk_hat, :Nk, :gk_hat, :hk_hat, :ak_hat, :bk_hat, :x_hat,:x_hat_sq]
-    condition_params_of_interest = [:d_hat_t, :c_tt_prime, :st_hat]
-    gene_params_of_interest = [:λ_sq]
-    perK_elbos = [:per_k_elbo]
-    model_params = [:ηk]
+# """
+#         extract_and_add_parameters_to_outputs_dict!(outputs_dict,cellpop,clusters,geneparams,conditionparams,dataparams,modelparams,elbolog)
+#     This function extracts all parameters from custom objects and adds them to the previously instantiated output dictionary.
+# """
+# function extract_and_add_parameters_to_outputs_dict!(outputs_dict,cellpop,clusters,geneparams,conditionparams,dataparams,modelparams,elbolog)
+#     cluster_params_of_interest = [:yjk_hat, :mk_hat, :v_sq_k_hat, :σ_sq_k_hat, :var_muk,:κk_hat, :Nk, :gk_hat, :hk_hat, :ak_hat, :bk_hat, :x_hat,:x_hat_sq]
+#     condition_params_of_interest = [:d_hat_t, :c_tt_prime, :st_hat]
+#     gene_params_of_interest = [:λ_sq]
+#     perK_elbos = [:per_k_elbo]
+#     model_params = [:ηk]
 
-    outputs_dict[:rtik_] = extract_rtik_paramter(cellpop, dataparams)
-    for fn in cluster_params_of_interest
-        key = Symbol(String(fn) * "_")
-        outputs_dict[key] = extract_cluster_paramter(fn, clusters, modelparams)
-    end
-    for fn in condition_params_of_interest
-        key = Symbol(String(fn) * "_")
-        outputs_dict[key] = extract_condition_paramter(fn, conditionparams, dataparams)
-    end
-    for fn in gene_params_of_interest
-        key = Symbol(String(fn) * "_")
-        outputs_dict[key] = extract_gene_paramter(fn, geneparams, dataparams)
-    end
-    for fn in perK_elbos
-        key = Symbol(String(fn) * "_")
-        outputs_dict[key] = extract_elbo_vals_perK(fn, elbolog)
-    end
-    for fn in model_params
-        key = Symbol(String(fn) * "_")
-        outputs_dict[key] = getfield(modelparams,fn)
-    end
-end
+#     outputs_dict[:rtik_] = extract_rtik_paramter(cellpop, dataparams)
+#     for fn in cluster_params_of_interest
+#         key = Symbol(String(fn) * "_")
+#         outputs_dict[key] = extract_cluster_paramter(fn, clusters, modelparams)
+#     end
+#     for fn in condition_params_of_interest
+#         key = Symbol(String(fn) * "_")
+#         outputs_dict[key] = extract_condition_paramter(fn, conditionparams, dataparams)
+#     end
+#     for fn in gene_params_of_interest
+#         key = Symbol(String(fn) * "_")
+#         outputs_dict[key] = extract_gene_paramter(fn, geneparams, dataparams)
+#     end
+#     for fn in perK_elbos
+#         key = Symbol(String(fn) * "_")
+#         outputs_dict[key] = extract_elbo_vals_perK(fn, elbolog)
+#     end
+#     for fn in model_params
+#         key = Symbol(String(fn) * "_")
+#         outputs_dict[key] = getfield(modelparams,fn)
+#     end
+# end
