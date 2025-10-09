@@ -1,3 +1,7 @@
+"""
+    init_c!(c_init,T,N_t;rand_init = false)
+This function initializes the c variable for the variational inference algorithm. If c_init is not provided, it can be initialized randomly or uniformly based on the rand_init flag.
+"""
 function init_c!(c_init,T,N_t;rand_init = false)
     if isnothing(c_init) && rand_init
         c_init = [[[rand(Dirichlet(ones(t) ./t));zeros(T-t)] for n in 1:N_t[t] ] for t in 1:T]
@@ -6,6 +10,10 @@ function init_c!(c_init,T,N_t;rand_init = false)
     end
     return c_init
 end
+"""
+    init_r!(r_init,K,T,N_t;rand_init = false)
+This function initializes the r variable for the variational inference algorithm. If r_init is not provided, it can be initialized randomly or uniformly based on the rand_init flag.
+""" 
 function init_r!(r_init,K,T,N_t;rand_init = false)
     if isnothing(r_init) && rand_init
         r_init = [[[rand(Dirichlet(ones(K) ./K));zeros(1) ] for i in 1:N_t[t]] for t in 1:T]
@@ -14,6 +22,11 @@ function init_r!(r_init,K,T,N_t;rand_init = false)
     end
     return r_init
 end
+
+"""
+    init_w1!(w1_init,T;rand_init = false)
+This function initializes the w1 variable for the variational inference algorithm. If w1_init is not provided, it can be initialized randomly or uniformly based on the rand_init flag.
+""" 
 function init_w1!(w1_init,T;rand_init = false)
     if isnothing(w1_init) && rand_init
         w1_init = exp.(randn(T))
@@ -23,6 +36,11 @@ function init_w1!(w1_init,T;rand_init = false)
     w1_init[1] = 1.0
     return w1_init
 end
+
+"""
+    init_w2!(w2_init,T;rand_init = false)
+This function initializes the w2 variable for the variational inference algorithm. If w2_init is not provided, it can be initialized randomly or uniformly based on the rand_init flag.
+"""
 function init_w2!(w2_init,T;rand_init = false)
     if isnothing(w2_init) && rand_init
         w2_init = exp.(randn(T))
@@ -32,6 +50,11 @@ function init_w2!(w2_init,T;rand_init = false)
     w2_init[1] = 1.0
     return w2_init
 end
+
+"""
+    init_d!(d_init,K,T;rand_init = false,uniform_theta_init=true, g1_init = nothing, g2_init= nothing)
+This function initializes the d variable for the variational inference algorithm. If d_init is not provided, it can be initialized randomly, uniformly, or based on the g1 and g2 parameters depending on the flags provided.
+"""
 function init_d!(d_init,K,T;rand_init = false,uniform_theta_init=true, g1_init = nothing, g2_init= nothing)
     if isnothing(d_init)
         if uniform_theta_init
@@ -46,10 +69,20 @@ function init_d!(d_init,K,T;rand_init = false,uniform_theta_init=true, g1_init =
     end
     return d_init
 end
+
+"""
+    init_d_k(T,g1_init, g2_init)
+This function initializes the d variable for the variational inference algorithm based on the g1 and g2 parameters.
+"""
 function init_d_k(T,g1_init, g2_init)
     d_vec = [[expectation_sbk(k,K+1,g1_init,g2_init; use_log = true) for i in 1:K+1] for t in 1:T]
     return d_vec
 end
+
+"""
+    init_g1!(g1_init,K;rand_init = false)
+This function initializes the g1 variable for the variational inference algorithm. If g1_init is not provided, it can be initialized randomly or uniformly based on the rand_init flag.
+"""
 function init_g1!(g1_init,K;rand_init = false)
     if isnothing(g1_init) && rand_init
         g1_init = logistic.(randn(K))
@@ -58,6 +91,11 @@ function init_g1!(g1_init,K;rand_init = false)
     end
     return  g1_init
 end
+
+"""
+    init_g2!(g2_init,K;rand_init = false)
+This function initializes the g2 variable for the variational inference algorithm. If g2_init is not provided, it can be initialized randomly or uniformly based on the rand_init flag.
+"""
 function init_g2!(g2_init,K;rand_init = false)
     if isnothing(g2_init) && rand_init
         g2_init = exp.(randn(K))
@@ -66,6 +104,11 @@ function init_g2!(g2_init,K;rand_init = false)
     end
     return  g2_init
 end
+
+"""
+    init_m_mu!(m_mu_init,K,J;rand_init = false)
+This function initializes the m_mu variable for the variational inference algorithm. If m_mu_init is not provided, it can be initialized randomly or uniformly based on the rand_init flag.
+"""
 function init_m_mu!(m_mu_init,K,J;rand_init = false)
     mu0_vec = zeros(J)
     if isnothing(m_mu_init) && rand_init
@@ -75,6 +118,11 @@ function init_m_mu!(m_mu_init,K,J;rand_init = false)
     end
     return m_mu_init
 end
+
+"""
+    init_s_sq_mu!(s_sq_mu_init,K,J;rand_init = false)
+This function initializes the s_sq_mu variable for the variational inference algorithm. If s_sq_mu_init is not provided, it can be initialized randomly or uniformly based on the rand_init flag.
+"""
 function init_s_sq_mu!(s_sq_mu_init,K,J;rand_init = false)
     s_sq0_vec = ones(J)
     if isnothing(s_sq_mu_init) && rand_init
@@ -84,6 +132,10 @@ function init_s_sq_mu!(s_sq_mu_init,K,J;rand_init = false)
     end
     return s_sq_mu_init
 end
+"""
+    init_y!(y_init,K,J;rand_init = false)   
+This function initializes the y variable for the variational inference algorithm. If y_init is not provided, it can be initialized randomly or uniformly based on the rand_init flag.
+"""
 function init_y!(y_init,K,J;rand_init = false)
     y0_vec = 0.5*ones(J)
     if isnothing(y_init) && rand_init
@@ -93,6 +145,11 @@ function init_y!(y_init,K,J;rand_init = false)
     end
     return y_init
 end
+
+"""
+    init_h1!(h1_init,K,J;rand_init = false)
+This function initializes the h1 variable for the variational inference algorithm. If h1_init is not provided, it can be initialized randomly or uniformly based on the rand_init flag.
+""" 
 function init_h1!(h1_init,K,J;rand_init = false)
     a, b = 0.0, 1.0
     if isnothing(h1_init) && rand_init
@@ -102,6 +159,11 @@ function init_h1!(h1_init,K,J;rand_init = false)
     end
     return h1_init
 end
+
+"""
+    init_h2!(h2_init,K,J;rand_init = false)
+This function initializes the h2 variable for the variational inference algorithm. If h2_init is not provided, it can be initialized randomly or uniformly based on the rand_init flag.
+"""
 function init_h2!(h2_init,K,J;rand_init = false)
     if isnothing(h2_init) && rand_init
         h2_init = rand(K) #exp.(randn(K))
@@ -110,6 +172,11 @@ function init_h2!(h2_init,K,J;rand_init = false)
     end
     return h2_init
 end
+
+"""
+    init_a!(a_init,K,J;rand_init = false)
+This function initializes the a variable for the variational inference algorithm. If a_init is not provided, it can be initialized randomly or uniformly based on the rand_init flag.
+"""
 function init_a!(a_init,K,J;rand_init = false)
     if isnothing(a_init) && rand_init
         a_init = exp.(randn(J))
@@ -118,6 +185,11 @@ function init_a!(a_init,K,J;rand_init = false)
     end
     return a_init
 end
+
+"""
+    init_b!(b_init,K,J;rand_init = false)
+This function initializes the b variable for the variational inference algorithm. If b_init is not provided, it can be initialized randomly or uniformly based on the rand_init flag.
+"""
 function init_b!(b_init,K,J;rand_init = false)
     if isnothing(b_init) && rand_init
         b_init = exp.(randn(J))
@@ -126,6 +198,10 @@ function init_b!(b_init,K,J;rand_init = false)
     end
     return b_init
 end
+"""
+    init_m_nu!(m_nu_init,K,J;rand_init = false)
+This function initializes the m_nu variable for the variational inference algorithm. If m_nu_init is not provided, it can be initialized randomly or uniformly based on the rand_init flag.
+"""
 function init_m_nu!(m_nu_init,K,J;rand_init = false)
     nu0_vec = zeros(J)
     if isnothing(m_nu_init) && rand_init
@@ -135,6 +211,11 @@ function init_m_nu!(m_nu_init,K,J;rand_init = false)
     end
     return m_nu_init
 end
+
+"""
+    init_s_sq_nu!(s_sq_nu_init,K,J;rand_init = false)
+This function initializes the s_sq_nu variable for the variational inference algorithm. If s_sq_nu_init is not provided, it can be initialized randomly or uniformly based on the rand_init flag.
+"""
 function init_s_sq_nu!(s_sq_nu_init,K,J;rand_init = false)
     s_sq0_nu_vec = ones(J)
     if isnothing(s_sq_nu_init) && rand_init
@@ -144,6 +225,11 @@ function init_s_sq_nu!(s_sq_nu_init,K,J;rand_init = false)
     end
     return s_sq_nu_init
 end
+
+"""
+    init_u!(u_init,K,J;rand_init = false)
+This function initializes the u variable for the variational inference algorithm. If u_init is not provided, it can be initialized randomly or uniformly based on the rand_init flag.
+"""
 function init_u!(u_init,K,J;rand_init = false)
     if isnothing(u_init) && rand_init
         u_init = exp.(randn(float_type,1))
@@ -152,6 +238,11 @@ function init_u!(u_init,K,J;rand_init = false)
     end
     return u_init
 end
+
+"""
+    init_v!(v_init,K,J;rand_init = false)
+This function initializes the v variable for the variational inference algorithm. If v_init is not provided, it can be initialized randomly or uniformly based on the rand_init flag.
+"""
 function init_v!(v_init,K,J;rand_init = false)
     if isnothing(v_init) && rand_init
         v_init = exp(randn())
@@ -160,6 +251,11 @@ function init_v!(v_init,K,J;rand_init = false)
     end
     return v_init
 end
+
+"""
+    generate_fake_cells(data_input,dataparams,modelparams,SEED=2020)
+This function generates fake cell data for testing purposes. It creates a list of CellFeature objects with random values for their attributes based on the provided data input, data parameters, and model parameters.
+"""
 function generate_fake_cells(data_input,dataparams,modelparams,SEED=2020)
     Random.seed!(SEED)
     I = dataparams.I
@@ -183,6 +279,10 @@ function generate_fake_cells(data_input,dataparams,modelparams,SEED=2020)
     return cells
 end
 
+"""
+    generate_fake_time_conditions(T,K,N_t,SEED=2020,float_type=Float64,condition_update_neighbors=nothing,condition_network_neighbors=nothing)
+This function generates fake time condition data for testing purposes. It creates a list of ConditionFeature and MatrixConditionFeature objects with random values for their attributes based on the provided time points, number of clusters, and number of cells at each time point. Optional parameters allow for custom neighbor structures.
+"""
 function generate_fake_time_conditions(T,K,N_t,SEED=2020,float_type=Float64,condition_update_neighbors=nothing,condition_network_neighbors=nothing)
     Random.seed!(SEED)
     Kplus = K+1;
@@ -213,6 +313,11 @@ function generate_fake_time_conditions(T,K,N_t,SEED=2020,float_type=Float64,cond
     end
     return conditions,matrixconditions
 end
+
+"""
+    generate_fake_clusters(K,modelparams,SEED=2020,float_type=Float64)
+This function generates fake cluster data for testing purposes. It creates a list of ClusterFeature objects with random values for their attributes based on the provided number of clusters, model parameters, and seed.
+"""
 function generate_fake_clusters(K,modelparams,SEED=2020,float_type=Float64)
     Random.seed!(SEED)
     Kplus = K+1;
@@ -255,6 +360,11 @@ function generate_fake_clusters(K,modelparams,SEED=2020,float_type=Float64)
     return clusters
 end
 
+
+"""
+    generate_fake_model_params(data_input,K,SEED=2020)  
+This function generates fake model parameters for testing purposes. It creates a ModelParameterFeature object with random values for its attributes based on the provided data input, number of clusters, and seed.
+"""
 function generate_fake_model_params(data_input,K,SEED=2020)
     Random.seed!(SEED)
     a, b = 0.0, 10.0
@@ -287,12 +397,20 @@ function generate_fake_model_params(data_input,K,SEED=2020)
     return ModelParameterFeature(data_input,K,alpha0,gamma0,phi1,phi2,kappa1,kappa2,xi1,xi2,varphi1,varphi2,nu0,sigma_sq_nu,significance_prop,min_number_cells,min_percent_cells,min_percent_of_genes,max_percent_of_genes,num_iter,uniform_theta_init,rand_init,change_seeds,init_seed)
 end
 
+"""
+    generate_fake_data_params(data_input,SEED=2020)
+This function generates fake data parameters for testing purposes. It creates a DataFeature object based on the provided data input and seed.
+"""
 function generate_fake_data_params(data_input,SEED=2020)
     Random.seed!(SEED)
     return DataFeature(data_input)
 end
 
 
+"""
+    generate_fake_inputs(I,TMax,J,K;SEED=2020,float_type=Float64,NMax=10,guarantee_an_idividual_with_singleton_timepoint=true)
+This function generates fake inputs for testing purposes. It creates a list of fake data, data parameters, model parameters, time conditions, and cluster data based on the provided dimensions and seed.
+"""
 function generate_fake_inputs(I,TMax,J,K;SEED=2020,float_type=Float64,NMax=10,guarantee_an_idividual_with_singleton_timepoint=true)
     T = generate_fake_T(I,TMax,SEED,guarantee_an_idividual_with_singleton_timepoint);
     data_input = generate_fake_dataset(I,T,J,SEED;NMax=NMax);
@@ -309,6 +427,8 @@ function generate_fake_inputs(I,TMax,J,K;SEED=2020,float_type=Float64,NMax=10,gu
 end
 
 """
+ init_params_states(K)
+This function initializes the parameters for the states in the variational inference algorithm. It returns two vectors, rho_hat_vec and omega_hat_vec, both of length K, with predefined values.
 """
 function init_params_states(K)
     rho_hat_vec = 0.25 .* ones(Float64,K)
@@ -318,7 +438,10 @@ end
 
 ######################################################
 
+
 """
+    init_mk_hat!(mk_hat_init,x,K,G;rand_init = false)
+This function initializes the mean vector for each cluster in the variational inference algorithm. It returns a vector of mean vectors, mk_hat_init, based on the provided data input, number of clusters, number of genes, and initialization type.
 """
 function init_mk_hat!(mk_hat_init,x,K,G;rand_init = false)
     μ0_vec = ones(G)
@@ -331,6 +454,8 @@ function init_mk_hat!(mk_hat_init,x,K,G;rand_init = false)
 end
 
 """
+    init_λ_sq_vec!(λ_sq_init,G;rand_init = false, lo=0,hi=1)
+This function initializes the lambda squared vector for each gene in the variational inference algorithm. It returns a vector of lambda squared values, λ_sq_init, based on the provided number of genes and initialization type.
 """
 function init_λ_sq_vec!(λ_sq_init,G;rand_init = false, lo=0,hi=1)
     λ_sq_vec = ones(G)
@@ -343,6 +468,8 @@ function init_λ_sq_vec!(λ_sq_init,G;rand_init = false, lo=0,hi=1)
 end
 
 """
+    init_σ_sq_k_vec!(σ_sq_k_init,K,G;rand_init = false, lo=0,hi=1)
+This function initializes the sigma squared vector for each cluster in the variational inference algorithm. It returns a vector of sigma squared values, σ_sq_k_init, based on the provided number of clusters, number of genes, and initialization type.
 """
 function init_σ_sq_k_vec!(σ_sq_k_init,K,G;rand_init = false, lo=0,hi=1)
     σ_sq_k_vec = ones(G)
@@ -355,6 +482,8 @@ function init_σ_sq_k_vec!(σ_sq_k_init,K,G;rand_init = false, lo=0,hi=1)
 end
 
 """
+    init_v_sq_k_hat_vec!(v_sq_k_hat_init,K,G;rand_init = false, lo=0,hi=1)
+This function initializes the variance vector for each cluster in the variational inference algorithm. It returns a vector of variance vectors, v_sq_k_hat_init, based on the provided number of clusters, number of genes, and initialization type.
 """
 function init_v_sq_k_hat_vec!(v_sq_k_hat_init,K,G;rand_init = false, lo=0,hi=1)
     v_sq_k_vec = ones(G)
@@ -367,6 +496,8 @@ function init_v_sq_k_hat_vec!(v_sq_k_hat_init,K,G;rand_init = false, lo=0,hi=1)
 end
 
 """
+    init_ghk_hat_vec!(gk_hat_init,hk_hat_init,K;rand_init = false, g_lo=0,g_hi=1, h_lo= 0,h_hi = 2)
+This function initializes the gamma and eta vectors for each cluster in the variational inference algorithm. It returns a vector of gamma values, gk_hat_init, and a vector of eta values, hk_hat_init, based on the provided number of clusters and initialization type.
 """
 function init_ghk_hat_vec!(gk_hat_init,hk_hat_init,K;rand_init = false, g_lo=0,g_hi=1, h_lo= 0,h_hi = 2)
     if isnothing(gk_hat_init) || isnothing(hk_hat_init)
@@ -381,6 +512,8 @@ function init_ghk_hat_vec!(gk_hat_init,hk_hat_init,K;rand_init = false, g_lo=0,g
 end
 
 """
+    init_c_ttprime_hat_vec!(c_ttprime_init,T;rand_init = false)
+This function initializes the conditional probability vector for each time point in the variational inference algorithm. It returns a vector of conditional probability vectors, c_ttprime_init, based on the provided number of time points and initialization type.
 """
 function init_c_ttprime_hat_vec!(c_ttprime_init,T;rand_init = false)
     if isnothing(c_ttprime_init) && rand_init
@@ -393,6 +526,8 @@ function init_c_ttprime_hat_vec!(c_ttprime_init,T;rand_init = false)
 end
 
 """
+    init_d_hat_vec!(d_hat_init,K,T;rand_init = false,uniform_theta_init=false, gk_hat_init = nothing, hk_hat_init= nothing)
+This function initializes the d_hat variable for the variational inference algorithm. If d_hat_init is not provided, it can be initialized randomly, uniformly, or based on the gk_hat and hk_hat parameters depending on the flags provided.
 """
 function init_d_hat_vec!(d_hat_init,K,T;rand_init = false,uniform_theta_init=false, gk_hat_init = nothing, hk_hat_init= nothing)
     if isnothing(d_hat_init)
@@ -410,14 +545,14 @@ function init_d_hat_vec!(d_hat_init,K,T;rand_init = false,uniform_theta_init=fal
     return d_hat_init
 end
 
-"""
-"""
 function init_d_hat_tk(T,g_hat_vec, h_hat_vec)
     d_hat_vec = [βk_expected_value(g_hat_vec, h_hat_vec) for t in 1:T]
     return d_hat_vec
 end
 
 """
+    init_yjk_vec!(yjk_init,G,K;rand_init = false)
+This function initializes the yjk variable for the variational inference algorithm. If yjk_init is not provided, it can be initialized randomly or uniformly depending on the flags provided.
 """
 function init_yjk_vec!(yjk_init,G,K;rand_init = false)
     if isnothing(yjk_init) && rand_init
@@ -430,6 +565,8 @@ function init_yjk_vec!(yjk_init,G,K;rand_init = false)
 end
 
 """
+    init_st_hat_vec!(st_hat_init,T,ϕ0;rand_init = false, lo=0,hi=1)
+This function initializes the st_hat variable for the variational inference algorithm. If st_hat_init is not provided, it can be initialized randomly or uniformly based on the rand_init flag.
 """
 function init_st_hat_vec!(st_hat_init,T,ϕ0;rand_init = false, lo=0,hi=1)
     if isnothing(st_hat_init) && rand_init
@@ -441,6 +578,8 @@ function init_st_hat_vec!(st_hat_init,T,ϕ0;rand_init = false, lo=0,hi=1)
 end
 
 """
+    init_rtik_vec!(rtik_init,K,T,N_t;rand_init = false)
+This function initializes the rtik variable for the variational inference algorithm. If rtik_init is not provided, it can be initialized randomly or uniformly based on the rand_init flag.
 """
 function init_rtik_vec!(rtik_init,K,T,N_t;rand_init = false)
     if isnothing(rtik_init) && rand_init
@@ -462,12 +601,8 @@ end
 #####################
 
 """
-        get_unique_time_id()
-    This is an example of Docstring. This function receives two 
-    numbers x and y and returns the sum of the squares.
-    ```math
-
-    ```
+    initialize_VariationalInference_types!(cellpop,clusters,conditionparams,dataparams,modelparams,geneparams,mk_hat_init,v_sq_k_hat_init,λ_sq_init,σ_sq_k_init,gk_hat_init,hk_hat_init,d_hat_init,rtik_init,yjk_init,c_ttprime_init,st_hat_init)
+This function initializes the types for the variational inference algorithm. It sets the initial values for various parameters in the cell population, clusters, condition parameters, data parameters, model parameters, and gene parameters based on the provided initial values.
 """
 function initialize_VariationalInference_types!(cellpop,clusters,conditionparams,dataparams,modelparams,geneparams,mk_hat_init,v_sq_k_hat_init,λ_sq_init,σ_sq_k_init,gk_hat_init,hk_hat_init,d_hat_init,rtik_init,yjk_init,c_ttprime_init,st_hat_init)
     float_type = dataparams.BitType

@@ -1,3 +1,7 @@
+"""
+    log_TrainFeature!(i::Int,training_logger::TrainFeature{U,W},clusters::Vector{ClusterFeature{U,W}},conditions::Vector{ConditionFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}
+This function logs the training features for a given iteration.
+"""
 function log_TrainFeature!(i::Int,training_logger::TrainFeature{U,W},clusters::Vector{ClusterFeature{U,W}},conditions::Vector{ConditionFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}
     float_type = dataparams.BitType
     J = dataparams.J
@@ -99,11 +103,9 @@ function log_TrainFeature!(i::Int,training_logger::TrainFeature{U,W},clusters::V
 end
 
 """
-        cavi()
-    This is the main variational inference function. It perfroms coordinate ascent to infer the paramters of the NCLUSION Model
-
+    cavi(inputs;delta_rsum_ep = 10^(-6),delta_rsum_lag = 1,delta_occymean_ep = 10^(-6),delta_occymean_lag = 1,logger=nothing,update_clusterwise::Bool = false,elbo_sign_change_max=10.0,check_cluster_interpretability_bool = true,train_h::Bool = true,train_w::Bool = true,train_uv::Bool = true,train_m_nu::Bool = true,train_s_sq_nu::Bool = true,train_ab::Bool = true,multiple_s_sq_updates::Bool = false,burnin::Int = 1,eta_update_mode="Local",sigma_update_mode="Local",lambda_update_mode="Local",remove_small_clusters::Bool = true,use_log::Bool = true)
+This is the main variational inference function. It perfroms coordinate ascent to infer the paramters of the NCLUSION Model
 """
-
 function cavi(inputs;delta_rsum_ep = 10^(-6),delta_rsum_lag = 1,delta_occymean_ep = 10^(-6),delta_occymean_lag = 1,logger=nothing,update_clusterwise::Bool = false,elbo_sign_change_max=10.0,check_cluster_interpretability_bool = true,train_h::Bool = true,train_w::Bool = true,train_uv::Bool = true,train_m_nu::Bool = true,train_s_sq_nu::Bool = true,train_ab::Bool = true,multiple_s_sq_updates::Bool = false,burnin::Int = 1,eta_update_mode="Local",sigma_update_mode="Local",lambda_update_mode="Local",remove_small_clusters::Bool = true,use_log::Bool = true)
     # inputs_copy = deepcopy(inputs);
     # inputs = deepcopy(inputs_copy);
@@ -481,7 +483,7 @@ function cavi(inputs;delta_rsum_ep = 10^(-6),delta_rsum_lag = 1,delta_occymean_e
         #any([any(isinf.(clusters[k].g2)) for k in 1:K])
         # Calculate ELBO
         iter = Int64(iter)
-        LB =  EBLO(cells,clusters,conditions,dataparams,modelparams;use_log= true,update_clusterwise=update_clusterwise,eta_update_mode=eta_update_mode);
+        LB =  ELBO(cells,clusters,conditions,dataparams,modelparams;use_log= true,update_clusterwise=update_clusterwise,eta_update_mode=eta_update_mode);
         if isinf(LB) || isnan(LB)
             _flushed_logger("\t\t\t  WARNING: ELBO IS NAN OR INF...";logger)
             if continuous_nan_inf_counter > 0
@@ -619,6 +621,10 @@ function cavi(inputs;delta_rsum_ep = 10^(-6),delta_rsum_lag = 1,delta_occymean_e
 end
 
 
+"""
+    testting_convergence_monitoring(inputs;num_iter=100,use_log=true,eta_update_mode="Global",lambda_update_mode="Local",sigma_update_mode="Local")
+A function to test convergence monitoring by tracking mean absolute differences in `rsum` and `occymean` over iterations.
+"""
 function testting_convergence_monitoring(inputs;num_iter=100,use_log=true,eta_update_mode="Global",lambda_update_mode="Local",sigma_update_mode="Local")
     inputs_copy = deepcopy(inputs);
     cells,clusters,conditions,matrixconditions,dataparams,modelparams,training_logger  = (; inputs_copy...);
@@ -692,6 +698,10 @@ function testting_convergence_monitoring(inputs;num_iter=100,use_log=true,eta_up
 
 end
 
+"""
+    extract_training_features(training_logger,nonemptychain_indx)
+A function to extract training features from the training logger after removing any missing or NaN values.
+"""
 function extract_training_features(training_logger,nonemptychain_indx)
     training_features_dict = OrderedDict{Symbol,Any}()
     elbo_ = training_logger.elbo_
@@ -705,6 +715,11 @@ function extract_training_features(training_logger,nonemptychain_indx)
     return training_features_dict
 end
 
+
+"""
+    check_cluster_interpretability!(noninterpreable_clusters::BitVector,clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64} #clusters_to_redistribute::BitVector,
+A function to check the interpretability of clusters based on certain criteria.
+"""
 function check_cluster_interpretability!(noninterpreable_clusters::BitVector,clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64} #clusters_to_redistribute::BitVector,
     float_type = dataparams.BitType
     J = dataparams.J
@@ -745,6 +760,11 @@ function check_cluster_interpretability!(noninterpreable_clusters::BitVector,clu
     return noninterpreable_clusters #,clusters_to_redistribute
 end
 # ::Vector{CellFeature{U,W,J}}
+
+"""
+    reset_clusters!(cluster_indices::Vector{Int},cells,clusters::Vector{ClusterFeature{U,W}},conditions::Vector{ConditionFeature{U,W}},matrixconditions::Vector{MatrixConditionFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature,change_seeds::Bool,current_seed::Int) where {U <: AbstractFloat, W <: Int64}
+A function to reset specified clusters by reinitializing their parameters and updating related statistics.
+"""
 function reset_clusters!(cluster_indices::Vector{Int},cells,clusters::Vector{ClusterFeature{U,W}},conditions::Vector{ConditionFeature{U,W}},matrixconditions::Vector{MatrixConditionFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature,change_seeds::Bool,current_seed::Int) where {U <: AbstractFloat, W <: Int64}
     float_type = dataparams.BitType
     J = dataparams.J
@@ -823,6 +843,10 @@ function reset_clusters!(cluster_indices::Vector{Int},cells,clusters::Vector{Clu
     return cells,clusters,conditions
 end
 # ::Vector{CellFeature{U,W,J}},
+"""
+    redistribute_r!(cells,clusters_to_exclude::Vector{Int}, clusters::Vector{ClusterFeature{U,W}},conditions::Vector{ConditionFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64} #  formerly update_rtik_mpu!
+A function to redistribute the responsibility weights `r` for each cell, excluding specified clusters.
+"""
 function redistribute_r!(cells,clusters_to_exclude::Vector{Int}, clusters::Vector{ClusterFeature{U,W}},conditions::Vector{ConditionFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64} #  formerly update_rtik_mpu!
     float_type = dataparams.BitType
     J = dataparams.J
@@ -856,6 +880,10 @@ function redistribute_r!(cells,clusters_to_exclude::Vector{Int}, clusters::Vecto
     return cells
 end
 
+"""
+    remove_small_clusters!(z_argmax::Vector{Int},cells,clusters::Vector{ClusterFeature{U,W}},conditions::Vector{ConditionFeature{U,W}},matrixconditions::Vector{MatrixConditionFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}
+A function to remove small clusters by setting their responsibility weights to zero and updating related statistics.
+"""
 function remove_small_clusters!(z_argmax::Vector{Int},cells,clusters::Vector{ClusterFeature{U,W}},conditions::Vector{ConditionFeature{U,W}},matrixconditions::Vector{MatrixConditionFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}
     float_type = dataparams.BitType
     J = dataparams.J
@@ -890,8 +918,8 @@ end
 
 
 """
-        extract_cluster_paramter(paramname,clusters,modelparams)
-    This function extracts the cluster specific parameters from the ClusterFeatures object used in inference
+    extract_cluster_paramter(paramname,clusters,modelparams)
+This function extracts the cluster specific parameters from the ClusterFeatures object used in inference
 """
 function extract_cluster_paramter(paramname,clusters,modelparams)
     if typeof(paramname) <: String
@@ -903,6 +931,10 @@ function extract_cluster_paramter(paramname,clusters,modelparams)
 end
 
 
+"""
+    extract_scalars_paramter(paramname,scalars,dataparams)
+This function extracts the scalar specific parameters from the Scalars object used in inference
+"""
 function extract_scalars_paramter(paramname,scalars,dataparams)
     if typeof(paramname) <: String
         paramname = Symbol(paramname)
@@ -916,8 +948,8 @@ end
 
 
 """
-        extract_gene_paramter(paramname,geneparams,dataparams)
-    This function extracts the gene specific parameters from the GeneFeatures object used in inference
+    extract_gene_paramter(paramname,geneparams,dataparams)
+This function extracts the gene specific parameters from the GeneFeatures object used in inference
 """
 function extract_gene_paramter(paramname,geneparams,dataparams)
     if typeof(paramname) <: String
@@ -931,7 +963,7 @@ end
 
 """
         extract_elbo_vals_perK(paramname,training_logger)
-    This function extracts the cluster specific elbo values from the TrainFeature object used in inference
+This function extracts the cluster specific elbo values from the TrainFeature object used in inference
 """
 function extract_elbo_vals_perK(paramname,training_logger)
     if typeof(paramname) <: String
@@ -943,8 +975,8 @@ function extract_elbo_vals_perK(paramname,training_logger)
     return vals
 end
 """
-        extract_r_paramter(cells,dataparams)
-    This function extracts the cell-level cluster probability vector for each cell in the CellFeatures object
+    extract_r_paramter(cells,dataparams)
+This function extracts the cell-level cluster probability vector for each cell in the CellFeatures object
 """
 function extract_r_paramter(cells,dataparams)
 
@@ -968,8 +1000,8 @@ function extract_r_paramter(cells,dataparams)
     return r
 end
 """
-        extract_c_paramter(cells,dataparams)
-    This function extracts the cell-level cluster probability vector for each cell in the CellFeatures object
+    extract_c_paramter(cells,dataparams)
+This function extracts the cell-level cluster probability vector for each cell in the CellFeatures object
 """
 function extract_c_paramter(cells,dataparams)
 
@@ -994,10 +1026,9 @@ function extract_c_paramter(cells,dataparams)
 end
 
 """
-        extract_and_add_parameters_to_outputs_dict!(outputs_dict,cellpop,clusters,geneparams,conditionparams,dataparams,modelparams,training_logger)
-    This function extracts all parameters from custom objects and adds them to the previously instantiated output dictionary.
+    extract_and_add_parameters_to_outputs_dict!(outputs_dict,cellpop,clusters,geneparams,conditionparams,dataparams,modelparams,training_logger)
+This function extracts all parameters from custom objects and adds them to the previously instantiated output dictionary.
 """
-
 function extract_and_add_parameters_to_outputs_dict!(outputs_dict,cellpop,clusters,conditionparams,dataparams,modelparams,training_logger)
     cluster_params_of_interest = [:y, :m_mu, :s_sq_mu, :g1, :g2,:h1, :h2,:u, :v, :x_hat,:x_hat_sq, :Nk,:a, :b, :m_nu, :s_sq_nu]
     condition_params_of_interest = [:d, :w1, :w2]
@@ -1062,8 +1093,8 @@ end
 # end
 
 """
-        extract_rtik_paramter(cellpop,dataparams)
-    This function extracts the cell-level cluster probability vector for each cell in the CellFeatures object
+    extract_rtik_paramter(cellpop,dataparams)
+This function extracts the cell-level cluster probability vector for each cell in the CellFeatures object
 """
 function extract_rtik_paramter(cellpop,dataparams)
 

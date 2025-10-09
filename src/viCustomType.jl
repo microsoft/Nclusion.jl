@@ -1,3 +1,7 @@
+"""
+    check_nothing_type(val)
+This function checks if a value is `nothing` or an array of `Nothing` type.
+"""
 function check_nothing_type(val)
     is_nothing_bool = isnothing(val)
     is_nothing_array_bool  = val isa AbstractArray && eltype(val) <: Nothing
@@ -9,15 +13,15 @@ function check_nothing_type(val)
 end
 
 """
-        Features
-    This is an abstract type for all Features tracked by NCLUSION
+    Features
+This is an abstract type for all Features tracked by NCLUSION
 """
 abstract type Features end 
 
 
 """
-        CellFeature
-    This is type that allows NCLUSION to track all of the cell-specific features during inference
+    CellFeature
+This is type that allows NCLUSION to track all of the cell-specific features during inference
 """
 struct CellFeature{U <: AbstractFloat, W <:Int64, J} <: Features 
     i::W
@@ -62,6 +66,11 @@ struct CellFeature{U <: AbstractFloat, W <:Int64, J} <: Features
         new{U,W,J}(i,t,n,r_init,c_init,z_argmax,zeros(U,numel),Tuple(data),Tuple(data_sq),U)
     end
 end
+
+"""
+    MatrixConditionFeature
+This is type that allows NCLUSION to track all of the matrix condition-specific features during inference
+"""
 struct MatrixConditionFeature{U <: AbstractFloat, W <:Int64} <: Features#cluster_features
     i::W
     t::W
@@ -88,8 +97,8 @@ struct MatrixConditionFeature{U <: AbstractFloat, W <:Int64} <: Features#cluster
     end
 end
 """
-        ClusterFeature
-    This is type that allows NCLUSION to track all of the cluster-specific features during inference
+    ClusterFeature
+This is type that allows NCLUSION to track all of the cluster-specific features during inference
 """
 struct ClusterFeature{U <: AbstractFloat, W <:Int64} <: Features #cluster_features
     k::W
@@ -197,8 +206,8 @@ struct ClusterFeature{U <: AbstractFloat, W <:Int64} <: Features #cluster_featur
 end
 
 """
-        GeneFeatures
-    This is type that allows NCLUSION to track all of the gene specific features during inference
+    GeneFeatures
+This is type that allows NCLUSION to track all of the gene specific features during inference
 """
 struct GeneFeatures{U <: AbstractFloat, W <:Int64,P <: Function} <: Features #cluster_features
     j::W
@@ -221,8 +230,8 @@ struct GeneFeatures{U <: AbstractFloat, W <:Int64,P <: Function} <: Features #cl
 end
 
 """
-        ConditionFeature
-    This is type that allows NCLUSION to track all of the condition specific features during inference
+    ConditionFeature
+This is type that allows NCLUSION to track all of the condition specific features during inference
 """
 struct ConditionFeature{U <: AbstractFloat, W <:Int64} <: Features#cluster_features
     i::W
@@ -270,8 +279,8 @@ struct ConditionFeature{U <: AbstractFloat, W <:Int64} <: Features#cluster_featu
 end
 
 """
-        DataFeature
-    This is type that allows NCLUSION to track all of other dataset-specific features during inference
+    DataFeature
+This is type that allows NCLUSION to track all of other dataset-specific features during inference
 """
 struct DataFeature{U <: AbstractFloat,W <: Int64} <: Features#cluster_features
     I::W
@@ -301,8 +310,8 @@ struct DataFeature{U <: AbstractFloat,W <: Int64} <: Features#cluster_features
 end
 
 """
-        ElboFeatures
-    This is type that allows NCLUSION to track all the elbo during inference
+    ElboFeatures
+This is type that allows NCLUSION to track all the elbo during inference
 """
 struct ElboFeatures{U <: AbstractFloat, W <:Int64} <: Features#cluster_features
     l::W
@@ -370,8 +379,8 @@ end
 
 
 """
-        TrainFeature
-    This is type that allows NCLUSION to track all the feature changes during inference
+    TrainFeature
+This is type that allows NCLUSION to track all the feature changes during inference
 """
 struct TrainFeature{U <: AbstractFloat, W <:Int64} <: Features#cluster_features
     l::W
@@ -431,11 +440,8 @@ struct TrainFeature{U <: AbstractFloat, W <:Int64} <: Features#cluster_features
 end
 
 """"
-        get_timeranges(N_t)
-    This function returns the linear indices that contain cells from the same condition.
-    ```math
-
-    ```
+    get_timeranges(N_t)
+This function returns the linear indices that contain cells from the same condition.
 """
 function get_timeranges(N_t)
     I = length(N_t)
@@ -465,6 +471,10 @@ function get_timeranges(N_t)
     return [(st,en) for (st,en) in zip(starts,ends)]
 end
 
+"""
+    get_linear_index_as_ragged_array(N_t)
+This function returns the linear indices that contain cells from the same condition as a ragged array.
+"""
 function get_linear_index_as_ragged_array(N_t)
     I = length(N_t)
     T = [length(N_t[i]) for i in 1:I]
@@ -492,6 +502,10 @@ function get_linear_index_as_ragged_array(N_t)
     return linear_sample_index_as_ragged_array, linear_time_index_as_ragged_array
 end
 
+"""
+    get_linear_time_condition_update_neighbors(input;get_ragged_array=false)
+This function returns the linear indices that contain cells from the same condition as a ragged array.
+"""
 function get_linear_time_condition_update_neighbors(input;get_ragged_array=false)
     I = length(input)
     T = [length(el) for el in input]
@@ -514,6 +528,10 @@ function get_linear_time_condition_update_neighbors(input;get_ragged_array=false
     return condition_update_neighbors
 end
 
+"""
+    get_linear_time_condition_network_neighbors(input;get_ragged_array=false)
+This function returns the linear indices that contain cells from the same condition as a ragged array.
+"""
 function get_linear_time_condition_network_neighbors(input;get_ragged_array=false)
     I = length(input)
     T = [length(el) for el in input]
@@ -534,8 +552,8 @@ end
 
 
 """
-        _reset!(val_vec::Vector{U},BitType::DataType)
-    Performs an inplace setting of values in a vector to 0. Maintains the type of the variable prior to reset.
+    _reset!(val_vec::Vector{U},BitType::DataType)
+Performs an inplace setting of values in a vector to 0. Maintains the type of the variable prior to reset.
 """
 function _reset!(val_vec::Vector{U},BitType::DataType) where U <: AbstractFloat
     for indx in eachindex(val_vec)

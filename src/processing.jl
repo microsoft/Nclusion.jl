@@ -1,10 +1,7 @@
 
 """
         recursive_flatten(x::AbstractArray)
-    This function takes an arbitrarily nested set of vectors and recursively flattens them into one 1-D vector
-    ```math
-
-    ```
+This function takes an arbitrarily nested set of vectors and recursively flattens them into one 1-D vector
 """
 function recursive_flatten(x::AbstractArray)
     if any(a->typeof(a)<:AbstractArray, x)#eltype(x) <: Vector
@@ -16,7 +13,7 @@ end
 
 """
         outermelt(val,num_repeats)
-    This function recursively performs an outer melt of a vector input
+This function recursively performs an outer melt of a vector input
 """
 function outermelt(val,num_repeats)
     melt = nothing
@@ -31,7 +28,7 @@ end
 
 """
        innermelt(val,num_repeats)
-    This function recursively performs an intter melt of a vector input
+This function recursively performs an inner melt of a vector input
 """
 function innermelt(val,num_repeats) 
     melt = nothing
@@ -65,7 +62,7 @@ end
 
 """
     name(arg)
-    This macro turns a string (or list of strings) into a symbol type.
+This macro turns a string (or list of strings) into a symbol type.
 """      
 macro name(arg)
     x = string(arg)
@@ -76,10 +73,7 @@ end
 
 """
     naming_vec(arg_str_list)
-    This function parses the string on commas (,) into a list of strings with a colon appended to the front.
-```math
-
-```
+This function parses the string on commas (,) into a list of strings with a colon appended to the front.
 """  
 function naming_vec(arg_str_list)
     arg_str_list_trunc = chop(arg_str_list,head=1);
@@ -98,17 +92,51 @@ function naming_vec(arg_str_list)
     return str_var_vec
 end
 
+"""
+    initialize_dict(;key_type=Any,val_type=Any)
+This function initializes a dictionary with specified key and value types.
+"""
+function initialize_dict(;key_type=Any,val_type=Any)
+    dict = Dict{key_type,val_type}()
+    return dict
+end
+
+"""
+    initialize_ordered_dict(;key_type=Any,val_type=Any)
+This function initializes an ordered dictionary with specified key and value types.
+"""
 function initialize_ordered_dict(;key_type=Any,val_type=Any)
     od = OrderedDict{key_type,val_type}()
     return od
 end
 
+# """
+#     addToOrderedDict!(ordered_dict,key_array,val_array)
+# Adds a set of values to a previously initialized ordered dictionary
+# """
+# function addToOrderedDict!(ordered_dict,key_array,val_array)
+#     num_var = length(key_array)
+#     for i in 1:num_var
+#         key = key_array[i]
+#         val = val_array[i]
+#         ordered_dict[key] = val
+#     end
+#     ordered_dict
+# end
+"""
+    @add_variables_to_ordered_dict!(od, vars...)
+This macro adds variables to an ordered dictionary with their names as keys and their values as values.
+"""
 macro add_variables_to_ordered_dict!(od, vars...)
     od_expr = esc(od)
     exprs = map(var -> :(push!($od_expr, $(string(var)) => $(esc(var)))), vars)
     return Expr(:block, exprs...)  # Combine the expressions into a single block
 end
 
+"""
+    @add_variables_to_ordered_dict_as_string!(od, vars...)
+This macro adds variables to an ordered dictionary with their names as keys and their string values as values.
+"""
 macro add_variables_to_ordered_dict_as_string!(od, vars...)
     od_expr = esc(od)
     exprs = map(var -> :(push!($od_expr, $(string(var)) => string($(esc(var))))), vars)
@@ -132,7 +160,7 @@ end
 
 """
     addToOrderedDict!(ordered_dict,key_array,val_array)
-    Adds a set of values to a previously initialized ordered dictionary
+Adds a set of values to a previously initialized ordered dictionary
 """      
 function addToOrderedDict!(ordered_dict,key_array,val_array)
     num_var = length(key_array)
@@ -147,7 +175,6 @@ end
 """
     get_unique_time_id()
 This function generates a unique ID based on the current system date and time.
-
 """  
 function get_unique_time_id()
     datetimenow = Dates.now(Dates.UTC)
@@ -161,19 +188,27 @@ end
 """
     setup_experiment_tag(experiment_filename)
 Creates an experiment tag 
-```math
-
-```
 """      
 function setup_experiment_tag(experiment_filename)
     return "EXPERIMENT_$experiment_filename"
 end
+
+
+"""
+    load_data(datafilename1,seed)
+This function loads data from an HDF5 file.
+"""
 function load_data(datafilename1,seed)
     fid1 = h5open(datafilename1,"r")
     anndata_dict1 = read(fid1)
     return anndata_dict1
 end
 
+
+"""
+    preparing_data(anndata_dict1;time_key=nothing,individuals_key=nothing)
+This function prepares data from an HDF5 file.
+"""
 function preparing_data(anndata_dict1;time_key=nothing,individuals_key=nothing)
     gene_names = anndata_dict1["var"]["_index"]
     cell_ids = anndata_dict1["obs"]["_index"]
@@ -213,6 +248,10 @@ function preparing_data(anndata_dict1;time_key=nothing,individuals_key=nothing)
 end
 
 
+"""
+    make_nclusion_inputs(anndata_dict1;time_key=nothing,individuals_key=nothing, layer_name=nothing,layer_index=0,gene_set_file_path=nothing, min_genes_detected=10,standardization_of_used_representation=nothing,is_precomputed_latent_representation=false)
+This function prepares inputs for the Nclusion model.
+"""
 function make_nclusion_inputs(anndata_dict1;time_key=nothing,individuals_key=nothing, layer_name=nothing,layer_index=0,gene_set_file_path=nothing, min_genes_detected=10,standardization_of_used_representation=nothing,is_precomputed_latent_representation=false)
     x_mat = anndata_dict1["X"]
     # gene_names, _, cell_cluster_labels, _ ,time_vec, _ ,individuals_vec,cell_cluster_dict=preparing_data(anndata_dict1;time_key=time_key,individuals_key=individuals_key)
@@ -373,12 +412,21 @@ function make_nclusion_inputs(anndata_dict1;time_key=nothing,individuals_key=not
     return data_input,z,alternative_representation,used_representation_feature_name,layer_name
 end
 
+"""
+    sort_projection_matrix_key_names(lst)
+This function sorts projection matrix key names based on numerical order.
+"""
 function sort_projection_matrix_key_names(lst)
     sort(lst, by = s -> (
         occursin(r"\d", s), 
         occursin(r"\d", s) ? parse(Int, match(r"\d+", s).match) : -1
     ))
 end
+
+"""
+    select_data_representation(anndata_dict1;replace_x_keyvalue=false,is_precomputed_latent_representation=false,layer_index=0,layer_name=nothing,return_matching_projection_matrix=true)
+This function selects a data representation from an AnnData dictionary.
+"""
 function select_data_representation(anndata_dict1;replace_x_keyvalue=false,is_precomputed_latent_representation=false,layer_index=0,layer_name=nothing,return_matching_projection_matrix=true)
     if !is_precomputed_latent_representation
         representation_key = "layers"
@@ -440,6 +488,10 @@ function select_data_representation(anndata_dict1;replace_x_keyvalue=false,is_pr
 end
 
 
+"""
+    select_cells_hvgs(x_mat,num_var_feat,num_cnts,gene_ids,cell_cluster_labels,scale_factor,N;chosen_cells=nothing)
+This function selects highly variable genes from a given expression matrix.
+"""
 function select_cells_hvgs(x_mat,num_var_feat,num_cnts,gene_ids,cell_cluster_labels,scale_factor,N;chosen_cells=nothing)
     cell_intersect_bool = nothing 
     if !isnothing(chosen_cells)
@@ -472,6 +524,11 @@ function select_cells_hvgs(x_mat,num_var_feat,num_cnts,gene_ids,cell_cluster_lab
     return x,z_true,numi,top_genes,C_t
 end
 
+
+"""
+    verify_initialization_type(var_init,dimensions_tuple)
+This function verifies the type of initialization for a given variable.
+"""
 function verify_initialization_type(var_init,dimensions_tuple)
     if typeof(var_init) <: Nothing
         var_init = fill(nothing, dimensions_tuple)#Vector{Nothing}(undef, prod(dimensions_tuple))
@@ -487,11 +544,19 @@ function verify_initialization_type(var_init,dimensions_tuple)
 end
 
 
+"""
+    size_concentration_contractions(N;exp0=1.0)
+This function computes the size concentration contraction based on the number of samples and an exponent.
+"""
 function size_concentration_contractions(N;exp0=1.0)
     return N^(-exp0)
 end
 
 
+"""
+    initialize_model_parameters(data_input,KMax,alpha0,gamma0,phi1,phi2,kappa1,kappa2,xi1,xi2,varphi1,varphi2,nu0,sigma_sq_nu,significance_prop,min_number_cells,min_percent_cells,min_percent_of_genes,max_percent_of_genes,seed;num_iter=500, size_concentration_contractions_exp0=1.0,rand_init = false,change_seeds = false, uniform_theta_init = true,g1_init=nothing,g2_init=nothing, m_mu_init=nothing, s_sq_mu_init=nothing,m_nu_init=nothing, s_sq_nu_init=nothing,y_init=nothing,u_init=nothing,v_init = nothing,a_init=nothing,b_init=nothing, h1_init=nothing, h2_init=nothing, w1_init=nothing, w2_init=nothing, d_init=nothing, c_init=nothing,r_init=nothing,condition_update_neighbors=nothing,condition_network_neighbors=nothing,update_clusterwise::Bool = false,samplebased_alpha0::Bool = false,eta_update_mode="Local",sigma_update_mode="Local", lambda_update_mode="Local",train_h::Bool = false,train_w::Bool = false,train_ab::Bool = false,train_uv::Bool = false)
+This function initializes model parameters for a given dataset and configuration.
+"""
 function initialize_model_parameters(data_input,KMax,alpha0,gamma0,phi1,phi2,kappa1,kappa2,xi1,xi2,varphi1,varphi2,nu0,sigma_sq_nu,significance_prop,min_number_cells,min_percent_cells,min_percent_of_genes,max_percent_of_genes,seed;num_iter=500, size_concentration_contractions_exp0=1.0,rand_init = false,change_seeds = false, uniform_theta_init = true,g1_init=nothing,g2_init=nothing, m_mu_init=nothing, s_sq_mu_init=nothing,m_nu_init=nothing, s_sq_nu_init=nothing,y_init=nothing,u_init=nothing,v_init = nothing,a_init=nothing,b_init=nothing, h1_init=nothing, h2_init=nothing, w1_init=nothing, w2_init=nothing, d_init=nothing, c_init=nothing,r_init=nothing,condition_update_neighbors=nothing,condition_network_neighbors=nothing,update_clusterwise::Bool = false,samplebased_alpha0::Bool = false,eta_update_mode="Local",sigma_update_mode="Local", lambda_update_mode="Local",train_h::Bool = false,train_w::Bool = false,train_ab::Bool = false,train_uv::Bool = false)
     # num_iter=500; size_concentration_contractions_exp0=1.0;rand_init = false;change_seeds = false; uniform_theta_init = true;g1_init=nothing;g2_init=nothing; m_mu_init=nothing; s_sq_mu_init=nothing;y_init=nothing;u_init=nothing;v_init = nothing;a_init=nothing;b_init=nothing; h1_init=nothing; h2_init=nothing; w1_init=nothing; w2_init=nothing; d_init=nothing; c_init=nothing;r_init=nothing; update_clusterwise=false; condition_update_neighbors=nothing;condition_network_neighbors=nothing; m_nu_init=nothing; s_sq_nu_init=nothing;
     
@@ -674,7 +739,10 @@ function initialize_model_parameters(data_input,KMax,alpha0,gamma0,phi1,phi2,kap
     return inputs
 end
 
-
+"""
+    get_m_init_from_initialization_approach(m_initialization_approach,used_representation,cell_cluster_labels,K,seed;iseeds=nothing,m_mu_init=nothing)
+This function initializes the cluster means based on a specified initialization approach.
+"""
 function get_m_init_from_initialization_approach(m_initialization_approach,used_representation,cell_cluster_labels,K,seed;iseeds=nothing,m_mu_init=nothing)
     J = size(used_representation)[1]
     N = size(used_representation)[2]
@@ -723,6 +791,10 @@ function get_m_init_from_initialization_approach(m_initialization_approach,used_
     return m_mu_init,iseeds
 end
 
+"""
+    run_cavi(inputs;elbo_ep = 10^(-0),logger=nothing)
+This function runs the Coordinate Ascent Variational Inference (CAVI) algorithm on the provided inputs.
+"""
 function run_cavi(inputs;elbo_ep = 10^(-0),logger=nothing)
     num_iter = inputs[:modelparams].num_iter
     KMax = inputs[:modelparams].K
@@ -745,6 +817,10 @@ function run_cavi(inputs;elbo_ep = 10^(-0),logger=nothing)
     return outputs_dict
 end
 
+"""
+    save_pips(pip,gene_names;unique_time_id="",filepath="")
+This function saves the posterior inclusion probabilities (PIPs) to a CSV file.
+"""
 function save_pips(pip,gene_names;unique_time_id="",filepath="")
     KMax =length(pip)
     G = length(pip[1])
@@ -757,6 +833,10 @@ function save_pips(pip,gene_names;unique_time_id="",filepath="")
 
 end
 
+"""
+    save_Nk(rtik_;unique_time_id="",filepath="")
+This function saves the cluster sizes (Nk) to a CSV file.
+"""
 function save_Nk(rtik_;unique_time_id="",filepath="")
     KMax = length(rtik_[1][1])
     N = length(rtik_[1])
@@ -773,6 +853,11 @@ function save_Nk(rtik_;unique_time_id="",filepath="")
 
 end
 
+
+"""
+    summarize_parameters(outputs_dict_vec,elapsed_time,final_elbo_vec,elbo_vec,rtik_vec,yjk_vec,perK_elbo_vec,delta_t_vec,nk_perL_vec,ηk_vec)
+This function summarizes model parameters across multiple runs.
+"""
 function summarize_parameters(outputs_dict_vec,elapsed_time,final_elbo_vec,elbo_vec,rtik_vec,yjk_vec,perK_elbo_vec,delta_t_vec,nk_perL_vec,ηk_vec)
     L = length(outputs_dict_vec)
     importance_weights = norm_weights(final_elbo_vec)
@@ -820,6 +905,11 @@ function summarize_parameters(outputs_dict_vec,elapsed_time,final_elbo_vec,elbo_
 
     return mean_elbo,pip,mean_rtik,mean_mk,mean_v_sq_k,mean_σ_sq_k,mean_Nk,mean_d,mean_c_tt_prime,mean_st,mean_λ_sq
 end
+
+"""
+    _flushed_logger(msg;logger=nothing)
+This function logs a message using the provided logger.
+"""
 function _flushed_logger(msg;logger=nothing)
     if !isnothing(logger)
         with_logger(logger) do
@@ -828,6 +918,11 @@ function _flushed_logger(msg;logger=nothing)
     end
 end
 
+
+"""
+    make_ids(dataset_name,G,N)
+This function generates unique identifiers for the dataset, experiment, and time.
+"""
 function make_ids(dataset_name,G,N)
     unique_time_id = get_unique_time_id()
     dataset_used_id = "$(dataset_name)_$(G)HVGs-$(N)N"
@@ -837,15 +932,28 @@ function make_ids(dataset_name,G,N)
     return unique_time_id,dataset_used_id,experiment_id
 end
 
+
+"""
+    mk_outputs_filepath(outdir,experiment_id,dataset_used,unique_time_id)
+This function generates the output file path for the experiment.
+"""
 function mk_outputs_filepath(outdir,experiment_id,dataset_used,unique_time_id)
     filepath ="$outdir/outputs/$experiment_id/current/$(unique_time_id)_$(dataset_used)/"
     return filepath
 end
+
+"""
+    mk_outputs_pathname(filepath)
+This function creates the output directory if it does not exist.
+"""
 function mk_outputs_pathname(filepath)
     mkpath(filepath)
 end
 
-
+"""
+    saving_summary_file(filepath;slurm_job_id="",script_name="",change_seeds = false,unique_time_id="",datafilename1="",KMax="", seed="",num_var_feat="",N="",elbo_ep="",notes_="",alpha0 = "",gamma0 = "" ,phi1 = "",phi2 = "",kappa1 = "",kappa2 = "",xi1 = "",xi2 = "",varphi1 = "",varphi2 = "",significance_prop="",min_number_cells="",min_percent_cells="",min_percent_of_genes="",max_percent_of_genes="", num_iter = "",dataset_name = "",outdir = "",time_key = "",individuals_key = "",m_initialization_approach="",update_clusterwise="", use_alt_representation="", check_cluster_interpretability_bool="", gene_set_file_path="", samplebased_alpha0="")
+This function saves a summary of the experiment parameters to a text file.
+"""
 function saving_summary_file(filepath;slurm_job_id="",script_name="",change_seeds = false,unique_time_id="",datafilename1="",KMax="", seed="",num_var_feat="",N="",elbo_ep="",notes_="",alpha0 = "",gamma0 = "" ,phi1 = "",phi2 = "",kappa1 = "",kappa2 = "",xi1 = "",xi2 = "",varphi1 = "",varphi2 = "",significance_prop="",min_number_cells="",min_percent_cells="",min_percent_of_genes="",max_percent_of_genes="", num_iter = "",dataset_name = "",outdir = "",time_key = "",individuals_key = "",m_initialization_approach="",update_clusterwise="", use_alt_representation="", check_cluster_interpretability_bool="", gene_set_file_path="", samplebased_alpha0="")
     summary_file = filepath*"_QuickSummary_"*unique_time_id*".txt"
     vars = [datafilename1,dataset_name,slurm_job_id,script_name,alpha0,gamma0,phi1,phi2,kappa1,kappa2,xi1,xi2,varphi1,varphi2,significance_prop,min_percent_cells,min_number_cells,min_percent_of_genes,max_percent_of_genes,KMax,change_seeds, seed, m_initialization_approach, "Scanpy-Default", time_key,individuals_key,num_iter,num_var_feat,N,true,false,false,false,elbo_ep,outdir,update_clusterwise, use_alt_representation, check_cluster_interpretability_bool, gene_set_file_path, samplebased_alpha0,notes_]
@@ -866,6 +974,10 @@ function saving_summary_file(filepath;slurm_job_id="",script_name="",change_seed
     return summary_file
 end
 
+"""
+    save_embeddings(anndata_dict1,filepath;outputs_dict = nothing,logger = nothing,unique_time_id="",new_order_samples=nothing)
+This function saves the embeddings (TSNE, PCA, UMAP) to CSV files.
+"""
 function save_embeddings(anndata_dict1,filepath;outputs_dict = nothing,logger = nothing,unique_time_id="",new_order_samples=nothing)
     G = size(anndata_dict1["X"])[1]
     N = size(anndata_dict1["X"])[2]
@@ -921,6 +1033,10 @@ function save_embeddings(anndata_dict1,filepath;outputs_dict = nothing,logger = 
     return outputs_dict
 end
 
+"""
+    make_labels(x_input,anndata_dict1,z_argmax)
+This function generates a DataFrame containing cell labels and inferred cluster assignments.
+"""
 function make_labels(x_input,anndata_dict1,z_argmax)
     T = 1
     timepoint_map = [t * ones(Int,Int(length(x_input[t]))) for t in 1:T]
@@ -945,9 +1061,19 @@ function make_labels(x_input,anndata_dict1,z_argmax)
     return cluster_results_df
     
 end
+
+"""
+    save_labels(cluster_results_df;dataset_used="",G="",unique_time_id="",filepath="")
+This function saves the cluster membership labels to a CSV file.
+"""
 function save_labels(cluster_results_df;dataset_used="",G="",unique_time_id="",filepath="")
     CSV.write(filepath*"$(dataset_used)_nclusion-"*unique_time_id*".csv",  cluster_results_df)
 end
+
+"""
+    run_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outdir; logger = nothing,num_iter=500,save_metrics=false,rand_init=false)
+This function runs the entire NCLUSION pipeline, from data loading to model training and result saving.
+"""
 function run_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outdir; logger = nothing,num_iter=500,save_metrics=false,rand_init=false)
     Random.seed!(seed)
     _flushed_logger("Loading data and metadata...";logger)
@@ -1025,6 +1151,11 @@ function run_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outd
 
     return outputs_dict
 end
+
+"""
+    append_summary(summary_file,vars,varnames)
+This function appends additional information to the summary file.
+"""
 function append_summary(summary_file,vars,varnames)
     open(summary_file, "a") do f
         for i in eachindex(vars)
@@ -1033,6 +1164,10 @@ function append_summary(summary_file,vars,varnames)
     end
 end
 
+"""
+    create_results_dict(run_,function_name)
+This function creates a results dictionary from the benchmarking run.
+"""
 function create_results_dict(run_,function_name)
     results_dict = OrderedDict{Symbol,Vector{Union{String,Int,Float64}}}()
     results_dict[:name] = [function_name]
@@ -1047,6 +1182,11 @@ function create_results_dict(run_,function_name)
     results_dict[:num_evals] = [run_.params.evals]
     return results_dict
 end
+
+"""
+    benchmark_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outdir; logger = nothing,num_iter=500)
+This function benchmarks the NCLUSION model using the provided parameters.
+"""
 function benchmark_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outdir; logger = nothing,num_iter=500)
     Random.seed!(seed)
     _flushed_logger("Loading data and metadata...";logger)
@@ -1092,6 +1232,10 @@ function benchmark_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,datase
     return results_dict
 end
 
+"""
+    get_highly_variable_genes_bool(anndata_dict1;n_hvgs=nothing, use_std=false)
+This function determines the highly variable genes in the dataset.
+"""
 function get_highly_variable_genes_bool(anndata_dict1;n_hvgs=nothing, use_std=false)
     highly_variable_genes_bool = trues(size(anndata_dict1["X"])[1])
     if use_std
@@ -1114,6 +1258,10 @@ function get_highly_variable_genes_bool(anndata_dict1;n_hvgs=nothing, use_std=fa
     end
     return highly_variable_genes_bool
 end
+
+"""    subset_on_highly_variable_genes_bool(anndata_dict1,highly_variable_genes_bool,layer_index)
+This function subsets the AnnData object to include only the highly variable genes.
+"""
 function subset_on_highly_variable_genes_bool(anndata_dict1,highly_variable_genes_bool,layer_index)
     anndata_dict1["X"] = anndata_dict1["X"][highly_variable_genes_bool,:]
     if haskey(anndata_dict1,"layers") && !isempty(anndata_dict1["layers"]) && layer_index != 0
@@ -1126,6 +1274,10 @@ function subset_on_highly_variable_genes_bool(anndata_dict1,highly_variable_gene
     end
     return anndata_dict1
 end
+
+"""    center_and_scale_data_cols(anndata_dict1;center_cols = true,scale_cols = true)
+This function centers and/or scales the data matrix in the AnnData object.
+"""
 function center_and_scale_data_cols(anndata_dict1;center_cols = true,scale_cols = true)
     xmat = anndata_dict1["X"]
     if center_cols
@@ -1137,6 +1289,10 @@ function center_and_scale_data_cols(anndata_dict1;center_cols = true,scale_cols 
     anndata_dict1["X"] = xmat
     return anndata_dict1
 end
+
+"""    center_and_scale_matrix_cols(xmat;center_cols = true,scale_cols = true)
+This function centers and/or scales the columns of the provided matrix.
+"""
 function center_and_scale_matrix_cols(xmat;center_cols = true,scale_cols = true)
     novariation = collect(1:size(xmat)[1])[[all(el .== el[1])  for el in eachrow(xmat)]]
     if length(novariation) > 0
@@ -1160,7 +1316,10 @@ function center_and_scale_matrix_cols(xmat;center_cols = true,scale_cols = true)
 end
 
 
-
+"""
+    size_reorder_clusters(outputs_dict::OrderedDict{Symbol, Any})
+This function reorders clusters based on their sizes in descending order.
+"""
 function size_reorder_clusters(outputs_dict::OrderedDict{Symbol, Any})
     #print(outputs_dict.keys)
     r = outputs_dict[:r_]
@@ -1199,6 +1358,9 @@ function size_reorder_clusters(outputs_dict::OrderedDict{Symbol, Any})
     return outputs_dict
 end
 
+"""    calculate_s_values(sig_values;thresh=0.05)
+This function calculates the Hoff S-value based on the provided significance values and threshold.
+"""
 function calculate_s_values(sig_values;thresh=0.05)
     hoff_s_value = mean(sig_values[sig_values .<= thresh])
     if isnan(hoff_s_value)
@@ -1207,6 +1369,11 @@ function calculate_s_values(sig_values;thresh=0.05)
     return hoff_s_value
 end
 
+
+"""
+    return_occupied_clusters(r)
+This function returns the indices of occupied clusters and their reindexing.
+"""
 function return_occupied_clusters(r)
     KMaxplus1 = length(r[1][1][1])
     I = length(r)
@@ -1228,7 +1395,10 @@ function return_occupied_clusters(r)
     return KMaxplus1,K_post, N, Nk, occupied_cluster_indx,remap_dict,new_unique_cluster_indx
 end
 
-
+"""
+    subset_on_occupied_clusters(outputs_dict::OrderedDict{Symbol, Any})
+This function subsets the outputs dictionary to include only occupied clusters and reindexes them.
+"""
 function subset_on_occupied_clusters(outputs_dict::OrderedDict{Symbol, Any})
     r = outputs_dict[:r_];
     KMaxplus1,K_post, N, Nk, occupied_cluster_indx,remap_dict,new_unique_cluster_indx = return_occupied_clusters(r);
@@ -1271,7 +1441,10 @@ function subset_on_occupied_clusters(outputs_dict::OrderedDict{Symbol, Any})
 end
 
 
-
+"""
+    posterior_summaries(outputs_dict::OrderedDict{Symbol, Any}, used_representation::AbstractArray,used_representation_feature_name::AbstractArray,seed::Int;num_samples = 1000,s_value_thresh=0.05,return_data_frames = false,save_data_frames = true)
+This function computes posterior summaries, including PIPs and S-values, and optionally saves them to CSV files.
+"""
 function posterior_summaries(outputs_dict::OrderedDict{Symbol, Any}, used_representation::AbstractArray,used_representation_feature_name::AbstractArray,seed::Int;num_samples = 1000,s_value_thresh=0.05,return_data_frames = false,save_data_frames = true)
     Random.seed!(seed)
     N = size(used_representation)[2]
@@ -1676,6 +1849,11 @@ function posterior_summaries(outputs_dict::OrderedDict{Symbol, Any}, used_repres
     end
 end
 
+
+"""
+    posterior_summaries_on_projection(y_pip_post::Matrix{Float64}, m_mu_post::Matrix{Float64},s_sq_mu_post::Matrix{Float64},a_post::Matrix{Float64},b_post::Matrix{Float64},projection_matrix::Matrix{Float64},used_representation_feature_name::AbstractArray,gene_names::AbstractArray,seed::Int,filepath;num_samples = 1000,s_value_thresh=0.05,return_data_frames = false,save_data_frames = true,run_name = "",unique_time_id="")
+This function computes posterior summaries on a projection matrix.
+""" 
 function posterior_summaries_on_projection(y_pip_post::Matrix{Float64}, m_mu_post::Matrix{Float64},s_sq_mu_post::Matrix{Float64},a_post::Matrix{Float64},b_post::Matrix{Float64},projection_matrix::Matrix{Float64},used_representation_feature_name::AbstractArray,gene_names::AbstractArray,seed::Int,filepath;num_samples = 1000,s_value_thresh=0.05,return_data_frames = false,save_data_frames = true,run_name = "",unique_time_id="")
     Random.seed!(seed)
     G = size(projection_matrix)[1]
@@ -1771,7 +1949,10 @@ function posterior_summaries_on_projection(y_pip_post::Matrix{Float64}, m_mu_pos
 end
 
 
-
+"""
+    make_new_embeddings(outputs_dict::Dict,used_representation::Matrix{Float64},used_representation_feature_name::AbstractArray,seed::Int; samples_as_rows=false)
+This function generates new embeddings (PCA, t-SNE, UMAP) from the used representation matrix and adds them to the outputs dictionary.
+"""
 function make_new_embeddings(outputs_dict,used_representation,used_representation_feature_name,seed; samples_as_rows=false)
     Random.seed!(seed)
     new_order = sortperm(used_representation_feature_name)
@@ -1795,7 +1976,10 @@ function make_new_embeddings(outputs_dict,used_representation,used_representatio
     return outputs_dict
 end
 
-
+"""
+    generate_report(script_path::String, arg1::String, arg2::String, arg3::String)::String
+This function generates a report by executing an external Python script with the provided arguments.
+"""
 function generate_report(script_path::String, arg1::String, arg2::String, arg3::String)::String
     # Construct the shell command with the script path as an argument
     cmd = `python -u $script_path --resultsfiledir $arg1 --datadir $arg2 --make_abridged $arg3`
@@ -1812,6 +1996,11 @@ function generate_report(script_path::String, arg1::String, arg2::String, arg3::
     end
 end
 
+
+"""
+    submit_slurm_job_to_generate_report(script_path::String, arg1::String, arg2::String, arg3::String)::String
+This function submits a SLURM job to generate a report by executing an external Python script with the provided arguments.
+"""
 function submit_slurm_job_to_generate_report(script_path::String, arg1::String, arg2::String, arg3::String)::String
     # Construct the shell command with the script path as an argument
     cmd = `sbatch -J report_generation -N 1 -c 1 -t 72:00:00 --mem=64GB -o /users/cnwizu/scratch/%x-log-%j.out -e /users/cnwizu/scratch/%x-log-%j.err --mail-type=END,FAIL --mail-user=chibuikem_nwizu@brown.edu --wrap="module load julia; module load llvm/16.0.2; module load r/4.4.0-yycctsj ; module load pcre2/10.42 cuda/12.1.1 texlive/20220321; module load cmake/3.26.3; module load libgit2/1.6.4; module load geos/3.11.2; module load libpng/1.6.39; module load gdal/3.7.0 proj/9.2.0; module load nlopt/2.7.1; source /users/cnwizu/data/cnwizu/cdHDPlmm/.venv/bin/activate ; export LD_PRELOAD=/gpfs/runtime/opt/intel/2020.2/mkl/lib/intel64/libmkl_def.so:/gpfs/runtime/opt/intel/2020.2/mkl/lib/intel64/libmkl_avx2.so:/gpfs/runtime/opt/intel/2020.2/mkl/lib/intel64/libmkl_core.so:/gpfs/runtime/opt/intel/2020.2/mkl/lib/intel64/libmkl_intel_lp64.so:/gpfs/runtime/opt/intel/2020.2/mkl/lib/intel64/libmkl_intel_thread.so:/gpfs/runtime/opt/intel/2020.2/lib/intel64_lin/libiomp5.so; python -u $script_path --resultsfiledir $arg1 --datadir $arg2 --make_abridged $arg3 "`
@@ -1829,22 +2018,22 @@ function submit_slurm_job_to_generate_report(script_path::String, arg1::String, 
     end
 end
 
-# Function to compute a cost matrix (e.g., based on overlap)
-function compute_cost_matrix(labels1, labels2, K)
-    cost_matrix = zeros(K, K)
-    for i in 1:K
-        for j in 1:K
-            cost_matrix[i, j] = -sum((labels1 .== i) .& (labels2 .== j))  # Negative overlap (maximize match)
-        end
-    end
-    return cost_matrix
-end
+# # Function to compute a cost matrix (e.g., based on overlap)
+# function compute_cost_matrix(labels1, labels2, K)
+#     cost_matrix = zeros(K, K)
+#     for i in 1:K
+#         for j in 1:K
+#             cost_matrix[i, j] = -sum((labels1 .== i) .& (labels2 .== j))  # Negative overlap (maximize match)
+#         end
+#     end
+#     return cost_matrix
+# end
 
 # Function to relabel clusters using Hungarian algorithm
-function relabel_clusters(labels, reference_labels, K)
-    cost_matrix = compute_cost_matrix(reference_labels, labels, K)
-    assignment, _ = hungarian(cost_matrix)  # Get optimal assignment
+# function relabel_clusters(labels, reference_labels, K)
+#     cost_matrix = compute_cost_matrix(reference_labels, labels, K)
+#     assignment, _ = hungarian(cost_matrix)  # Get optimal assignment
 
-    label_map = Dict(j => i for (i, j) in enumerate(assignment))  # Map old labels to new
-    return [label_map[l] for l in labels]  # Reassign labels
-end
+#     label_map = Dict(j => i for (i, j) in enumerate(assignment))  # Map old labels to new
+#     return [label_map[l] for l in labels]  # Reassign labels
+# end
