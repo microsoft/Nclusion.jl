@@ -55,7 +55,6 @@ C. Nwizu, M. Hughes, M. Ramseier, A. Navia, A. Shalek, N. Fusi, S. Raghavan, P. 
 
 ## Questions and Feedback
 
-If you have any questions or concerns regarding NCLUSION or the tutorials, please contact <a href="mailto:chibuikem_nwizu@brown.edu"> Chibuikem Nwizu</a>, <a href="mailto:v-mahughes@microsoft.com"> Madeline Hughes</a>, <a href="mailto:ava.amini@microsoft.com"> Ava Amini</a>, or <a href="mailto:lcrawford@microsoft.com"> Lorin Crawford</a>. Any feedback on the repository, manuscript, and tutorials is appreciated.
 
 ## Contributing
 
@@ -69,7 +68,7 @@ provided by the bot. You will only need to do this once across all repos using o
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+
 
 ## Trademarks
 
