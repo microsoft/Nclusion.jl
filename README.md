@@ -47,7 +47,7 @@ precompile</code></pre>This completes the installation process. You can exit the
 
 ## Software Package Documentation, Examples, and Tutorials
 
-Documentation for the NCLUSION software package, examples, and tutorials can be found [here](https://microsoft.github.io/nclusion). Additionally, code to reproduce the figures in the study are deposited [here](https://github.com/Chibuikem709/nclusion_manuscript_figure_reproducibility)
+Documentation for the NCLUSION software package, examples, and tutorials can be found [here](https://microsoft.github.io/nclusion). Additionally, code to reproduce the figures in the study are deposited [here](https://github.com/Chibuikem709/nclusion_manuscript_figure_reproducibility).
 
 ## Relevant Citations
 
