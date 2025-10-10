@@ -1,4 +1,7 @@
-
+"""
+    Lp_data(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}
+Calculate the expected log likelihood of the data given the variational parameters.
+"""
 function Lp_data(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}
     float_type = dataparams.BitType
     J = dataparams.J
@@ -15,6 +18,11 @@ function Lp_data(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,m
     return LB
 end
 
+
+"""
+    Lp_pi_tau_phi(cells::Vector{CellFeature{U,W}},conditions::Vector{ConditionFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}
+Calculates the log likelihood of parameters pi, tau, and phi.
+"""
 function Lp_pi_tau_phi(cells,conditions::Vector{ConditionFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}
     float_type = dataparams.BitType
     J = dataparams.J
@@ -35,6 +43,10 @@ function Lp_pi_tau_phi(cells,conditions::Vector{ConditionFeature{U,W}},dataparam
     return LB
 end
 
+"""
+    Lp_tau_omega(cells::Vector{CellFeature{U,W}},conditions::Vector{ConditionFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}  
+Calculates the log likelihood of parameters tau and omega.
+"""
 function Lp_tau_omega(cells,conditions::Vector{ConditionFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}
     float_type = dataparams.BitType
     J = dataparams.J
@@ -56,6 +68,10 @@ function Lp_tau_omega(cells,conditions::Vector{ConditionFeature{U,W}},dataparams
 end
 
 
+"""
+    Lp_pi_chi(clusters::Vector{ClusterFeature{U,W}},conditions::Vector{ConditionFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature;use_log=true) where {U <: AbstractFloat, W <: Int64}   
+Calculates the log likelihood of parameters pi and chi.
+"""
 function Lp_pi_chi(clusters::Vector{ClusterFeature{U,W}},conditions::Vector{ConditionFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature;use_log=true) where {U <: AbstractFloat, W <: Int64}
     float_type = dataparams.BitType
     J = dataparams.J
@@ -76,7 +92,10 @@ function Lp_pi_chi(clusters::Vector{ClusterFeature{U,W}},conditions::Vector{Cond
 end
 
 
-
+"""
+    Lp_surrogate(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}
+Calculates the log likelihood of the surrogate bound.
+"""
 function Lp_surrogate( clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}
     float_type = dataparams.BitType
     J = dataparams.J
@@ -95,7 +114,10 @@ function Lp_surrogate( clusters::Vector{ClusterFeature{U,W}},dataparams::DataFea
     return LB
 end
 
-
+"""
+    Lp_chi(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}
+Calculates the log likelihood of parameters chi.
+"""
 function Lp_chi(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}
     float_type = dataparams.BitType
     J = dataparams.J
@@ -110,6 +132,11 @@ function Lp_chi(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,mo
     return LB
 end
 
+
+"""
+    Lp_omega(conditions::Vector{ConditionFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}
+Calculates the log likelihood of parameters omega.
+""" 
 function Lp_omega(conditions::Vector{ConditionFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}
     float_type = dataparams.BitType
     J = dataparams.J
@@ -130,6 +157,10 @@ function Lp_omega(conditions::Vector{ConditionFeature{U,W}},dataparams::DataFeat
 end
 
 
+"""
+    Lp_sigma_sq(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature;sigma_update_mode="Local") where {U <: AbstractFloat, W <: Int64}
+Calculates the log likelihood of parameters sigma squared.
+"""
 function Lp_sigma_sq(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature;sigma_update_mode="Local") where {U <: AbstractFloat, W <: Int64}
     float_type = dataparams.BitType
     J = dataparams.J
@@ -158,6 +189,10 @@ function Lp_sigma_sq(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeatu
     return LB
 end
 
+"""
+    Lp_mu(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}  
+Calculates the log likelihood of parameters mu.
+"""
 function Lp_mu(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}
     float_type = dataparams.BitType
     J = dataparams.J
@@ -174,6 +209,10 @@ function Lp_mu(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,mod
     return LB
 end
 
+"""
+    Lp_nu(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}  
+Calculates the log likelihood of parameters nu.
+"""
 function Lp_nu(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}
     float_type = dataparams.BitType
     J = dataparams.J
@@ -189,7 +228,10 @@ function Lp_nu(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,mod
 end
 
 
-
+"""
+    Lp_lambda(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature;lambda_update_mode="Local")  where {U <: AbstractFloat, W <: Int64}
+Calculates the log likelihood of parameters lambda.
+"""
 function Lp_lambda(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature;lambda_update_mode="Local")  where {U <: AbstractFloat, W <: Int64}
     float_type = dataparams.BitType
     J = dataparams.J
@@ -221,6 +263,10 @@ function Lp_lambda(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature
 end
 
 
+"""
+    Lp_rho( clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}
+Calculates the log likelihood of parameters rho.
+"""
 function Lp_rho( clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}
     float_type = dataparams.BitType
     J = dataparams.J
@@ -238,6 +284,10 @@ function Lp_rho( clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,m
 end
 
 
+"""
+    Lp_eta( clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature;eta_update_mode="Local") where {U <: AbstractFloat, W <: Int64}
+Calculates the log likelihood of parameters eta.
+"""
 function Lp_eta( clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature;eta_update_mode="Local") where {U <: AbstractFloat, W <: Int64}
     float_type = dataparams.BitType
     J = dataparams.J
@@ -268,7 +318,10 @@ function Lp_eta( clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,m
     return LB
 end
 
-# ::Vector{CellFeature{U,W,J}}
+"""
+    Lq_r(cells::Vector{CellFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}
+Calculates the log likelihood of the variational parameters r.
+"""
 function Lq_r(cells,dataparams::DataFeature,modelparams::ModelParameterFeature) # Flipping the sign for etropies so i can subtract from elbo
     float_type = dataparams.BitType
     J = dataparams.J
@@ -283,6 +336,10 @@ function Lq_r(cells,dataparams::DataFeature,modelparams::ModelParameterFeature) 
     return LB
 end
 # ::Vector{CellFeature{U,W,J}}
+"""
+    Lq_c(cells::Vector{CellFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}
+Calculates the log likelihood of the variational parameters c.
+"""
 function Lq_c(cells,dataparams::DataFeature,modelparams::ModelParameterFeature) # Flipping the sign for etropies so i can subtract from elbo
     float_type = dataparams.BitType
     J = dataparams.J
@@ -302,7 +359,10 @@ function Lq_c(cells,dataparams::DataFeature,modelparams::ModelParameterFeature) 
 end
 
 
-
+"""
+    Lq_d(conditions::Vector{ConditionFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}# Keep signs the same so that i can subtract from elbo
+Calculates the log likelihood of the variational parameters d.
+"""
 function Lq_d(conditions::Vector{ConditionFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}# Keep signs the same so that i can subtract from elbo
     float_type = dataparams.BitType
     J = dataparams.J
@@ -326,6 +386,10 @@ function Lq_d(conditions::Vector{ConditionFeature{U,W}},dataparams::DataFeature,
     return LB
 end
 
+"""
+    Lq_w1w2(conditions::Vector{ConditionFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64} # Keep signs the same so that i can subtract from elbo
+Calculates the log likelihood of the variational parameters w1 and w2.
+"""
 function Lq_w1w2(conditions::Vector{ConditionFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64} # Keep signs the same so that i can subtract from elbo
     float_type = dataparams.BitType
     J = dataparams.J
@@ -345,6 +409,10 @@ function Lq_w1w2(conditions::Vector{ConditionFeature{U,W}},dataparams::DataFeatu
     return LB
 end
 
+"""
+    Lq_g1g2(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64} # Keep signs the same so that i can subtract from elbo
+Calculates the log likelihood of the variational parameters g1 and g2.
+"""
 function Lq_g1g2(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64} # Keep signs the same so that i can subtract from elbo
     float_type = dataparams.BitType
     J = dataparams.J
@@ -361,6 +429,10 @@ function Lq_g1g2(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,m
     return LB
 end
 
+"""
+    Lq_ab(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature; sigma_update_mode="Local") where {U <: AbstractFloat, W <: Int64} # Keep signs the same so that i can subtract from elbo
+Calculates the log likelihood of the variational parameters a and b.
+"""
 function Lq_ab(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature; sigma_update_mode="Local") where {U <: AbstractFloat, W <: Int64} # Keep signs the same so that i can subtract from elbo
     float_type = dataparams.BitType
     J = dataparams.J
@@ -389,7 +461,10 @@ function Lq_ab(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,mod
     return LB
 end
 
-
+"""
+    Lq_ms_sq_mu(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}# Keep signs the same so that i can subtract from elbo
+Calculates the log likelihood of the variational parameters m and s squared for mu.
+"""
 function Lq_ms_sq_mu(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}# Keep signs the same so that i can subtract from elbo
     float_type = dataparams.BitType
     J = dataparams.J
@@ -405,6 +480,11 @@ function Lq_ms_sq_mu(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeatu
     end
     return LB
 end
+
+"""
+    Lq_ms_sq_nu(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}# Keep signs the same so that i can subtract from elbo
+Calculates the log likelihood of the variational parameters m and s squared for nu.
+"""
 function Lq_ms_sq_nu(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64}# Keep signs the same so that i can subtract from elbo
     float_type = dataparams.BitType
     J = dataparams.J
@@ -419,6 +499,10 @@ function Lq_ms_sq_nu(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeatu
     return LB
 end
 
+"""
+    Lq_uv(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature; lambda_update_mode="Local")  where {U <: AbstractFloat, W <: Int64} # Keep signs the same so that i can subtract from elbo
+Calculates the log likelihood of the variational parameters u and v.
+"""
 function Lq_uv(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature;  lambda_update_mode="Local")  where {U <: AbstractFloat, W <: Int64} # Keep signs the same so that i can subtract from elbo
     float_type = dataparams.BitType
     J = dataparams.J
@@ -451,6 +535,10 @@ end
 
 
 
+"""
+    Lq_y(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64} # Keep signs the same so that i can subtract from elbo
+Calculates the log likelihood of the variational parameters y.
+"""
 function Lq_y(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature) where {U <: AbstractFloat, W <: Int64} # Keep signs the same so that i can subtract from elbo
     float_type = dataparams.BitType
     J = dataparams.J
@@ -467,6 +555,10 @@ function Lq_y(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,mode
     return LB
 end
 
+"""
+    Lq_h1h2(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature;eta_update_mode="Local") where {U <: AbstractFloat, W <: Int64} # Keep signs the same so that i can subtract from elbo
+Calculates the log likelihood of the variational parameters h1 and h2.
+"""
 function Lq_h1h2(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature;eta_update_mode="Local") where {U <: AbstractFloat, W <: Int64} # Keep signs the same so that i can subtract from elbo
     float_type = dataparams.BitType
     J = dataparams.J
@@ -502,8 +594,11 @@ function Lq_h1h2(clusters::Vector{ClusterFeature{U,W}},dataparams::DataFeature,m
 end
 
 
-# ::Vector{CellFeature{U,W,J}}
-function EBLO(cells,clusters::Vector{ClusterFeature{U,W}},conditions::Vector{ConditionFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature; use_log::Bool=true,update_clusterwise::Bool = false,eta_update_mode="Local", lambda_update_mode="Local", sigma_update_mode = "Local") where {U <: AbstractFloat, W <: Int64}
+"""
+    ELBO(cells::Vector{CellFeature{U,W}},clusters::Vector{ClusterFeature{U,W}},conditions::Vector{ConditionFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature; use_log::Bool=true,update_clusterwise::Bool = false,eta_update_mode="Local", lambda_update_mode="Local", sigma_update_mode = "Local") where {U <: AbstractFloat, W <: Int64}
+Calculates the Evidence Lower Bound (ELBO) for the entire model.            
+"""
+function ELBO(cells,clusters::Vector{ClusterFeature{U,W}},conditions::Vector{ConditionFeature{U,W}},dataparams::DataFeature,modelparams::ModelParameterFeature; use_log::Bool=true,update_clusterwise::Bool = false,eta_update_mode="Local", lambda_update_mode="Local", sigma_update_mode = "Local") where {U <: AbstractFloat, W <: Int64}
     LB = 0.0
     LB += Lp_data(clusters,dataparams,modelparams) 
     LB += Lp_pi_tau_phi(cells,conditions,dataparams,modelparams) 
@@ -533,11 +628,8 @@ function EBLO(cells,clusters::Vector{ClusterFeature{U,W}},conditions::Vector{Con
 end
 
 """
-        calc_SurragateLowerBound(rho_hat,omega_hat,T,γ,α0,Tk)
-    Calculates the Surrogate Bound
-    ```math
-
-    ```
+    calc_SurragateLowerBound(rho_hat,omega_hat,T,γ,α0,Tk)
+ Calculates the Surrogate Bound
 """
 function calc_SurragateLowerBound(rho_hat,omega_hat,T,γ,α0,Tk)
     c_B = beta.(rho_hat .* omega_hat , (1.0 .- rho_hat) .* omega_hat)
@@ -552,11 +644,8 @@ function calc_SurragateLowerBound(rho_hat,omega_hat,T,γ,α0,Tk)
 end
 
 """
-        calc_SurragateLowerBound_unconstrained(c,d,T,γ,α0,Tk)
-    Calculates the unconstrained Surrogate Bound 
-    ```math
-
-    ```
+    calc_SurragateLowerBound_unconstrained(c,d,T,γ,α0,Tk)
+Calculates the unconstrained Surrogate Bound 
 """
 function calc_SurragateLowerBound_unconstrained(c,d,T,γ,α0,Tk)
     rho_hat = sigmoid.(c)
@@ -574,30 +663,24 @@ end
 
 
 """
-        c_Ga(a0, b0)
-    Calculates the log of the Gamma function
-    ```math
-
-    ```
+    c_Ga(a0, b0)
+Calculates the log of the Gamma function
 """
 function c_Ga(a0, b0)
     a0 .* log.(b0) .- loggamma.(a0)
 end
 
 """
-       c_Beta(a0, b0)
-    Calculates the log of the Beta function
-    ```math
-
-    ```
+    c_Beta(a0, b0)
+Calculates the log of the Beta function
 """
 function c_Beta(a0, b0)
     - logbeta.(a0,b0) 
 end
 
 """
-        calculate_elbo_mpu(Tk,cellpop,clusters,geneparams,conditionparams,elbolog,dataparams,modelparams,iter)
-    Calculates the current iterations elbo. Wrapper function that calls the component elbo calculation functions
+    calculate_elbo_mpu(Tk,cellpop,clusters,geneparams,conditionparams,elbolog,dataparams,modelparams,iter)
+Calculates the current iterations elbo. Wrapper function that calls the component elbo calculation functions
 """
 function calculate_elbo_mpu(Tk,cellpop,clusters,geneparams,conditionparams,elbolog,dataparams,modelparams,iter)
     K = modelparams.K
@@ -621,8 +704,8 @@ end
 
 
 """
-        calc_DataElbo_mpu(clusters,geneparams,elbolog,dataparams,modelparams,iter)
-    Calculates the current iterations data elbo.
+    calc_DataElbo_mpu(clusters,geneparams,elbolog,dataparams,modelparams,iter)
+Calculates the current iterations data elbo.
 """
 function calc_DataElbo_mpu(clusters,geneparams,elbolog,dataparams,modelparams,iter)
     float_type = dataparams.BitType
@@ -662,8 +745,8 @@ function calc_DataElbo_mpu(clusters,geneparams,elbolog,dataparams,modelparams,it
 end
 
 """
-        calc_Hz_fast3(cellpop,clusters,dataparams)
-    Fast calculation of the current iterations cell cluster assignment entropy.
+    calc_Hz_fast3(cellpop,clusters,dataparams)
+Fast calculation of the current iterations cell cluster assignment entropy.
 """
 function calc_Hz_fast3(cellpop,clusters,dataparams)
     float_type = dataparams.BitType
@@ -676,8 +759,8 @@ function calc_Hz_fast3(cellpop,clusters,dataparams)
 end
 
 """
-        calc_SurragateLowerBound_unconstrained_elbo(Tk,clusters,elbolog,dataparams,modelparams,iter)
-    Calculates the current iterations surrogate priors' elbo.
+    calc_SurragateLowerBound_unconstrained_elbo(Tk,clusters,elbolog,dataparams,modelparams,iter)
+Calculates the current iterations surrogate priors' elbo.
 """
 function calc_SurragateLowerBound_unconstrained_elbo(Tk,clusters,elbolog,dataparams,modelparams,iter)
     float_type = dataparams.BitType
@@ -705,8 +788,8 @@ function calc_SurragateLowerBound_unconstrained_elbo(Tk,clusters,elbolog,datapar
 end
 
 """
-        calc_wAllocationsLowerBound(conditionparams,dataparams,modelparams)
-    Calculates the current iterations dynamic priors' elbo.
+    calc_wAllocationsLowerBound(conditionparams,dataparams,modelparams)
+Calculates the current iterations dynamic priors' elbo.
 """
 function calc_wAllocationsLowerBound(conditionparams,dataparams,modelparams)
     float_type = dataparams.BitType
@@ -739,8 +822,8 @@ function calc_wAllocationsLowerBound(conditionparams,dataparams,modelparams)
 end
 
 """
-        calc_HsElbo(conditionparams, dataparams, modelparams)
-    Calculation of the current iterations conditions assignment entropy.
+    calc_HsElbo(conditionparams, dataparams, modelparams)
+Calculation of the current iterations conditions assignment entropy.
 """
 function calc_HsElbo(conditionparams, dataparams, modelparams)
     float_type = dataparams.BitType

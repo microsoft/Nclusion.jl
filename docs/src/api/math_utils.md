@@ -1,0 +1,12 @@
+```@docs
+Nclusion.t_test
+Nclusion.norm_weights
+Nclusion.normToProb
+Nclusion.norm_weights3
+Nclusion.norm_weights3! 
+Nclusion.normToProb3!
+Nclusion.sigmoidNorm!
+Nclusion.ln_Gamma_distribution_normalizer
+Nclusion.ln_Beta_distribution_normalizer
+Nclusion.ln_Dirichlet_distribution_nomralizer
+```
