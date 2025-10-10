@@ -1,6 +1,6 @@
 name = "Nclusion"
 uuid = "cef8bb50-3052-47ee-9080-7fa14a4c9a42"
-authors = ["Chibuikem709 <16184620+Chibuikem709@users.noreply.github.com> and contributors"]
+authors = ["Chibuikem709 and contributors"]
 version = "1.0.2"
 
 [deps]
