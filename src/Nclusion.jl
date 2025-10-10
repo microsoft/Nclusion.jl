@@ -29,6 +29,8 @@ module Nclusion
     using Base.Threads
     using Logging,LoggingExtras
     import Debugger
+    using NaNStatistics
+    using Hungarian
 
     curr_dir = ENV["PWD"]
     src_dir = "/src/"
@@ -125,6 +127,7 @@ module Nclusion
            extract_scalars_paramter,
            extract_condition_paramter,
            extract_gene_paramter,
+           extract_condition_paramter,
            extract_rtik_paramter,
            extract_elbo_vals_perK,
            extract_r_paramter,
@@ -412,7 +415,9 @@ module Nclusion
            get_linear_index_as_ragged_array,
            get_linear_time_condition_update_neighbors,
            get_linear_time_condition_network_neighbors,
-           _reset!
+           _reset!,
+           relabel_clusters,
+           compute_cost_matrix
 
 
     

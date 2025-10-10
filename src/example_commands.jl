@@ -1,4 +1,4 @@
-ENV["GKSwstype"] = "100"
+
 
 using Logging,LoggingExtras
 using Random
@@ -27,26 +27,35 @@ using Distributed
 curr_dir = ENV["PWD"]
 src_dir = "/src/"
 
-include(curr_dir*src_dir*"Nclusion.jl")
-using .Nclusion
+# include(curr_dir*src_dir*"Nclusion.jl")
+using Nclusion
 
 
 logger = FormatLogger() do io, args
     println(io, args._module, " | ", "[", args.level, "] ", args.message)
 end;
 
-datafilename1 = "/users/cnwizu/data/cnwizu/SCoOP-sc/data/pdac-biopsy/5000hvgs_pdac_biopsy_preprocessed2.h5ad" # 
-alpha1 = 1 * 10^(-7.0)
-gamma1 = 1 * 10^(-7.0)
+datafilename1 = curr_dir*"/data/write/pbmc3k.h5ad" # 
+alpha0 = 1 * 10^(-0.0)
+gamma0 = 1 * 10^(-0.0)
 KMax = 25
 seed = 12345
 elbo_ep = 10^(-0.0)
 num_iter = 500
-dataset = "pdac_biopsy"
+dataset_name = "example"
 outdir = "$curr_dir"
-save_metrics=true
 
-outputs_dict = run_nclusion(datafilename1,KMax,alpha1,gamma1,seed,elbo_ep,dataset,outdir; logger = logger,num_iter = num_iter,save_metrics=save_metrics)
+outputs_dict = run_nclusion(datafilename1;
+ logger = logger,
+ num_iter = num_iter,
+ outdir=outdir,
+ dataset_name = dataset_name,
+ seed = seed,
+ elbo_ep = elbo_ep,
+ alpha0 = alpha0,
+ gamma0 = gamma0,
+ KMax = KMax,
+ )
 filepath = outputs_dict[:filepath]
 filename = "$filepath/output.jld2"
 

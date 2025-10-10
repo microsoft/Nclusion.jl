@@ -1026,6 +1026,22 @@ function extract_c_paramter(cells,dataparams)
 end
 
 """
+    extract_condition_paramter(paramname,conditionparams,dataparams)
+This function extracts the condition specific parameters from the ConditionFeatures object used in inference
+"""
+function extract_condition_paramter(paramname,conditionparams,dataparams)
+    if typeof(paramname) <: String
+        paramname = Symbol(paramname)
+    end
+    T = dataparams.T
+    T_all = sum(T)
+
+    param = [ isone(length(getfield(conditionparams[it],paramname))) ? getfield(conditionparams[it],paramname)[1] : getfield(conditionparams[it],paramname) for it in 1:T_all]
+    return param
+end
+
+
+"""
     extract_and_add_parameters_to_outputs_dict!(outputs_dict,cellpop,clusters,geneparams,conditionparams,dataparams,modelparams,training_logger)
 This function extracts all parameters from custom objects and adds them to the previously instantiated output dictionary.
 """

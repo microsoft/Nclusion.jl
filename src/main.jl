@@ -1,3 +1,22 @@
+using Nclusion
+using Random
+using Statistics, LinearAlgebra, StatsBase, Distributions
+using Clustering
+using Logging,LoggingExtras
+using JLD2
+logger = FormatLogger() do io, args
+    println(io, args._module, " | ", "[", args.level, "] ", args.message)
+end;
+function flushed_logger(msg;logger=nothing)
+    if !isnothing(logger)
+        with_logger(logger) do
+            @info msg
+        end
+    end
+end
+
+#datafilename1 = "/Users/chibuikemnwizu/Documents/Nclusion.jl/data/write/pbmc3k.h5ad";
+# run_nclusion(datafilename1;logger=logger,outdir = "/Users/chibuikemnwizu/Documents/Nclusion.jl")
 ############################################
 ############################################
 ############################################
@@ -120,6 +139,33 @@ function main(ARGS; logger=nothing)
         train_h = false
     end
     # datafilename1 =  "/users/cnwizu/data/cnwizu/datasets/KleinLabData/in_vivo/adata_Weinreb2020_in_vivo_gene_filtered_nclusion_preprocessed.h5ad" 
+    datafilename1 = "/Users/chibuikemnwizu/Documents/Nclusion.jl/data/write/pbmc3k.h5ad"
+    significance_prop=0.5
+    min_number_cells=1.0
+    min_percent_of_genes=0.05
+    max_percent_of_genes=0.75
+    KMax = 25
+    seed = 12345
+    elbo_ep = 10^(-6)
+    num_iter = 500
+    dataset_name = ""
+    outdir = ""
+    m_initialization_approach = "rand"
+    time_key = nothing
+    individuals_key = nothing
+    n_hvgs = nothing
+    slurm_job_id = "No SLURM Job ID Provided"
+    change_seeds = false
+    add_time = false
+    add_individuals = false
+    layer_index = 0
+    update_clusterwise = false
+    use_alt_representation = "None"
+    check_cluster_interpretability_bool = false
+    gene_set_file_path = ""
+    samplebased_alpha0 = false
+    elbo_sign_decrease_max_tolerance=10.0
+    train_h = false
     alpha0 = 1.0;
     gamma0 = 1.0; 
     phi1 = 1.0;
@@ -130,9 +176,9 @@ function main(ARGS; logger=nothing)
     xi2 = 1.0;
     varphi1 = 1.0;
     varphi2 = 1.0;
-    script_name = "$(basename(PROGRAM_FILE));    $(abspath(PROGRAM_FILE))/$(basename(PROGRAM_FILE))"
-    elbo_sign_decrease_max_tolerance=100.0
-    report_creation_script_path = "/users/cnwizu/data/cnwizu/nclusion+/scripts/v7_make_report_with_abridged_and_layer_options_from_csvs.py"
+    script_name = ""
+    dataset_name = ""
+    report_creation_script_path = ""
     make_abridged_bool_as_string = "True"
     parameter_settings_to_reproduce_run = initialize_ordered_dict(;key_type=String,val_type=String)
     @add_variables_to_ordered_dict_as_string!(parameter_settings_to_reproduce_run,datafilename1,dataset_name,outdir,script_name,slurm_job_id,KMax,significance_prop,min_number_cells,min_percent_of_genes,max_percent_of_genes,seed,elbo_ep,num_iter,m_initialization_approach,n_hvgs,time_key,individuals_key,change_seeds,add_time,add_individuals, layer_index,update_clusterwise, use_alt_representation, check_cluster_interpretability_bool, gene_set_file_path, samplebased_alpha0,elbo_sign_decrease_max_tolerance,report_creation_script_path,make_abridged_bool_as_string)
@@ -186,50 +232,73 @@ function main(ARGS; logger=nothing)
     # # ## TEST PARAMATERS THAT ARE REPL FREINDLY
     parameter_settings_to_reproduce_run = initialize_ordered_dict(;key_type=String,val_type=String)
     DATASEED=860#3092#
-    datafilename1 = "/users/cnwizu/data/cnwizu/nclusion_manuscript_figure_reproducibility/simulations/revision_round1_20250204_scDesign3_sim/datasets/$(DATASEED)_5K_10000cells_50MarkersPerCluster_zhengPMBC100ksubsample.h5ad";#"/users/cnwizu/data/cnwizu/nclusion+/simulations/scDesign3_sim_zhengPBMC100ksubsample/860_5K_10000cells_50MarkersPerCluster_zhengPMBC100ksubsample.h5ad";#"/users/cnwizu/data/cnwizu/nclusion+/simulations/gmm_simulations/_42_KMax5_J10_K5_N10000_balanced_adata.h5ad"#"/users/cnwizu/data/cnwizu/datasets/KleinLabData/in_vivo/adata_Weinreb2020_in_vivo_gene_filtered_nclusion_preprocessed_subsampled-for-testing_8000cells-equal-celltype-occurance.h5ad"#"/users/cnwizu/data/cnwizu/datasets/KleinLabData/in_vivo/adata_Weinreb2020_in_vivo_gene_filtered_nclusion_preprocessed.h5ad" #"/users/cnwizu/data/cnwizu/datasets/winterTMEandPlasticity2021/manuscript_data/adata_files/Primary_Organoids_RawDGE_metadata_210224_32060Cells_PANFR0575_preprocessed.h5ad" 
+    datafilename1 = "/Users/chibuikemnwizu/Documents/Nclusion.jl/data/write/pbmc3k.h5ad";#"/users/cnwizu/data/cnwizu/nclusion_manuscript_figure_reproducibility/simulations/revision_round1_20250204_scDesign3_sim/datasets/$(DATASEED)_5K_10000cells_50MarkersPerCluster_zhengPMBC100ksubsample.h5ad";#"/users/cnwizu/data/cnwizu/nclusion+/simulations/scDesign3_sim_zhengPBMC100ksubsample/860_5K_10000cells_50MarkersPerCluster_zhengPMBC100ksubsample.h5ad";#"/users/cnwizu/data/cnwizu/nclusion+/simulations/gmm_simulations/_42_KMax5_J10_K5_N10000_balanced_adata.h5ad"#"/users/cnwizu/data/cnwizu/datasets/KleinLabData/in_vivo/adata_Weinreb2020_in_vivo_gene_filtered_nclusion_preprocessed_subsampled-for-testing_8000cells-equal-celltype-occurance.h5ad"#"/users/cnwizu/data/cnwizu/datasets/KleinLabData/in_vivo/adata_Weinreb2020_in_vivo_gene_filtered_nclusion_preprocessed.h5ad" #"/users/cnwizu/data/cnwizu/datasets/winterTMEandPlasticity2021/manuscript_data/adata_files/Primary_Organoids_RawDGE_metadata_210224_32060Cells_PANFR0575_preprocessed.h5ad" 
     deg = nothing
-    dataset_name = "nclusion_plus_scDesign3_sim_zhengPBMC100ksubsample"#"nclusion_plus_GMM"#"EXPERIMENT_nclusion_plus_v7_Weinreb2020_in_vivo_gene_filtered_nclusion_preprocessed_subsampled-for-testing_8000cells-equal-celltype-occurance"#"PDAC_pt_575" 
-    deg_old = CSV.read("/users/cnwizu/data/cnwizu/nclusion_manuscript_figure_reproducibility/simulations/revision_round1_20250204_scDesign3_sim/datasets/$(DATASEED)_5K_10000cells_50MarkersPerCluster_zhengPMBC100ksubsample_deg_names.csv",DataFrame);# CSV.read("/users/cnwizu/data/cnwizu/nclusion_manuscript_figure_reproducibility/simulations/revision_round1_20250204_scDesign3_sim/datasets/860_5K_10000cells_50MarkersPerCluster_zhengPMBC100ksubsample_deg_names.csv",DataFrame)
-    deg_cluster_names = names(deg_old)[1:end-1]
-    degnames = Matrix(deg_old[:,2:end])
-    deg = DataFrame(degnames,Symbol.(deg_cluster_names))
-    gene_set_file_path = "/users/cnwizu/data/cnwizu/datasets/contrasts+perturbations/mh.all.v2023.2.Mm.symbols.gmt"
+    dataset_name =""
+    gene_set_file_path = ""#"/users/cnwizu/data/cnwizu/datasets/contrasts+perturbations/mh.all.v2023.2.Mm.symbols.gmt"
     significance_prop = 	 0.5 
     min_percent_of_genes = 	 0.05 
     max_percent_of_genes = 	 0.5 # 0.1
-    KMax = 	 100;#50;#10;#5;#50;#
-    KMin = 10;#5;#
+    KMax = 	 5;#50;#10;#5;#50;#
+    # KMin = 10;#5;#
     seed = 	 2020#12345#
-    outdir = "/users/cnwizu/data/cnwizu/nclusion+/"
+    outdir = "/Users/chibuikemnwizu/Documents/Nclusion.jl/"
     num_iter = 100#1000#10#
     elbo_ep = 1.0e-6
-    script_name = "$(basename(PROGRAM_FILE));    $(abspath(PROGRAM_FILE))/$(basename(PROGRAM_FILE))"
+    script_name = ""
     time_key = nothing#"time_label"
+    check_cluster_interpretability_bool = false
     individuals_key = nothing
     m_initialization_approach = "rand";#"kmeans";#"kmcen";#""kpp"#"cell_label";#"fcmeans";#"kpp+rand"#"kpp"#
     slurm_job_id = "No SLURM Job ID Provided"
     n_hvgs = 2000
     change_seeds = true
     samplebased_alpha0 = false#true#
-    add_time = true
-    add_individuals = true
+    add_time = false
+    add_individuals = false
     layer_index = 0
     layer_name = "xmat"#"LdvaeLatentEmbeddingsZ10"#"logcounts"#"scaledata"#"xmat"#"factor"#"factor"#"pca"# nothing#
     is_precomputed_latent_representation =  occursin(lowercase("Embeddings"), lowercase(layer_name)) ?  true  : false
     update_clusterwise = false#true#
     m_mu_init = nothing;
     # use_alt_representation = 
-    check_cluster_interpretability_bool = false#true#
-    gene_set_file_path = "/users/cnwizu/data/cnwizu/datasets/contrasts+perturbations/mh.all.v2023.2.Mm.symbols.gmt"
-    elbo_sign_decrease_max_tolerance=10.0
-    report_creation_script_path = "/users/cnwizu/data/cnwizu/nclusion+/scripts/v7_make_report_with_abridged_and_layer_options_from_csvs.py"
-    make_abridged_bool_as_string = "True"
-    
     K = KMax;
     Random.seed!(seed);
     iseeds_init = nothing;
     m_mu_init_init = nothing;
     m_mu_init_K = K;
+    r_init = nothing;
+    h1_init = nothing;
+    h2_init = nothing;
+    w1_init= nothing;
+    w2_init= nothing;
+    a_init = nothing;
+    b_init = nothing;
+    u_init = nothing;
+    v_init = nothing;
+    define_global_sparsity = true;
+    define_global_autocorrelation = true;
+    sparsity_based_on_used_representation_dim = false;
+    # train_h = false;#true; #
+    train_w = true;
+    train_ab = true;
+    train_uv = true;
+    multiple_s_sq_updates = true;
+    uv_scalar = 100.0;
+    use_std_for_hvg = true;
+    center_data_cols=true;
+    scale_data_cols=true;
+    min_number_cells = 	 1.0;
+    min_percent_cells = 1/min_number_cells;#round(Int,N*min_percent_cells);
+    min_genes_detected_for_mask=10
+    standardization_of_used_representation=nothing
+    rand_init_inputs = true;
+    uniform_theta_init = false;
+    num_samples_posterior_samples = 1000
+    s_value_thresh=0.05
+    burnin = 10;
+    elbo_sign_decrease_max_tolerance = 10.0;
+    K = KMax;
     elbo_sign_change_max = elbo_sign_decrease_max_tolerance;
     nu0 = 0.0;
     sigma_sq_nu = 1e-12;#1.0e12;#1.0;#1.0e12;#
@@ -237,8 +306,8 @@ function main(ARGS; logger=nothing)
     define_global_autocorrelation = true;
     sparsity_based_on_used_representation_dim = false;
     train_h = true; #false;#
-    eta_update_mode = "Local";#"Genewise";#"Global";#"Clusterwise";#
-    sigma_update_mode = "Local";#"Global";#"Genewise";#"Clusterwise";#
+    eta_update_mode = "Global";#"Genewise";#"Global";#"Clusterwise";#
+    sigma_update_mode = "Genewise";#"Global";#"Genewise";#"Clusterwise";#
     lambda_update_mode = "Local";#"Global";#"Genewise";#"Clusterwise";#
     train_w = true;
     train_ab = true;#false;#
@@ -248,8 +317,8 @@ function main(ARGS; logger=nothing)
     multiple_s_sq_updates = true;
     uv_scalar = 100.0;#1e24;#
     use_std_for_hvg = true;
-    center_data_cols=true;#false;#
-    scale_data_cols=true;#false;#
+    center_data_cols=false;#false;#
+    scale_data_cols=false;#false;#
     # min_percent_cells = 1/min_number_cells;#round(Int,N*min_percent_cells);
     min_genes_detected_for_mask=10
     standardization_of_used_representation=nothing#"center_scale"
@@ -257,7 +326,10 @@ function main(ARGS; logger=nothing)
     uniform_theta_init = false;
     num_samples_posterior_samples = 1000
     s_value_thresh=0.05
-    
+    script_name = ""
+    dataset_name = ""
+    report_creation_script_path = ""
+    make_abridged_bool_as_string = "True"
     burnin = 0;
     remove_small_clusters=true;
     min_number_cells = 	 20;
@@ -266,14 +338,6 @@ function main(ARGS; logger=nothing)
 
 
 
-
-    #anndata_dict1["X"] = deepcopy(anndata_dict1["obsm"]["LdvaeLatentEmbeddingsZ10"])
-    #anndata_dict1["var"]["_index"] = ["Z$(i)" for i in 1:size(anndata_dict1["X"])[1]]
-# selected_cell_types = (anndata_dict1["obs"]["time_label"]["codes"] .== 2) .&& (in.(anndata_dict1["obs"]["cell_type"]["codes"],Ref([2,7,6,9])))
-# anndata_dict1["X"] = anndata_dict1["X"][:,selected_cell_types]
-# anndata_dict1["obs"]["time_label"]["codes"] = anndata_dict1["obs"]["time_label"]["codes"][selected_cell_types]
-# anndata_dict1["obs"]["cell_type"]["codes"] = anndata_dict1["obs"]["cell_type"]["codes"][selected_cell_types]
-# anndata_dict1["obs"]["_index"] = anndata_dict1["obs"]["_index"][selected_cell_types]
     regular_nclusion_note = ""
     time_note1 = ""
     time_note2 = ""
@@ -317,20 +381,13 @@ function main(ARGS; logger=nothing)
     #select_data_representation(anndata_dict1;layer_index=layer_index,layer_name=nothing)
     # highly_variable_genes_bool = get_highly_variable_genes_bool(anndata_dict1;n_hvgs=n_hvgs, use_std=use_std_for_hvg);
     # anndata_dict1 = subset_on_highly_variable_genes_bool(anndata_dict1,highly_variable_genes_bool,layer_index);
-    original_scale = Float64(round(mean(var(anndata_dict1["X"],dims=2))));
     # anndata_dict1 = center_and_scale_data_cols(anndata_dict1;center_cols = center_data_cols,scale_cols = scale_data_cols);
     N = size(anndata_dict1["X"])[2];
     J = size(anndata_dict1["X"])[1];
     
     num_var_feat = J;
-    _flushed_logger("Number of cells: $(N) ...";logger)
-    _flushed_logger("Number of Genes: $(J) ...";logger)
     unique_time_id,dataset_used_id,experiment_id = make_ids(dataset_name,J,N);
-    _flushed_logger("Preparing Dataset ...";logger)
     gene_names, cell_ids, cell_cluster_labels, time_vec,individuals_vec,cell_cluster_dict = preparing_data(anndata_dict1;time_key=time_key,individuals_key=individuals_key);
-
-    # _flushed_logger("Number of Time Points: $(length(time_ids)) ...";logger)
-    # sorting_keys = [(individuals_vec[i], time_vec[i]) for i in 1:length(cell_ids)]
     sorting_keys = [(individuals_vec[i],time_vec[i],cell_ids[i]) for i in 1:length(cell_ids)]
     new_order_samples = sortperm(sorting_keys)
     new_order_features = sortperm(gene_names);
@@ -339,12 +396,12 @@ function main(ARGS; logger=nothing)
     individuals_vec = individuals_vec[new_order_samples];
     cell_ids = cell_ids[new_order_samples];
     sorted_sorting_keys = sorting_keys[new_order_samples];
-    if !isnothing(cell_cluster_labels)
-        cell_cluster_labels = cell_cluster_labels[new_order_samples];
-        if !isnothing(deg) && !isnothing(cell_cluster_dict)
-            rename!(deg,["$(cell_cluster_dict[el])" for el in names(deg)]);
-        end
-    end
+    # if !isnothing(cell_cluster_labels)
+    #     cell_cluster_labels = cell_cluster_labels[new_order_samples];
+    #     if !isnothing(deg) && !isnothing(cell_cluster_dict)
+    #         rename!(deg,["$(cell_cluster_dict[el])" for el in names(deg)]);
+    #     end
+    # end
 #   Random.seed!(seed);
 
     data_input,z,alternative_representation,used_representation_feature_name,layer_name = make_nclusion_inputs(anndata_dict1;time_key=time_key,individuals_key=individuals_key, layer_name=layer_name,gene_set_file_path=gene_set_file_path, min_genes_detected=min_genes_detected_for_mask,standardization_of_used_representation=standardization_of_used_representation,is_precomputed_latent_representation=is_precomputed_latent_representation);
@@ -370,14 +427,14 @@ function main(ARGS; logger=nothing)
         original_mean = vec(mean(used_representation,dims=2));
         used_representation = center_and_scale_matrix_cols(used_representation;center_cols = center_data_cols,scale_cols = scale_data_cols);
     end
-    alpha0 = 	0.01 # N#
+    alpha0 = 	1.0 # N#
     gamma0 = 	 1#10#
     phi1 = 	 1.0 
     phi2 = 	 1.0 
-    kappa1 = 	0.0001# 0.01#<-use for Gene expression space#0.00001#5*0.001*(K*size(used_representation)[1])##5.0#1500# 
-    kappa2 = 	0.1#<-use for Gene expression space# 0.1#5*(K*size(used_representation)[1])#10.0#0.5*size(used_representation)[1]#1.0#10*100# 
-    xi1 = 	 1500#<-use for Gene expression space##0.5*(size(used_representation)[1])/0.33 + 1#75/50 * 0.5*(size(used_representation)[1])#
-    xi2 = 	 0.01*0.5*(K*size(used_representation)[1])#<-use for Gene expression space#0.001*0.5*(K*size(used_representation)[1])#1.0##0.5*(K*size(used_representation)[1])# 0.5*(K)#
+    kappa1 = 	1.0# 0.01#<-use for Gene expression space#0.00001#5*0.001*(K*size(used_representation)[1])##5.0#1500# 
+    kappa2 = 	1.0#<-use for Gene expression space# 0.1#5*(K*size(used_representation)[1])#10.0#0.5*size(used_representation)[1]#1.0#10*100# 
+    xi1 = 	 1.0#<-use for Gene expression space##0.5*(size(used_representation)[1])/0.33 + 1#75/50 * 0.5*(size(used_representation)[1])#
+    xi2 = 	 1.0#<-use for Gene expression space#0.001*0.5*(K*size(used_representation)[1])#1.0##0.5*(K*size(used_representation)[1])# 0.5*(K)#
     varphi1 = 	 1.0 
     varphi2 = 	 1.0 
     delta_rsum_ep = 10^(-0)
@@ -385,204 +442,31 @@ function main(ARGS; logger=nothing)
     delta_occymean_ep = 10^(0)#10^(-6)
     delta_occymean_lag = 2
 
-    @add_variables_to_ordered_dict_as_string!(parameter_settings_to_reproduce_run, datafilename1,dataset_name,outdir,script_name,slurm_job_id,KMax,KMin,significance_prop,min_percent_of_genes,max_percent_of_genes,seed,elbo_ep,num_iter,m_initialization_approach,n_hvgs,time_key,individuals_key,change_seeds,add_time,add_individuals, layer_index,update_clusterwise,  check_cluster_interpretability_bool, gene_set_file_path, samplebased_alpha0,elbo_sign_decrease_max_tolerance,report_creation_script_path,make_abridged_bool_as_string);
+    @add_variables_to_ordered_dict_as_string!(parameter_settings_to_reproduce_run, datafilename1,dataset_name,outdir,script_name,slurm_job_id,KMax,significance_prop,min_percent_of_genes,max_percent_of_genes,seed,elbo_ep,num_iter,m_initialization_approach,n_hvgs,time_key,individuals_key,change_seeds,add_time,add_individuals, layer_index,update_clusterwise,  check_cluster_interpretability_bool, gene_set_file_path, samplebased_alpha0,elbo_sign_decrease_max_tolerance,report_creation_script_path,make_abridged_bool_as_string);
     @add_variables_to_ordered_dict_as_string!(parameter_settings_to_reproduce_run,K,train_h,train_w,train_ab,train_uv,train_m_nu,train_s_sq_nu,uv_scalar,multiple_s_sq_updates,use_std_for_hvg,center_data_cols,scale_data_cols,min_percent_cells,min_genes_detected_for_mask,standardization_of_used_representation,rand_init_inputs,uniform_theta_init,iseeds_init,m_mu_init_init,num_samples_posterior_samples,s_value_thresh,sparsity_based_on_used_representation_dim,eta_update_mode,sigma_update_mode,lambda_update_mode,burnin,nu0,sigma_sq_nu,min_number_cells,remove_small_clusters);
     @add_variables_to_ordered_dict_as_string!(parameter_settings_to_reproduce_run,num_var_feat,unique_time_id,dataset_used_id,experiment_id,delta_rsum_ep,delta_rsum_lag,delta_occymean_ep,delta_occymean_lag);
-# 
-# gene_names = gene_names[new_order_features];
-# X = deepcopy(anndata_dict1["X"][new_order_features,new_order_samples]);
-# # gene_sets = load_gmt(gene_set_file_path)
-# # mask, gene_set_names = create_binary_mask(gene_names, gene_sets);
-# mask, gene_set_names = load_gmt_and_create_mask(gene_set_file_path, gene_names; min_genes_detected=10)
-# mask = mask';
-# n_factors = length(gene_set_names);
-# lam1,lam2,lr,n_iter,print_every =0,0.1,1e-1,150,1
-# Z_est, W_est = sparse_factor_model(X, mask, n_factors; lam1=lam1, lam2=lam2,lr=lr, n_iter=n_iter,print_every=print_every)
-# print((minimum(abs.(Z_est)),maximum(abs.(Z_est)),minimum(Z_est),maximum(Z_est)))
-# print((minimum(abs.(W_est)),maximum(abs.(W_est)),minimum(W_est),maximum(W_est)))
+
     
     w1_init= nothing;
     w2_init = nothing;
     
     h1_init = nothing;#[ 1 /(1e6 + 1) ];#
     h2_init = nothing;#[ 1e6 /(1e6 + 1) ];#
-    a_init = ones(size(used_representation)[1],K);
-    b_init = ones(size(used_representation)[1],K);
-    u_init = ones(size(used_representation)[1],K);
-    v_init = ones(size(used_representation)[1],K);
+    a_init = nothing;#ones(size(used_representation)[1],K);
+    b_init = nothing;#ones(size(used_representation)[1],K);
+    u_init = nothing;#ones(size(used_representation)[1],K);
+    v_init = nothing;#ones(size(used_representation)[1],K);
     # y_init = 1/J ./ ones(size(used_representation)[1],K);
     r_init = nothing;
-    m_initialization_approach = "rand"#"ssss"#"kpp"#
-    RMin = Clustering.kmeans(used_representation,KMin);
-    RMax = Clustering.kmeans(used_representation,KMax,init=:kmcen);
-    m_mu_init_init = RMax.centers;#nothing#
-    m_mu_init_K = KMax;#25;#
-    RKmcen = kmeans(used_representation,KMin,init=:kmcen);
-    reference_lables = RKmcen.assignments;
-    no_itr_ = 1;
-    r_init_sim = zeros(K+1,N,no_itr_);
-    for itr_ in 1:no_itr_
-        RCurr = Clustering.kmeans(used_representation,KMin,init=:kmcen);
-        curr_assignments = RCurr.assignments;
-        aligned_curr_assignments = relabel_clusters(curr_assignments, RMax.assignments, KMax)
-        for k in 1:KMax
-            r_init_sim[k,aligned_curr_assignments .== k,itr_] .= 1.0;# r_init_sim[k,RMax.assignments .== k] .= 1.0;#
-        end
-    end
-    mean_r_init = dropdims(mean(r_init_sim,dims=3),dims=3)
-    mean_r_init_ = mean_r_init .+ 0.0#1/(N)
-    mean_r_init_[K+1,:] .= 0.0
-    r_init = 1/(KMin) .* (mean_r_init_ ./ sum(mean_r_init_,dims=1))
-    r_init_labels = [argmax(el) for el in eachcol(r_init)]
-    empirical_gene_mean = mean(used_representation,dims=2);
-    # empirical_gene_var = var(used_representation,dims=2)
-    empirical_cluster_mean = hcat([mean(used_representation[:,r_init_labels .== k ], dims=2) for k in sort(unique(r_init_labels))]...);
-    empirical_notin_mean = hcat([mean(used_representation[:,r_init_labels .!= k ], dims=2) for k in sort(unique(r_init_labels))]...);
-    empirical_cluster_var = hcat([var(used_representation[:,r_init_labels .== k ], dims=2) for k in sort(unique(r_init_labels))]...);
-    emprical_cluster_snr = (empirical_gene_mean .- empirical_cluster_mean) .^2 ./ (empirical_cluster_var .+ 1e-120);
-    emprical_cluster_precision = 1 ./ (empirical_cluster_var .+ 1e-120);
-    # y_init =  0.005 ./ ones(size(used_representation)[1],K);#zeros(size(used_representation)[1],K);#1/(K) ./ ones(size(used_representation)[1],K);#1/(K) ./ ones(size(used_representation)[1],K);
-    y_init =  0.1 ./ ones(size(used_representation)[1],K); #<--- use for gene expression space
-    # y_init =  0.02395 ./ ones(size(used_representation)[1],K); #<--- use for gene expression space
-    # ((empirical_cluster_mean .- empirical_notin_mean) .> 0.0) .&& (floor.(Int, log10.(emprical_cluster_precision)) .> 0)
-    # y_init =  0.005 ./ ones(size(used_representation)[1],K); #<--- use for latent expression space
-    for k in 1:K
-        # empirical_cluster_nonzerorate = mean(used_representation[:,r_init_labels .== k ] .> 0.0, dims=2)
-        # empirical_cluster_var = var(used_representation[:,r_init_labels .== k ], dims=2)
-        if k in unique(r_init_labels)
-            # y_init[:,k] .= empirical_cluster_nonzerorate#1 /(KMin) #
-            empirical_notin_mean = mean(used_representation[:,r_init_labels .!= k ], dims=2) 
-            empirical_cluster_mean = mean(used_representation[:,r_init_labels .== k ], dims=2) 
-            empirical_cluster_var= var(used_representation[:,r_init_labels .== k ], dims=2) 
-            # hit = vec(sigmoid.(log.( 1 ./( empirical_cluster_var .+ 1e-120)) .+ ((0.0 .- empirical_notin_mean) .^2 ./(2 .*1.))   .- ((0.0 .- empirical_cluster_mean) .^2 ./(2 .*empirical_cluster_var .+ 1e-120))) .>0.5)
-            hit = vec(sigmoid.(log.( 1 ./( empirical_cluster_var .+ 1e-120)) .+ ((0.0 .- empirical_gene_mean) .^2 ./(2 .*1.))   .- ((0.0 .- empirical_cluster_mean) .^2 ./(2 .*empirical_cluster_var .+ 1e-120))) .>0.5)
-            # y_init[:,k] .= 1/(J)
-            y_init[:,k] .= 1/(J)
-            # y_init[hit,k] .= 0.045# 1 /(KMin) #
-            y_init[hit,k] .= 0.05# 1 /(KMin) #
-        end
-    end
-    # if !train_h
-    #     if !isnothing(define_global_sparsity) && typeof(define_global_sparsity) <: Bool && define_global_sparsity
-    #         h1_init = ones(J,K);#[[1.0] for el in ones(K)];
-    #         if in(Base.lowercase(layer_name),["pca","factor"]) && sparsity_based_on_used_representation_dim
-    #             h2_init = (size(used_representation)[1] -1.0) .* ones(J,K);#[[size(used_representation)[1] -1.0] for el in ones(K)];
-    #         else
-    #             h2_init = (J) .* ones(J,K) ;#[for el in ones(K)];
-    #             h2_init = h2_init ./ (h2_init .+ h1_init)
-    #             h1_init = h1_init ./ (h2_init .+ h1_init)
-    #         end
-    #     end
-    # else
-    #     define_global_sparsity = false;
-    # end
-    # if !train_w
-    #     if !isnothing(define_global_autocorrelation) && define_global_autocorrelation
-    #         w1_init = [[1.0] for el in ones(T_all)];
-    #         w2_init = [[1.0] for el in ones(T_all)];
-    #     end
-    # else 
-    #     define_global_autocorrelation = false;
-    # end
-    # if !train_ab
-    #     a_init = [[2.0] for el in ones(size(used_representation)[1])];
-    #     b_init = [[1.0] for el in ones(size(used_representation)[1])];
-    # end
-    # if !train_uv
-    #     if update_clusterwise
-    #         u_init = [[2.0]  for el in ones(K)];
-    #         v_init = [[uv_scalar] for el in ones(K)];
-    #     else
-    #         u_init = [2.0];
-    #         v_init = [uv_scalar];
-    #     end
-    # end
-
-
-    # ##### FOR DEBUGGING R update only ######
-    # if !isnothing(cell_cluster_labels)
-    #     r_init = zeros(K+1,N);
-    #     for k in 1:K
-    #       r_init[k,cell_cluster_labels .== k] .= 1.0;
-    #     end
-    # end
-    ###############
-    # ##### FOR DEBUGGING R update only (Continued) ######
-    # m_initialization_approach = "ssss"#"rand"
-    # RMin = Clustering.kmeans(used_representation,5);
-    # RMax = Clustering.kmeans(used_representation,KMax);
-    # r_init = zeros(K+1,N);
-    # for k in 1:K
-    #     r_init[k,RMin.assignments .== k] .= 1.0;# r_init[k,RMax.assignments .== k] .= 1.0;#
-    # end
-    ## #r_init[K-1,:] .= 1.0;
-    # m_mu_init_init_ = RMax.centers;
-    # m_mu_init_init = m_mu_init_init_ .+ randn(size(m_mu_init_init_));#hcat(RMin.centers,m_mu_init_init_);
-    ##############
-    ##############
-    # ##### FOR DEBUGGING R update only (Continued) ######
-    # m_initialization_approach = "ssss"#"rand"
-    # RMin = Clustering.kmeans(used_representation,KMin);
-    # RMax = Clustering.kmeans(used_representation,KMax);
-    # r_init = zeros(K+1,N);
-    # for k in 1:K
-    #     r_init[k,RMin.assignments .== k] .= 1.0;# r_init[k,RMax.assignments .== k] .= 1.0;#
-    # end
-    ## #r_init[K-1,:] .= 1.0;
-    # m_mu_init_init_ = RMax.centers;
-    # m_mu_init_init = m_mu_init_init_ .+ randn(size(m_mu_init_init_));#hcat(RMin.centers,m_mu_init_init_);
-    ##############
-    ###############
-    # ##### FOR DEBUGGING R update only (Continued) ######
-    # m_initialization_approach = "rand"#"ssss"#
-    # RMin = Clustering.kmeans(used_representation,KMin);
-    # RMax = Clustering.kmeans(used_representation,KMax);
-    # no_itr_ = 100;
-    # r_init_sim = zeros(K+1,N,no_itr_);
-    # for itr_ in 1:no_itr_
-    #     RCurr = Clustering.kmeans(used_representation,KMin);
-    #     for k in 1:KMax
-    #         r_init_sim[k,RCurr.assignments .== k,itr_] .= 1.0;# r_init_sim[k,RMax.assignments .== k] .= 1.0;#
-    #     end
-    # end
-    # mean_r_init = dropdims(mean(r_init_sim,dims=3),dims=3)
-    # r_init = (mean_r_init .+ 1/KMax) ./ sum(mean_r_init .+ 1/KMax,dims=1)
-    # m_mu_init_init_ = RMax.centers;
-    # m_mu_init_init = (RMax.centers .+  (1 ./sqrt(N)) .*randn(size(RMax.centers))) #m_mu_init_init_ .+ randn(size(m_mu_init_init_));#hcat(RMin.centers,m_mu_init_init_);
-    ##############
-    ##############
-    # ##### FOR DEBUGGING R update only (Continued) ######
-    # m_initialization_approach = "rand"#"ssss"#
+    y_init =  nothing;#ones(size(used_representation)[1],K); #<--- use for gene expression space
+    # m_initialization_approach = "rand"#"ssss"#"kpp"#
     # RMin = Clustering.kmeans(used_representation,KMin);
     # RMax = Clustering.kmeans(used_representation,KMax,init=:kmcen);
-    # RKmcen = kmeans(used_representation,20,init=:kmcen);
-    # reference_lables = RKmcen.assignments;
-    # no_itr_ = 100;
-    # r_init_sim = zeros(K+1,N,no_itr_);
-    # for itr_ in 1:no_itr_
-    #     RCurr = Clustering.kmeans(used_representation,KMin);
-    #     curr_assignments = RCurr.assignments;
-    #     aligned_curr_assignments = relabel_clusters(curr_assignments, reference_lables, KMin)
-    #     for k in 1:KMax
-    #         r_init_sim[k,aligned_curr_assignments .== k,itr_] .= 1.0;# r_init_sim[k,RMax.assignments .== k] .= 1.0;#
-    #     end
-    # end
-    # mean_r_init = dropdims(mean(r_init_sim,dims=3),dims=3)
-    # mean_r_init_ = mean_r_init .+ 1/(N)
-    # mean_r_init_[K+1,:] .= 0.0
-    # r_init = mean_r_init_ ./ sum(mean_r_init_,dims=1)
-    # m_mu_init_init_ = RMax.centers;
-    # m_mu_init_init = RMax.centers;
-    # m_mu_init_init = (RMax.centers .+  randn(size(RMax.centers))) #m_mu_init_init_ .*  randn(size(RMax.centers))#m_mu_init_init_ .+ randn(size(m_mu_init_init_));#hcat(RMin.centers,m_mu_init_init_);
-    ##############
-    ##############
-    # ##### FOR DEBUGGING R update only (Continued) ######
-    # m_initialization_approach = "ssss"#"rand"#
-    # RMin = Clustering.kmeans(used_representation,KMin);
-    # RMax = Clustering.kmeans(used_representation,KMax,init=:kmcen);
+    # m_mu_init_init = RMax.centers;#nothing#
+    # m_mu_init_K = KMax;#25;#
     # RKmcen = kmeans(used_representation,KMin,init=:kmcen);
     # reference_lables = RKmcen.assignments;
-    # no_itr_ = 100;
+    # no_itr_ = 1;
     # r_init_sim = zeros(K+1,N,no_itr_);
     # for itr_ in 1:no_itr_
     #     RCurr = Clustering.kmeans(used_representation,KMin,init=:kmcen);
@@ -592,42 +476,8 @@ function main(ARGS; logger=nothing)
     #         r_init_sim[k,aligned_curr_assignments .== k,itr_] .= 1.0;# r_init_sim[k,RMax.assignments .== k] .= 1.0;#
     #     end
     # end
-    # mean_r_init = dropdims(mean(r_init_sim,dims=3),dims=3)
-    # mean_r_init_ = mean_r_init .+ 1/(N)
-    # mean_r_init_[K+1,:] .= 0.0
-    # r_init = mean_r_init_ ./ sum(mean_r_init_,dims=1)
-    # m_mu_init_init_ = RMax.centers;
-    # m_mu_init_init = RMax.centers;#Clustering.kmeans(used_representation,KMax).centers;
-    ##############
-    ##############
-    # ##### FOR DEBUGGING R update only (Continued) ######
-    # m_initialization_approach = "ssss"#"rand"#"rand"#
-    # RMin = Clustering.kmeans(used_representation,KMin);
-    # RMax = Clustering.kmeans(used_representation,KMax,init=:kmcen);
-    # RKmcen = kmeans(used_representation,KMin,init=:kmcen);
-    # reference_lables = RKmcen.assignments;
-    # KMin_options = [5,10];
-    # no_rep_ = 10;
-    # KMin_iter = vcat([[kmin for i in 1:no_rep_] for kmin in KMin_options]...);
-    # no_itr_= length(KMin_iter);
-    # r_init_sim = zeros(K+1,N,no_itr_);
-    # for itr_ in 1:no_itr_
-    #     RCurr = Clustering.kmeans(used_representation,KMin_iter[itr_],init=:kmcen);
-    #     curr_assignments = RCurr.assignments;
-    #     aligned_curr_assignments = relabel_clusters(curr_assignments, RMax.assignments, KMax)
-    #     for k in 1:KMax
-    #         r_init_sim[k,aligned_curr_assignments .== k,itr_] .= 1.0;# r_init_sim[k,RMax.assignments .== k] .= 1.0;#
-    #     end
-    # end
-    # mean_r_init = dropdims(mean(r_init_sim,dims=3),dims=3)
-    # mean_r_init_ = mean_r_init .+ 1/(N)
-    # mean_r_init_[K+1,:] .= 0.0
-    # r_init = mean_r_init_ ./ sum(mean_r_init_,dims=1)
-    # m_mu_init_init_ = RMax.centers;
-    # countmap([argmax(el) for el in eachcol(r_init)])
-    # Clustering.randindex(cell_cluster_labels,[argmax(el) for el in eachcol(r_init)])[1]
-    # m_mu_init_init = (RMax.centers .+  (1 ./sqrt(N)) .*randn(size(RMax.centers))) #m_mu_init_init_ .*  randn(size(RMax.centers))#m_mu_init_init_ .+ randn(size(m_mu_init_init_));#hcat(RMin.centers,m_mu_init_init_);
-    ##############
+
+
     r_init_string="";
     if isnothing(r_init)
         r_init_string = "r_init initialized to nothing";
@@ -650,24 +500,19 @@ function main(ARGS; logger=nothing)
             m_mu_init = hcat(m_mu_init,randn(size(m_mu_init)[1],K-size(m_mu_init)[2]));
         end
     end
-    _flushed_logger("Number of Feature: $(size(used_representation)[1]) ...";logger)
-    _flushed_logger("Initializing Model parameters...";logger)
+
     nu0 = original_mean;#vec(mean(used_representation,dims=2));#zeros(length(median(used_representation,dims=2)));#vec(median(used_representation,dims=2));#
     inputs = initialize_model_parameters(data_input,K,alpha0,gamma0,phi1,phi2,kappa1,kappa2,xi1,xi2,varphi1,varphi2,nu0,sigma_sq_nu,significance_prop,min_number_cells,min_percent_cells,min_percent_of_genes,max_percent_of_genes,seed;num_iter=num_iter,rand_init = rand_init_inputs,change_seeds = change_seeds,uniform_theta_init = uniform_theta_init, m_mu_init = m_mu_init,samplebased_alpha0=samplebased_alpha0,update_clusterwise=update_clusterwise,y_init=y_init,r_init = r_init,h1_init=h1_init,h2_init=h2_init,w1_init=w1_init,w2_init=w2_init,a_init=a_init,b_init=b_init,u_init=u_init,v_init=v_init,eta_update_mode=eta_update_mode,sigma_update_mode=sigma_update_mode,lambda_update_mode=lambda_update_mode,train_h=train_h,train_w=train_w,train_ab=train_ab,train_uv=train_uv,m_nu_init=[el for el in nu0]);
     @add_variables_to_ordered_dict_as_string!(parameter_settings_to_reproduce_run,iseeds,r_init_string,h1_init,h2_init,w1_init,w2_init,ab_init_string,uv_init_string,define_global_sparsity,define_global_autocorrelation);
     filepath = mk_outputs_filepath(outdir,experiment_id,dataset_used_id,unique_time_id);
     @add_variables_to_ordered_dict_as_string!(parameter_settings_to_reproduce_run,filepath);
-    _flushed_logger("Preparing saving Directory at $filepath ...";logger)
     mk_outputs_pathname(filepath);
-    _flushed_logger("Saving Quick Summary...";logger)
     notes_="$(data_structure_note)__*||*__$(layer_name)"
     summary_file = saving_summary_file(filepath;slurm_job_id=slurm_job_id,script_name=script_name,change_seeds = change_seeds,unique_time_id=unique_time_id,datafilename1=datafilename1,KMax=KMax, seed=seed,num_var_feat=num_var_feat,N=N,elbo_ep=elbo_ep,notes_=notes_,alpha0 = alpha0,gamma0 =gamma0 ,phi1 = phi1,phi2 = phi2,kappa1 = kappa1,kappa2 = kappa2,xi1 =xi1,xi2 = xi2,varphi1 = varphi1,varphi2 = varphi2,significance_prop=significance_prop,min_percent_cells=min_percent_cells,min_number_cells=min_number_cells,min_percent_of_genes=min_percent_of_genes,max_percent_of_genes=max_percent_of_genes,num_iter = num_iter,dataset_name = dataset_name,outdir = outdir,time_key = time_key,individuals_key = individuals_key,m_initialization_approach = m_initialization_approach,update_clusterwise=update_clusterwise, use_alt_representation=layer_name, check_cluster_interpretability_bool=check_cluster_interpretability_bool, gene_set_file_path=gene_set_file_path, samplebased_alpha0=samplebased_alpha0,);
     @add_variables_to_ordered_dict_as_string!(parameter_settings_to_reproduce_run,inputs[:dataparams].I,inputs[:dataparams].T,inputs[:dataparams].J,inputs[:dataparams].N_t,inputs[:dataparams].N,inputs[:dataparams].Jlog,inputs[:dataparams].logpi,inputs[:modelparams].K,inputs[:modelparams].alpha0,inputs[:modelparams].gamma0,inputs[:modelparams].phi1,inputs[:modelparams].phi2,inputs[:modelparams].kappa1,inputs[:modelparams].kappa2,inputs[:modelparams].xi1,inputs[:modelparams].xi2,inputs[:modelparams].varphi1,inputs[:modelparams].varphi2,inputs[:modelparams].nu0,inputs[:modelparams].sigma_sq_nu,inputs[:modelparams].significance_prop,inputs[:modelparams].min_number_cells,inputs[:modelparams].min_percent_cells,inputs[:modelparams].min_percent_of_genes,inputs[:modelparams].max_percent_of_genes,inputs[:modelparams].num_iter,inputs[:modelparams].uniform_theta_init,inputs[:modelparams].rand_init,inputs[:modelparams].change_seeds,inputs[:modelparams].init_seed);
-    _flushed_logger("Starting Variational Inference";logger)
     training_features_dict = nothing;
     #testting_convergence_monitoring(inputs;num_iter=100,use_log=true,eta_update_mode=eta_update_mode,lambda_update_mode=lambda_update_mode,sigma_update_mode=sigma_update_mode)
     elapsed_time = @elapsed begin
-        _flushed_logger("\t Model running now on $(Threads.nthreads()) threads...";logger)
         st = time();
         outputs_dict,training_features_dict = cavi(inputs;delta_rsum_ep =delta_rsum_ep,delta_rsum_lag = delta_rsum_lag,delta_occymean_ep = delta_occymean_ep,delta_occymean_lag = delta_occymean_lag,logger=logger,update_clusterwise=update_clusterwise,elbo_sign_change_max=elbo_sign_decrease_max_tolerance,check_cluster_interpretability_bool=check_cluster_interpretability_bool,train_h =train_h,train_w=train_w,train_ab=train_ab,train_uv=train_uv,multiple_s_sq_updates=multiple_s_sq_updates,eta_update_mode=eta_update_mode,sigma_update_mode=sigma_update_mode,lambda_update_mode=lambda_update_mode,burnin=burnin,remove_small_clusters=remove_small_clusters,use_log=true,train_m_nu=train_m_nu,train_s_sq_nu=train_s_sq_nu);
     end
@@ -682,78 +527,6 @@ function main(ARGS; logger=nothing)
     if !isnothing(cell_cluster_labels)
         println("ARI: $(Clustering.randindex(cell_cluster_labels,inferred_labels)[1])");
     end
-    # 
-    hcat(outputs_dict[:y_][unique(inferred_labels)]...)
-    y_ = hcat(outputs_dict[:y_][unique(inferred_labels)]...)#hcat([clusters[k].y for k in 1:5]...);
-    # hcat([[mean([ el in used_representation_feature_name[(y_ .>= 0.5)[:,k_]] for el in deg[:,"$(k)"]]) for k in sort(unique(cell_cluster_labels))] for k_ in 1:size(y_)[2]]...)
-    sum(y_ .>= 0.5,dims=1)
-    sum(sum(y_ .>= 0.5,dims=2) .> 0)
-    # mean([ el in used_representation_feature_name[sum(y_ .>= 0.5,dims=2) .> 0] for el in vec(reshape(Matrix(deg),(size(Matrix(deg))[1]*size(Matrix(deg))[2],1)))])
-    # adjy = hcat(outputs_dict[:y_][unique(inferred_labels)]...) .*((1 .-sum(hcat(outputs_dict[:y_][unique(inferred_labels)]...) .>= 0.5,dims=2) ./ 5) / (1 .- 1/5 ))
-    # [mean([ el in used_representation_feature_name[(adjy .>= 0.5)[:,k]] for el in deg[:,"$(k)"]]) for k in sort(unique(cell_cluster_labels))]
-    # sum(adjy .>= 0.5,dims=1)
-    # sum(sum(adjy .>= 0.5,dims=2) .> 0)
-    # mean([ el in used_representation_feature_name[sum(adjy .>= 0.5,dims=2) .> 0] for el in vec(reshape(Matrix(deg),(size(Matrix(deg))[1]*size(Matrix(deg))[2],1)))])
-    # sum(hcat(outputs_dict[:y_][unique(inferred_labels)]...),dims=1)
-    # sum(hcat(outputs_dict[:y_][unique(inferred_labels)]...) .>=0.5,dims=1)
-    # sum(hcat(outputs_dict[:y_][unique(inferred_labels)]...) .>=0.5,dims=2)
-    # sum(sum(hcat(outputs_dict[:y_][unique(inferred_labels)]...) .>=0.5,dims=2) .>= 1)
-    # hcat(outputs_dict[:m_mu_][unique(inferred_labels)]...)
-    # [[mean([ el in used_representation_feature_name[(hcat(outputs_dict[:y_][unique(inferred_labels)]...) .>= 0.5)[:,k_]] for el in deg[:,"$(k)"]]) for k in sort(unique(cell_cluster_labels))] for k_ in 1:length(unique(inferred_labels)) ]
-    # used_representation_feature_name[(hcat(outputs_dict[:y_][unique(inferred_labels)]...)[:,end] .>= 0.5) .&& (hcat(outputs_dict[:m_mu_][unique(inferred_labels)]...)[:,end] .> 0)]
-    # [[mean([ el in used_representation_feature_name[(hcat(outputs_dict[:y_][unique(inferred_labels)]...) .>= 0.5)[:,k_]] for el in deg[:,"$(k)"]]) for k in sort(unique(cell_cluster_labels))] for k_ in 1:length(unique(inferred_labels)) ]
-    # adjy = hcat(outputs_dict[:y_][unique(inferred_labels)]...) .*((1 .-sum(hcat(outputs_dict[:y_][unique(inferred_labels)]...) .>= 0.5,dims=2) ./ 5) / (1 .- minimum(sum(hcat(outputs_dict[:y_][unique(inferred_labels)]...) .>= 0.5,dims=2))/5 ))
-    # used_representation_feature_name[(adjy[:,end] .>= 0.5) .&& (hcat(outputs_dict[:m_mu_][unique(inferred_labels)]...)[:,end] .> 0)]
-    # intersect(Set(degnames[:,end]), Set(used_representation_feature_name[(adjy[:,end] .>= 0.5)]))
-    # hcat([var(used_representation[:,cell_cluster_labels .== el],dims=2) for el in unique(cell_cluster_labels)]...)
-    # hcat([var(used_representation[:,inferred_labels .== el],dims=2) for el in unique(inferred_labels)]...)
-    # (hcat(outputs_dict[:y_][unique(inferred_labels)]...) .>= 0.5) .* hcat([var(used_representation[:,inferred_labels .== el],dims=2) for el in unique(inferred_labels)]...)
-    # (hcat(outputs_dict[:y_][unique(inferred_labels)]...) .>= 0.5) .* (hcat(outputs_dict[:m_mu_][unique(inferred_labels)]...) .+ permutedims(hcat(outputs_dict[:m_nu_]...)))
-    # (hcat(outputs_dict[:y_][unique(inferred_labels)]...) .>= 0.5) .* (hcat(outputs_dict[:m_mu_][unique(inferred_labels)]...) .+ hcat(outputs_dict[:m_nu_][unique(inferred_labels)]...))
-    # (hcat(outputs_dict[:y_][unique(inferred_labels)]...) .>= 0.5) .* hcat(outputs_dict[:m_mu_][unique(inferred_labels)]...)
-    # hcat(outputs_dict[:s_sq_mu_][unique(inferred_labels)]...)
-    # hcat(outputs_dict[:h1_][unique(inferred_labels)]...)
-    # hcat(outputs_dict[:h2_][unique(inferred_labels)]...)
-    # hcat(outputs_dict[:h1_][unique(inferred_labels)]...) ./ (hcat(outputs_dict[:h2_][unique(inferred_labels)]...) .+ hcat(outputs_dict[:h1_][unique(inferred_labels)]...))
-    # permutedims(hcat(outputs_dict[:m_nu_]...))
-    # permutedims(hcat(outputs_dict[:m_nu_]...))[1,:]
-    # permutedims(hcat(outputs_dict[:s_sq_nu_]...))
-    # permutedims(hcat(outputs_dict[:s_sq_nu_]...))[1,:]
-    # permutedims(hcat(outputs_dict[:u_][unique(inferred_labels)]...))
-    # permutedims(hcat(outputs_dict[:v_][unique(inferred_labels)]...))
-    # hcat(outputs_dict[:v_][unique(inferred_labels)]...) ./ (hcat(outputs_dict[:u_][unique(inferred_labels)]...) .- 1)
-    # eta_scaling_post = hcat(outputs_dict[:v_][unique(inferred_labels)]...) ./ (hcat(outputs_dict[:u_][unique(inferred_labels)]...) .- 1)
-    # hcat(outputs_dict[:u_][unique(inferred_labels)]...) ./ (hcat(outputs_dict[:v_][unique(inferred_labels)]...))
-    # permutedims(hcat(outputs_dict[:v_][unique(inferred_labels)]...)) ./ (permutedims(hcat(outputs_dict[:u_][unique(inferred_labels)]...)) .- 1)
-    # permutedims(hcat(outputs_dict[:u_][unique(inferred_labels)]...)) ./ permutedims(hcat(outputs_dict[:v_][unique(inferred_labels)]...))
-    # permutedims(hcat(outputs_dict[:a_]...))
-    # permutedims(hcat(outputs_dict[:b_]...))
-    # hcat(outputs_dict[:b_][unique(inferred_labels)]...) ./ (hcat(outputs_dict[:a_][unique(inferred_labels)]...) .- 1)
-    # sigma_var_post = hcat(outputs_dict[:b_][unique(inferred_labels)]...) ./ (hcat(outputs_dict[:a_][unique(inferred_labels)]...) .- 1)
-    # (sigma_var_post .* eta_scaling_post) ./ (sigma_var_post .+  sigma_var_post .* eta_scaling_post)
-    # (sigma_var_prior .* eta_scaling_prior) ./ (sigma_var_prior .+  sigma_var_prior .* eta_scaling_prior)
-    # hcat(outputs_dict[:a_][unique(inferred_labels)]...) ./ (hcat(outputs_dict[:b_][unique(inferred_labels)]...))
-    # digamma.(hcat(outputs_dict[:h1_][unique(inferred_labels)]...)) - digamma.(hcat(outputs_dict[:h2_][unique(inferred_labels)]...)) .- 0.5 .* log.(2 .* pi .* hcat(outputs_dict[:s_sq_mu_][unique(inferred_labels)]...) .* exp(1)) .- 0.5 .* (log.(hcat(outputs_dict[:b_][unique(inferred_labels)]...)) .- digamma.(hcat(outputs_dict[:a_][unique(inferred_labels)]...)) .+ log.(hcat(outputs_dict[:v_][unique(inferred_labels)]...)) .- digamma.(hcat(outputs_dict[:u_][unique(inferred_labels)]...)) .- log.(hcat(outputs_dict[:s_sq_mu_][unique(inferred_labels)]...)) ) .+ 0.5 .* hcat(outputs_dict[:m_mu_][unique(inferred_labels)]...) .^ 2 ./ hcat(outputs_dict[:s_sq_mu_][unique(inferred_labels)]...)
-    # sigmoid.(digamma.(hcat(outputs_dict[:h1_][unique(inferred_labels)]...)) - digamma.(hcat(outputs_dict[:h2_][unique(inferred_labels)]...)) .- 0.5 .* log.(2 .* pi .* hcat(outputs_dict[:s_sq_mu_][unique(inferred_labels)]...) .* exp(1)) .- 0.5 .* (log.(hcat(outputs_dict[:b_][unique(inferred_labels)]...)) .- digamma.(hcat(outputs_dict[:a_][unique(inferred_labels)]...)) .+ log.(hcat(outputs_dict[:v_][unique(inferred_labels)]...)) .- digamma.(hcat(outputs_dict[:u_][unique(inferred_labels)]...)) .- log.(hcat(outputs_dict[:s_sq_mu_][unique(inferred_labels)]...)) ) .+ 0.5 .* hcat(outputs_dict[:m_mu_][unique(inferred_labels)]...) .^ 2 ./ hcat(outputs_dict[:s_sq_mu_][unique(inferred_labels)]...))
-    # permutedims(hcat(outputs_dict[:b_]...)) ./ (permutedims(hcat(outputs_dict[:a_]...)) .- 1)
-    # permutedims(hcat(outputs_dict[:a_]...)) ./ permutedims(hcat(outputs_dict[:b_]...))
-    # permutedims(hcat(outputs_dict[:Nk_][unique(inferred_labels)]...))
-    # print([ sum(el .>=0.5)/length(el)  for el in outputs_dict[:y_]])  
-    # feature_median = median(used_representation,dims=2)
-    # biggest_cluster =  sortperm(outputs_dict[:Nk_],rev=true)[1]
-    # _tausq = ((outputs_dict[:v_][biggest_cluster] * outputs_dict[:b_][biggest_cluster]) / ((outputs_dict[:u_][biggest_cluster] -1)*(outputs_dict[:a_][biggest_cluster] -1)))
-    # _sigmasq_nk =(outputs_dict[:b_] ./(outputs_dict[:a_]  .-1)) # outputs_dict[:Nk_][biggest_cluster] * 
-    # _sigmasq =(outputs_dict[:b_] ./(outputs_dict[:a_])) # outputs_dict[:Nk_][biggest_cluster] * 
-    # _e_ln_eta = e_ln_eta(outputs_dict[:h1_][biggest_cluster],outputs_dict[:h2_][biggest_cluster]) #outputs_dict[:h1_][biggest_cluster] / (outputs_dict[:h2_][biggest_cluster] + outputs_dict[:h1_][biggest_cluster])
-    # _e_ln_minus_eta = e_ln_minus_eta(outputs_dict[:h1_][biggest_cluster],outputs_dict[:h2_][biggest_cluster]) #outputs_dict[:h2_][biggest_cluster] / (outputs_dict[:h2_][biggest_cluster] + outputs_dict[:h1_][biggest_cluster])
-    # _e_ln_sigma_sq_nk = e_ln_sigma_sq.(outputs_dict[:a_],outputs_dict[:b_])# .- log(outputs_dict[:Nk_][biggest_cluster])
-    # _e_ln_sigma_sq_nk_tausq = e_ln_sigma_sq.(outputs_dict[:a_],outputs_dict[:b_]) .+ e_ln_lambda(outputs_dict[:u_][biggest_cluster],outputs_dict[:v_][biggest_cluster]) #.- log(outputs_dict[:Nk_][biggest_cluster])
-    #  _sigma_over_nk = (outputs_dict[:b_] ./(outputs_dict[:a_] .-1)) .* (1 ./outputs_dict[:Nk_][biggest_cluster])
-    #  _tausq = (outputs_dict[:v_][biggest_cluster] .* outputs_dict[:b_]) ./ ((outputs_dict[:u_][biggest_cluster] .-1) .*(outputs_dict[:a_] .-1))
-    #  _post_log_odds =  log((outputs_dict[:h1_][biggest_cluster] / (outputs_dict[:h2_][biggest_cluster] .+ outputs_dict[:h1_][biggest_cluster])) /(outputs_dict[:h2_][biggest_cluster] / (outputs_dict[:h2_][biggest_cluster] .+ outputs_dict[:h1_][biggest_cluster])))
-    # sq_diff = (feature_median .- outputs_dict[:m_][biggest_cluster]).^2 
-    # _post_log_odds .+ 0.5 .* (_tausq ./(_tausq .+ _sigma_over_nk)) .* 1 ./_sigma_over_nk .* sq_diff + log.( (_sigma_over_nk) ./ (_tausq .+ _sigma_over_nk))
-    # 
     final_elbo = outputs_dict[:LB][end];
     truncation_value = outputs_dict[:truncation_value];
     is_converged = outputs_dict[:is_converged];

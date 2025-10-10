@@ -9,6 +9,7 @@ Nclusion.remove_small_clusters!
 Nclusion.extract_cluster_paramter
 Nclusion.extract_scalars_paramter
 Nclusion.extract_gene_paramter
+Nclusion.extract_condition_paramter
 Nclusion.extract_elbo_vals_perK
 Nclusion.extract_r_paramter
 Nclusion.extract_c_paramter
