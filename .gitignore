@@ -1,7 +1,6 @@
 *.jl.*.cov
 *.jl.cov
 *.jl.mem
-*.lock
 .julia_depot/*
 */__pycache__/*
 .venv/*
